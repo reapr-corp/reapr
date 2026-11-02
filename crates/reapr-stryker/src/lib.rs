@@ -454,6 +454,15 @@ mod tests {
         assert_eq!(StrykerAdapter.detect(dir.path()).await.unwrap(), None);
     }
 
+    #[tokio::test]
+    async fn detect_unreadable_package_json_is_an_io_error() {
+        // A package.json that exists but cannot be read is an error, not "no Stryker here".
+        let dir = tempfile::tempdir().unwrap();
+        fs::create_dir(dir.path().join("package.json")).unwrap();
+        let err = StrykerAdapter.detect(dir.path()).await.unwrap_err();
+        assert!(matches!(err, AdapterError::Io { .. }), "{err:?}");
+    }
+
     // ---- wrapper ----
 
     #[test]
@@ -987,6 +996,24 @@ mod tests {
             }
             other => panic!("expected Process, got {other:?}"),
         }
+    }
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn run_with_an_unreadable_report_is_an_io_error() {
+        // The report path exists but is a directory: an I/O error, not "Stryker wrote no report".
+        let Some(dir) = project_with_fake_stryker("mkdir \"$(dirname \"$2\")/mutation.json\"")
+        else {
+            return;
+        };
+        let err = StrykerAdapter
+            .run(
+                &ctx(dir.path(), Some("stryker.config.mjs")),
+                &shard(vec![range("src/a.ts", 1, 1)]),
+            )
+            .await
+            .unwrap_err();
+        assert!(matches!(err, AdapterError::Io { .. }), "{err:?}");
     }
 
     #[tokio::test]

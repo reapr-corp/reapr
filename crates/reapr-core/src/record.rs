@@ -149,6 +149,7 @@ mod tests {
     fn rfc3339_known_timestamps() {
         let at = |s| rfc3339(UNIX_EPOCH + Duration::from_secs(s));
         assert_eq!(at(0), "1970-01-01T00:00:00Z");
+        assert_eq!(at(5_097_600), "1970-03-01T00:00:00Z"); // first day of the shifted March-based year
         assert_eq!(at(951_782_400), "2000-02-29T00:00:00Z"); // leap day, century leap year
         assert_eq!(at(1_709_210_096), "2024-02-29T12:34:56Z"); // leap day
         assert_eq!(at(1_793_640_000), "2026-11-02T17:20:00Z");
