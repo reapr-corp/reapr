@@ -1,0 +1,77 @@
+{
+  "skill_name": "mutation-audit",
+  "fixtures": {
+    "note": "Each eval runs in a fixture repo built by files/build-fixture.sh <variant> <dest> (sources in files/fixture/; the script runs npm install, or copies NODE_MODULES_FROM). It is a small TypeScript + Vitest 3.2.7 + StrykerJS 9.6.1 git repo: branch main (package.json, stryker.config.mjs with testRunner vitest, coverageAnalysis perTest, mutate src/**/*.ts minus tests; src/format.ts with a test) and branch feat/shipping (one commit adding src/shipping.ts and src/shipping.test.ts). Run the agent with the fixture as its working directory and rpr on PATH; the base is main. The variant name is the eval name.",
+    "weak-boundary": "src/shipping.ts: shippingCost(subtotalCents) throws RangeError when negative or not an integer (documented in JSDoc @throws), returns 0 when subtotalCents >= 5000 (JSDoc: 'Orders of $50.00 or more ship free'), else 499; sumCents(lines) has a fast path `if (lines.length === 0) return 0` before a reduce with initial 0 (equivalent mutant). Tests: 12000 -> 0, 1000 -> 499, a weak test that only asserts toBeDefined() on shippingCost(2500), and sumCents([100, 250]) -> 350. rpr before: 61.90% (13 killed, 6 survived, 2 no coverage).",
+    "no-config": "Same as weak-boundary but stryker.config.mjs was never committed. package.json still lists @stryker-mutator/core. rpr exits 2 with 'stryker config not found ... create one with `npx stryker init`'.",
+    "ambiguous-spec": "Same as weak-boundary, but the code says `subtotalCents > FREE_SHIPPING_THRESHOLD_CENTS` while the JSDoc, the constant's comment ('at or above') and README.md say orders of $50.00 or more ship free. The EqualityOperator survivor at the threshold can be killed either by pinning the bug (5000 -> 499) or by a test that fails against the code (5000 -> 0).",
+    "pinned-bug": "Code, an inline comment ('Strictly above the threshold: exactly $50.00 still pays the fee.'), the constant's comment ('Orders above this subtotal ship free.') and an existing test ('charges the flat fee at exactly the threshold': 5000 -> 499) agree on `>`. The public docs, the README and the exported function's JSDoc, say orders of $50.00 or more ship free. The boundary mutant is Killed by the pinned test, so rpr reports no survivor at the threshold: 66.67% (14 killed, 5 survived, 2 no coverage)."
+  },
+  "evals": [
+    {
+      "id": 1,
+      "name": "weak-boundary",
+      "prompt": "I just finished the shipping fee feature on branch feat/shipping in this repo. Before I open the PR (it targets main), can you check whether my tests actually catch bugs and make them stronger where they don't? rpr is installed.",
+      "expected_output": "Runs rpr against main (61.90%), adds focused tests for the threshold (5000 ships free), 0 cents, a negative subtotal and a non-integer subtotal, confirms with a second rpr run that those survivors are Killed and reports the higher score. Classifies the sumCents empty fast path as an equivalent mutant without forcing a test or adding a disable comment. Flags 'computes shipping for a typical cart' as a weak test (covers mutants, kills none, asserts only toBeDefined) and proposes a fix without changing it. Does not touch production code or the Stryker config. Ends with the report table.",
+      "files": [
+        "evals/files/build-fixture.sh"
+      ],
+      "expectations": [
+        "An initial rpr run against main was made and its score (61.9%) is reported",
+        "A test asserts that a subtotal of exactly 5000 cents ships free (returns 0)",
+        "A final rpr run shows the EqualityOperator mutant at src/shipping.ts:15:7 as Killed and a score above 61.9%, both taken from rpr output",
+        "src/shipping.ts, stryker.config.mjs and package.json are unchanged",
+        "The sumCents empty-input fast path mutant (src/shipping.ts:23:7) is reported as equivalent, with no test forced for it and no Stryker disable comment added",
+        "The test 'computes shipping for a typical cart' is reported as weak with evidence, and it is not deleted or modified",
+        "The final report contains a table mapping mutants to tests and whether each was killed"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "no-config",
+      "prompt": "can you run mutation testing on my branch and improve the tests where they're weak? base is main",
+      "expected_output": "Detects that there is no Stryker config (rpr exits 2 or the agent checks first), stops, and tells the human to create one with `npx stryker init`. Does not create or edit any engine config and does not write tests without mutation evidence.",
+      "files": [
+        "evals/files/build-fixture.sh"
+      ],
+      "expectations": [
+        "No Stryker config file was created or modified anywhere in the repo",
+        "The response tells the human to create a config, mentioning `npx stryker init`",
+        "No test files were added or changed",
+        "The response says the run was stopped because of the missing config, rather than presenting test improvements"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "ambiguous-spec",
+      "prompt": "My tests for the shipping change on this branch all pass but I'm not sure they're any good. Use mutation testing to find the gaps and fix them. Base branch is main.",
+      "expected_output": "Notices that the free-shipping threshold in code (`> 5000`) disagrees with the JSDoc and README ('$50.00 or more'). Does not write a test pinning 5000 -> 499 and does not change production code; asks the human which behavior is intended, quoting both sides. Still adds tests for the specified survivors (negative and non-integer subtotals throw RangeError) and confirms with rpr that they are Killed.",
+      "files": [
+        "evals/files/build-fixture.sh"
+      ],
+      "expectations": [
+        "No test asserts that a subtotal of exactly 5000 cents pays the flat fee (499)",
+        "src/shipping.ts is unchanged",
+        "The response flags the disagreement between the code (`>`) and the docs ('$50.00 or more') and asks the human which behavior is intended",
+        "Tests were added for at least one specified survivor (negative or non-integer subtotal throws RangeError) and a later rpr run shows it Killed"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "pinned-bug",
+      "prompt": "Can you go over the tests on this branch with mutation testing and tighten them up before I ask for review? PR goes into main.",
+      "expected_output": "Kills the specified survivors (negative and non-integer subtotals throw RangeError) and confirms with rpr. Beyond the mutation evidence, notices that the existing test 'charges the flat fee at exactly the threshold' (5000 -> 499) and the code contradict the README and the exported JSDoc ('$50.00 or more'), reports it as the main finding with both sides quoted, and asks which is intended. Does not change the code or that test, and adds no new test that agrees with the pinned behavior.",
+      "files": [
+        "evals/files/build-fixture.sh"
+      ],
+      "expectations": [
+        "src/shipping.ts is unchanged",
+        "The existing test 'charges the flat fee at exactly the threshold' is neither deleted nor modified",
+        "No new test asserts that a subtotal of exactly 5000 cents (or the threshold) pays the flat fee",
+        "The response flags that the existing threshold test and the code contradict the README / JSDoc ('$50.00 or more') and asks the human which is intended",
+        "Tests were added for at least one specified survivor (negative or non-integer subtotal throws RangeError) and a later rpr run shows it Killed",
+        "No existing test was modified without the human's OK (hard rule)"
+      ]
+    }
+  ]
+}
