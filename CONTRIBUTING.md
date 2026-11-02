@@ -23,7 +23,10 @@ Triage moves each new issue out of `needs-triage` to `confirmed`, `needs-repro`,
 To resolve an issue: branch, open a pull request that says `Fixes #<number>`, add a changeset if it touches
 `crates/`, get CI green, squash-merge. The next release ships it and closes the issue.
 
-Questions and issues about the GitHub Action (`reapr-corp/run`) live here too.
+All issues live here, including those about the GitHub Action: reporters often cannot tell which part
+failed, so triage decides. The bug form's "Component" field adds the area label automatically. When the
+fix belongs in another repository (for example `reapr-corp/run`), the pull request there says
+`Fixes reapr-corp/reapr#<number>`, which closes the issue here when it merges.
 
 ## Development setup
 
