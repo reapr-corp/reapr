@@ -12,8 +12,7 @@ pub fn double(n: u32) -> u32 {
     n * 2
 }
 
-/// Timeout: `n /= 1` never ends the loop.
-/// `u64` so `n += 1` cannot overflow (a panic, i.e. killed) before the timeout on a fast CPU.
+/// Timeout: `n /= 1` never ends the loop (u64: `n += 1` cannot overflow first on a fast CPU).
 pub fn countdown(mut n: u64) -> u64 {
     let start = n;
     while n > 0 {
