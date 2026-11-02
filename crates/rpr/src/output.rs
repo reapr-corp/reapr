@@ -30,7 +30,7 @@ pub struct Summary {
     pub resources: Option<Resources>,
     /// The adapter found nothing to mutate in scope (no report).
     #[serde(skip)]
-    nothing_to_mutate: bool,
+    pub nothing_to_mutate: bool,
 }
 
 #[derive(Serialize, Debug)]
