@@ -298,8 +298,8 @@ rpr run --diff <base> [--json] [--min-score <N>] [--config <path>] [--project <d
 
 ## Distribution
 
-- `dist` (cargo-dist 0.34) for x86_64/aarch64 Linux (gnu), x86_64/aarch64 macOS, x86_64 Windows (msvc); shell
-  and PowerShell installers; GitHub CI; repo `reapr-corp/reapr`.
+- Phase 1 supports Linux only (tested on Ubuntu); macOS and Windows are planned. `dist` (cargo-dist 0.34) for
+  x86_64/aarch64 Linux (gnu); shell installer; GitHub CI on Ubuntu; repo `reapr-corp/reapr`.
 - `reapr-corp/run` (separate repo, `../run/action.yml`): composite action. Inputs `base` (default
   `${{ github.base_ref }}`), `min-score`, `config`, `working-directory`, `version` (default `latest`). Installs
   through the dist installer from the release, fetches the base ref, runs `rpr run --diff origin/<base> --json`,

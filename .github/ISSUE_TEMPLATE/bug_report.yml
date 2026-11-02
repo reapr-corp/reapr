@@ -21,8 +21,9 @@ body:
   - type: input
     id: os
     attributes:
-      label: OS
-      placeholder: Ubuntu 24.04 x86_64 / macOS 15 arm64 / Windows 11, local or CI
+      label: Linux distribution and version
+      description: Phase 1 supports Linux only (x86_64 and aarch64).
+      placeholder: Ubuntu 24.04 x86_64, local or CI
     validations:
       required: true
   - type: input
