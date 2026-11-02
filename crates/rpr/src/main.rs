@@ -11,8 +11,8 @@ use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 use reapr_cargo_mutants::CargoMutantsAdapter;
 use reapr_core::{
-    AdapterError, Detection, MutationEngineAdapter, MutationScope, RunContext, RunOutcome, Shard,
-    diff, record, store,
+    AdapterError, Detection, FileRange, MutationEngineAdapter, MutationScope, RunContext,
+    RunOutcome, Shard, diff, record, store,
 };
 use reapr_stryker::StrykerAdapter;
 
@@ -27,7 +27,8 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
-    /// Mutate the lines changed since <base> with the project's own engine config.
+    /// Mutate the lines changed since <base> (or, with --all, every tracked file) with the project's
+    /// own engine config.
     Run(RunArgs),
     /// Show or change anonymous usage telemetry (see TELEMETRY.md).
     Telemetry {
@@ -37,10 +38,15 @@ enum Command {
 }
 
 #[derive(clap::Args)]
+// Exactly one scope: `--diff <BASE>` or `--all`.
+#[command(group = clap::ArgGroup::new("scope").required(true).args(["base", "all"]))]
 struct RunArgs {
     /// Base ref to diff against (`<base>...HEAD`), e.g. origin/main.
     #[arg(long = "diff", value_name = "BASE", value_parser = parse_base)]
-    base: String,
+    base: Option<String>,
+    /// Mutate every git-tracked file under the project dir instead of a diff (a whole-project audit).
+    #[arg(long)]
+    all: bool,
     /// Print a single JSON document on stdout instead of the human summary.
     #[arg(long)]
     json: bool,
@@ -63,6 +69,7 @@ impl RunArgs {
     /// The names of the optional flags given, for telemetry (names only, never values).
     fn flag_names(&self) -> Vec<&'static str> {
         [
+            ("all", self.all),
             ("json", self.json),
             ("min_score", self.min_score.is_some()),
             ("config", self.config.is_some()),
@@ -268,9 +275,14 @@ async fn run(args: RunArgs) -> Result<(Summary, Option<String>)> {
     };
     let (engine, config) = select_engine(&project_dir, args.engine, config).await?;
 
-    let ranges = diff::changed_ranges(&project_dir, &args.base)
-        .await
-        .with_context(|| format!("failed to compute the diff vs {}", args.base))?;
+    let ranges = match &args.base {
+        Some(base) => diff::changed_ranges(&project_dir, base)
+            .await
+            .with_context(|| format!("failed to compute the diff vs {base}"))?,
+        None => all_ranges(&project_dir)
+            .await
+            .context("failed to list the git-tracked files")?,
+    };
 
     let git_dir = store::git_dir(&project_dir)
         .await
@@ -278,7 +290,9 @@ async fn run(args: RunArgs) -> Result<(Summary, Option<String>)> {
     let (run_id, run_dir) = store::new_run_dir(&git_dir)
         .with_context(|| format!("failed to create a run dir in {}", git_dir.display()))?;
     // Before the engine runs: the facts describe the commit that was tested.
-    let (git, git_warnings) = record::git_facts(&project_dir, &args.base).await;
+    // `--all` has no base: HEAD gives the tested commit and no commit list.
+    let (git, git_warnings) =
+        record::git_facts(&project_dir, args.base.as_deref().unwrap_or("HEAD")).await;
 
     // Empty diff scope: nothing to mutate, the engine is not started.
     let mut outcome = if ranges.is_empty() {
@@ -338,6 +352,56 @@ async fn run(args: RunArgs) -> Result<(Summary, Option<String>)> {
         )
     })?;
     Ok((summary, engine_version))
+}
+
+/// `--all`: every git-tracked file under `project_dir` (`git ls-files`, paths relative to it), each as
+/// one range over all its lines, so each adapter intersects it with its own config as it does a diff.
+/// Binary files (a NUL in the first 8000 bytes, git's own test), empty files and tracked files that
+/// are gone from the work tree are skipped.
+async fn all_ranges(project_dir: &Path) -> Result<Vec<FileRange>> {
+    let out = tokio::process::Command::new("git")
+        .args(["ls-files", "-z"])
+        .current_dir(project_dir)
+        .stdin(std::process::Stdio::null())
+        .output()
+        .await
+        .context("failed to run `git ls-files`")?;
+    if !out.status.success() {
+        anyhow::bail!(
+            "`git ls-files` failed (exit code {:?}): {}",
+            out.status.code(),
+            String::from_utf8_lossy(&out.stderr).trim()
+        );
+    }
+    let mut ranges = Vec::new();
+    for rel in String::from_utf8_lossy(&out.stdout).split_terminator('\0') {
+        let path = project_dir.join(rel);
+        // Submodules (directories) and deleted files are not mutable files.
+        if !tokio::fs::metadata(&path).await.is_ok_and(|m| m.is_file()) {
+            continue;
+        }
+        let bytes = tokio::fs::read(&path)
+            .await
+            .with_context(|| format!("failed to read {}", path.display()))?;
+        if bytes[..bytes.len().min(8000)].contains(&0) {
+            continue;
+        }
+        // `str::lines` counting: a last line without `\n` still counts.
+        let lines = bytes.iter().filter(|&&b| b == b'\n').count()
+            + usize::from(bytes.last().is_some_and(|&b| b != b'\n'));
+        if lines > 0 {
+            ranges.push(FileRange {
+                path: rel.into(),
+                start: 1,
+                end: u32::try_from(lines).unwrap_or(u32::MAX),
+            });
+        }
+    }
+    // The core's order (by path, then start), as `changed_ranges` returns. A file with a merge
+    // conflict is listed once per stage.
+    ranges.sort_by(|a, b| a.path.cmp(&b.path));
+    ranges.dedup_by(|a, b| a.path == b.path);
+    Ok(ranges)
 }
 
 /// The engine and its config: `--engine`, else the engine `--config`'s file name belongs to, else the

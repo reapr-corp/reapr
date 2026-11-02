@@ -71,7 +71,8 @@ new one per run). It is not derived from anything about you or the machine. `tim
 | `build` | `"release"` | `debug` for a debug build (`cargo build`, `cargo run`), else `release`. Why: development runs are filtered out of every chart. |
 | `project_id` | `"cad1fb6d3fe90e6cebcffe875d929949"` | Anonymous project fingerprint (recipe below); `null` outside a git repository, in a shallow clone, or when git fails or takes over a second. Why: active projects per week, without knowing which projects they are. |
 | `cpu_count` | `4` | Available parallelism. |
-| `flags` | `["json", "min_score"]` | Names of the optional flags given: `json`, `min_score`, `config`, `engine`, `project`. Never their values. `--diff` is always given and is not listed. |
+| `flags` | `["json", "min_score"]` | Names of the optional flags given: `all`, `json`, `min_score`, `config`, `engine`, `project`. Never their values. `--diff` is not listed. |
+| `scope_mode` | `"diff"` | `diff` (`--diff`) or `all` (`--all`, a whole-project run). Why: how often Reapr is used to audit a whole codebase instead of a diff. |
 | `engine` | `"stryker"` | Engine id: `stryker` or `cargo-mutants`; `null` on errors. |
 | `engine_version` | `"9.6.1"` | The engine's version; `null` when unknown, on errors, or when it has any character other than letters, digits, `.`, `+` or `-`. |
 | `outcome` | `"passed"` | `passed`, `min_score_failed`, `engine_gate_failed`, `nothing_to_mutate` or `error`. |

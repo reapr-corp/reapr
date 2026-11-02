@@ -110,11 +110,15 @@ rpr run --diff origin/main --project packages/lib --config packages/lib/stryker.
 
 # A repo where several engines are detected (a Rust crate with a JS frontend): pick one.
 rpr run --diff origin/main --engine cargo-mutants
+
+# Whole-project audit: every git-tracked file, not a diff.
+rpr run --all
 ```
 
 | Flag | Meaning |
 |---|---|
-| `--diff <BASE>` | Required. Base ref; the diff is `<BASE>...HEAD`. Must not start with `-`. |
+| `--diff <BASE>` | Base ref; the diff is `<BASE>...HEAD`. Must not start with `-`. Required unless `--all`. |
+| `--all` | Mutate every git-tracked file under the project directory, in full, instead of a diff. Not with `--diff`. |
 | `--json` | Print a single JSON document on stdout instead of the human summary. |
 | `--min-score <N>` | Fail (exit 1) when the score is below `N` percent (0 to 100). |
 | `--config <PATH>` | Engine config file. Skips config detection. Its file name picks the engine when it is one the engine looks for (`stryker.config.mjs` and Stryker's other names, `mutants.toml`). |
@@ -123,6 +127,12 @@ rpr run --diff origin/main --engine cargo-mutants
 
 Relative paths in `--config` and `--project` resolve against the current directory. Only changed files inside
 the project directory count.
+
+`--all` is for auditing a whole codebase. Reapr lists the tracked files (`git ls-files`) under the project
+directory and gives each engine every line of each one (binary and empty files are skipped). The engine then
+narrows that scope with its own config, as it does a diff: Stryker keeps what your `mutate` patterns select,
+cargo-mutants what it would mutate in a plain `cargo mutants` run. Lines are read from the work tree, so
+uncommitted edits to tracked files count; untracked files do not.
 
 ### Engine and config detection
 
@@ -198,7 +208,8 @@ survivors:
 run: /home/me/repo/.git/reapr/runs/1793640000-4242
 ```
 
-When nothing in the diff is mutated, the second line reads `nothing to mutate in diff vs origin/main`.
+When nothing in the diff is mutated, the second line reads `nothing to mutate in diff vs origin/main`. With
+`--all`, both lines say `all files` instead of `diff vs <base>`.
 
 ### Score
 
@@ -252,7 +263,7 @@ With `--json`, stdout holds one JSON document and nothing else.
 | `run_id` | string | `<unix seconds>-<pid>`. |
 | `run_dir` | string | Absolute path of the run directory. |
 | `engine` | string | `stryker` or `cargo-mutants`. |
-| `base` | string | The `--diff` value, as given. |
+| `base` | string or null | The `--diff` value, as given. `null` with `--all`. |
 | `ranges` | array | Changed line ranges from the diff: `path` (relative to the project directory), `start`, `end` (1-based, inclusive). Before your `mutate` patterns are applied. |
 | `score` | number or null | Percent. `null` when nothing was mutated or there were no valid mutants. |
 | `counts` | object | Mutants in scope per status: `killed`, `survived`, `no_coverage`, `timeout`, `compile_error`, `runtime_error`, `ignored`, `pending`. |
@@ -295,7 +306,8 @@ so worktrees never share runs. Reapr never sends this data anywhere and never de
 | Field | Meaning |
 |---|---|
 | `run_id` | Same as in the JSON output. |
-| `git` | `head_sha`, `base`, `merge_base_sha`, and `commits` in `merge_base..HEAD`: `sha`, `author_email`, and `trailers` as written (for example `Co-Authored-By: ...`). |
+| `scope` | `diff` (`--diff`) or `all` (`--all`). |
+| `git` | `head_sha`, `base`, `merge_base_sha`, and `commits` in `merge_base..HEAD`: `sha`, `author_email`, and `trailers` as written (for example `Co-Authored-By: ...`). With `--all`, `base` is `HEAD` and `commits` is empty. |
 | `engine`, `engine_version` | For StrykerJS, the version of `@stryker-mutator/core` that Node resolves from the project directory; for cargo-mutants, the version `cargo mutants --version` prints. |
 | `started_at` | When Reapr started, RFC 3339 UTC. |
 | `duration_ms` | Engine wall time, the same window as `resources`. |
@@ -405,7 +417,8 @@ against 87.8 with bail off). This last one is why Reapr warns about bail, and wh
 ## Known limitations
 
 - Only committed changes count: the diff is `<base>...HEAD`, so uncommitted and untracked changes are not
-  mutated.
+  mutated. (`--all` reads the tracked files from the work tree, so it includes uncommitted edits, but still
+  not untracked files.)
 - cargo-mutants mutates the working tree. Uncommitted edits to a changed Rust file shift its lines against the
   committed diff, so the ranges can select different code; commit or stash first.
 - A `mutate` entry in your config that carries its own range (`src/a.ts:1-9`) never matches; use plain globs.

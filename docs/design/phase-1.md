@@ -192,7 +192,7 @@ becomes a warning and leaves its fact empty (`null` / `[]`). Facts come from `re
 `version` of the `@stryker-mutator/core` package Node resolves from project_dir; cargo-mutants: what
 `cargo mutants --version` prints).
 
-- `run_id`.
+- `run_id`, `scope` (`diff` or `all`).
 - git: `head_sha`, `base`, `merge_base_sha`; commits in `merge_base..HEAD`: sha, author email, trailers
   (e.g. `Co-Authored-By`) as written (`git log -z --format=%H%x1f%ae%x1f%(trailers:only,unfold)`,
   raw `Key: value` strings).
@@ -218,6 +218,8 @@ becomes a warning and leaves its fact empty (`null` / `[]`). Facts come from `re
 - Otherwise, `package.json` (dependencies, devDependencies) mentions `@stryker-mutator/core`, `vitest` or `jest`
   → `Detection { config: None, reason: "..." }`. `run` then fails with `ConfigMissing` and a hint
   (`npx stryker init`). Reapr never generates a config.
+- No `package.json` → `Ok(None)`. One that exists but cannot be read (a directory, permission denied) →
+  `AdapterError::Io`, not "no Stryker".
 - `--config <path>` on the CLI skips detection of the config file (a monorepo can have one config per package).
 
 ### run (two Node steps, both via `node`, cwd = project_dir)
@@ -247,7 +249,8 @@ becomes a warning and leaves its fact empty (`null` / `[]`). Facts come from `re
    The private report path means a stale report can never be read.
 4. `npx --no-install stryker run <wrapper>`, cwd = project_dir, stdin null, stdout and stderr → our stderr,
    awaited. Afterwards:
-   - No report → `AdapterError::Process` with the exit code.
+   - No report → `AdapterError::Process` with the exit code. A report path that exists but cannot be read (a
+     directory, permission denied) → `AdapterError::Io`.
    - Report and exit 0 → parse it, `engine_gate_failed = false`. Exit 1 and `thresholds_break` (Stryker sets
      exit code 1 only for a score under a numeric `thresholds.break`, `mutation-test-report-helper.js`) →
      `engine_gate_failed = true`. Any other non-zero exit → `AdapterError::Process` naming the report path,
@@ -302,7 +305,7 @@ Verified against cargo-mutants 26.2.0 and 27.1.0 (`SUPPORTED_VERSIONS = >=26.2.0
 ## rpr (CLI)
 
 ```
-rpr run --diff <base> [--json] [--min-score <N>] [--config <path>] [--engine <stryker|cargo-mutants>] [--project <dir>]
+rpr run (--diff <base> | --all) [--json] [--min-score <N>] [--config <path>] [--engine <stryker|cargo-mutants>] [--project <dir>]
 rpr telemetry [status|enable|disable]
 ```
 
@@ -311,6 +314,13 @@ rpr telemetry [status|enable|disable]
   config file name `--config` has, else detection; more than one engine detected → error asking for
   `--engine`. Then detect the config (unless `--config`), compute ranges,
   create run dir, collect git facts, run one shard, store `report.json` and `run.json`, print.
+- `--all` (exactly one of `--diff` and `--all` is required): the ranges are every file `git ls-files -z` lists
+  under the project dir, each `1..=line_count` from the work tree (binary files, by git's own test of a NUL in
+  the first 8000 bytes, empty files and tracked files missing from the work tree are skipped). The adapters
+  get a `MutationScope` like any other and intersect it with their engine config unchanged: Stryker with the
+  config's `mutate` globs (`plan.mjs`), cargo-mutants through the synthesized `--in-diff`, which then selects
+  the same mutants as a plain `cargo mutants` (checked with `--list`). Git facts use `HEAD` as the base, so
+  `merge_base_sha` is HEAD and `commits` is empty; `run.json` has `scope: "all"` (else `"diff"`).
 - Human output (stdout):
   ```
   rpr · stryker · diff vs origin/main · 12 ranges in 4 files
@@ -319,11 +329,12 @@ rpr telemetry [status|enable|disable]
     packages/lib/src/x.ts:42:7  ConditionalExpression  → false
   run: /home/me/repo/.git/reapr/runs/1793640000-4242
   ```
-  Empty diff scope: `nothing to mutate in diff vs <base>`. Warnings go to stderr.
+  Empty diff scope: `nothing to mutate in diff vs <base>`. With `--all`, `all files` replaces `diff vs <base>`
+  in both lines. Warnings go to stderr.
 - `--json` (stdout, nothing else on stdout):
   `{ run_id, run_dir, engine, base, ranges, score, counts, survivors: [{file, line, column, mutator, replacement,
   status}], duration_ms, min_score, passed, engine_gate_failed, warnings, resources }`. `score` is `null` when
-  nothing was mutated. `run_dir` is absolute. The git commits list is only in `run.json`. On exit 2 (also for
+  nothing was mutated; `base` is `null` with `--all`. `run_dir` is absolute. The git commits list is only in `run.json`. On exit 2 (also for
   argument errors caught by clap), stdout holds `{"error": "<message>"}` instead; `--help` and `--version`
   print normally and exit 0.
 - Exit codes: 0 pass; 1 score < `--min-score` or `engine_gate_failed`; 2 any error. No valid mutants → pass.
@@ -339,6 +350,7 @@ every property, is [TELEMETRY.md](../../TELEMETRY.md).
 - Transport: spawn `curl -sS -m 1 -X POST -H 'Content-Type: application/json' --data-binary @- <capture URL>`,
   write the JSON to its stdin, `tokio::time::timeout` 1.5 s on the child, then kill. No HTTP client dependency;
   no curl → nothing sent; every failure is silent.
+- `flags` lists the optional flags by name (`all` included); `scope_mode` is `diff` or `all`.
 - Properties are numbers, bools, fixed enums and buckets only: no free text. Errors map to an `error_kind`
   enum by downcasting the `anyhow` chain (`CliError`, `AdapterError`, `DiffError`, `io::Error`) in one
   function; warnings map to a `warning_kinds` enum by their adapter text; versions pass only if they are
