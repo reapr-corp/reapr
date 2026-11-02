@@ -401,6 +401,16 @@ new mode 100755
         assert_eq!(parse_unified_zero(d), vec![r("a.patch", 1, 2)]);
     }
 
+    #[test]
+    fn header_like_content_does_not_move_later_hunks_to_another_file() {
+        // The added line `++ b/fake.ts` follows a removed line, then a second hunk in the same file.
+        let d = "+++ b/a.patch\n@@ -1 +1 @@\n-x\n+++ b/fake.ts\n@@ -5 +5 @@\n-p\n+q\n";
+        assert_eq!(
+            parse_unified_zero(d),
+            vec![r("a.patch", 1, 1), r("a.patch", 5, 5)]
+        );
+    }
+
     fn git(dir: &Path, args: &[&str]) {
         let status = std::process::Command::new("git")
             .args(args)
