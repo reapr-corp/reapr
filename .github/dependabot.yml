@@ -4,7 +4,13 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # Dependency bumps need no changeset; the changeset check honours this label.
+    labels: [dependencies, no-changeset]
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    labels: [dependencies, no-changeset]
+    ignore:
+      # Its tags carry a `cargo-` prefix that dependabot misorders (it proposed a downgrade); bump by hand.
+      - dependency-name: bruits/sampo
