@@ -25,6 +25,7 @@ verdict, and raw timing data for every run) that the speed work will be measured
 - [Output](#output)
 - [Run record](#run-record)
 - [GitHub Action](#github-action)
+- [Agent skill](#agent-skill)
 - [How it works](#how-it-works)
 - [Measurements](#measurements)
 - [Known limitations](#known-limitations)
@@ -307,6 +308,27 @@ monorepos with one config per package; not with `config`), `working-directory`, 
 (only for a private fork or mirror of the releases). Outputs: `score`, `passed`, `run-id`, and `results` (path to
 a JSON file with one entry per config). See the [action's README](https://github.com/reapr-corp/run) for details.
 
+## Agent skill
+
+The `mutation-audit` skill lets a coding agent improve tests with Reapr's results as evidence. It runs
+`rpr run --diff <base> --json`, writes one focused test per surviving mutant and runs Reapr again to confirm
+the mutant is killed, lists tests that cover the diff but kill no mutant, and then checks the diff for edge
+cases that mutation operators do not represent (boundaries, empty input, error paths, time zones, numeric
+precision). It never changes production code or your engine config, and it asks you when the intended
+behavior is unclear instead of writing a test that locks in the current behavior.
+
+Claude Code:
+
+```text
+/plugin marketplace add reapr-corp/reapr
+/plugin install reapr@reapr
+```
+
+Then ask Claude to check the tests on your branch, or run `/reapr:mutation-audit`.
+
+Other agents (Cursor, Codex and others): use [plugins/reapr/AGENTS.md](plugins/reapr/AGENTS.md), the same
+workflow as plain instructions.
+
 ## How it works
 
 1. `git diff --unified=0 --inter-hunk-context=0 --no-textconv <base>...HEAD` gives the changed line ranges,
@@ -396,10 +418,12 @@ Reapr is open core. The tool is free to use, modify and self-host; the planned h
 |---|---|
 | `reapr-core`, `rpr` | [FSL-1.1-ALv2](LICENSE.md) |
 | Engine adapters (`reapr-stryker`) | [MIT](crates/reapr-stryker/LICENSE) |
+| Agent skills (`plugins/reapr`) | [MIT](plugins/reapr/LICENSE) |
 
 FSL-1.1-ALv2 (Functional Source License) lets you use, modify and self-host Reapr for any purpose except
 offering it as a competing commercial product or service. Each release converts to Apache 2.0 two years after it
 is published.
 
 Engine adapters are MIT because they are a community surface: people who know an engine best should be able to
-write, fork and reuse an adapter without any restriction.
+write, fork and reuse an adapter without any restriction. Agent skills are MIT for the same reason: copy and
+adapt them into any agent's instructions.

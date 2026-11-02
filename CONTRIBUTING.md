@@ -148,7 +148,7 @@ were added. To order them, edit `crates/rpr/CHANGELOG.md` in the release pull re
 ## License of contributions
 
 Contributions are licensed under the license of the crate they change: FSL-1.1-ALv2 for `reapr-core` and
-`rpr`, MIT for engine adapters.
+`rpr`, MIT for engine adapters and agent skills (`plugins/`).
 
 ## Conduct and security
 
