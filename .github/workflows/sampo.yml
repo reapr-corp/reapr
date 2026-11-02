@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   release:
-    runs-on: blacksmith-2vcpu-ubuntu-2404
+    runs-on: ubuntu-latest
     permissions:
       contents: write       # push the release PR branch and the release tag
       pull-requests: write  # open and update the release PR
