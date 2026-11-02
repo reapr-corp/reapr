@@ -7,6 +7,13 @@ Sections follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and th
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Entries come from the changesets in
 [`.sampo/changesets/`](../../.sampo/changesets); see [CONTRIBUTING.md](../../CONTRIBUTING.md#changesets).
 
+## 0.2.0 — 2026-11-02
+
+### Added
+
+- Telemetry is live: events go to the Reapr PostHog project (US cloud). See TELEMETRY.md to see what is sent or turn it off.
+- Anonymous, opt-out usage telemetry: one event per `rpr run` (outcome, counts, durations, bucketed diff size, platform; never code, paths or names), a one-time notice, `rpr telemetry [status|enable|disable]`, `DO_NOT_TRACK` / `RPR_TELEMETRY`, and `RPR_TELEMETRY_DEBUG=1` to print the payload. See TELEMETRY.md.
+
 ## 0.1.0 — 2026-11-02
 
 ### Added
