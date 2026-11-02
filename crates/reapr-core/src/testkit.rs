@@ -166,3 +166,201 @@ pub async fn unsupported<A: MutationEngineAdapter>(
         }
     }
 }
+
+/// The kit checks itself: each check passes on a conforming adapter and fails on a broken one.
+#[cfg(test)]
+mod tests {
+    use std::future::Future;
+    use std::panic::AssertUnwindSafe;
+    use std::time::Duration;
+
+    use super::*;
+    use crate::{CacheKey, CoverageMap, Detection, MutantResult, Resources, RunOutcome};
+
+    /// `ran`: report a result and resources even for an empty scope. `engine`: the id put in errors.
+    struct Fake {
+        ran: bool,
+        engine: &'static str,
+        operation: Option<&'static str>,
+    }
+
+    const GOOD: Fake = Fake {
+        ran: false,
+        engine: "fake",
+        operation: None,
+    };
+
+    impl Fake {
+        fn err(&self, op: &'static str) -> AdapterError {
+            AdapterError::Unsupported {
+                engine: self.engine,
+                operation: self.operation.unwrap_or(op),
+            }
+        }
+    }
+
+    impl MutationEngineAdapter for Fake {
+        fn id(&self) -> &'static str {
+            "fake"
+        }
+        async fn detect(&self, _: &Path) -> Result<Option<Detection>, AdapterError> {
+            Ok(None)
+        }
+        async fn list_mutants(
+            &self,
+            _: &RunContext,
+            _: &MutationScope,
+        ) -> Result<Vec<Mutant>, AdapterError> {
+            Err(self.err("list_mutants"))
+        }
+        async fn coverage(
+            &self,
+            _: &RunContext,
+            _: &MutationScope,
+        ) -> Result<CoverageMap, AdapterError> {
+            Err(self.err("coverage"))
+        }
+        async fn run(&self, _: &RunContext, _: &Shard) -> Result<RunOutcome, AdapterError> {
+            Ok(RunOutcome {
+                report: self.ran.then(|| report(&[MutantStatus::Killed])),
+                engine_gate_failed: false,
+                warnings: vec![],
+                resources: self.ran.then(Resources::default),
+            })
+        }
+        async fn cache_key(&self, _: &RunContext, _: &Mutant) -> Result<CacheKey, AdapterError> {
+            Err(self.err("cache_key"))
+        }
+    }
+
+    fn report(statuses: &[MutantStatus]) -> MutationReport {
+        MutationReport {
+            engine: "fake".into(),
+            results: statuses
+                .iter()
+                .enumerate()
+                .map(|(i, s)| MutantResult {
+                    mutant: Mutant {
+                        id: i.to_string(),
+                        file: "a.rs".into(),
+                        start: Position {
+                            line: 1,
+                            column: u32::try_from(i).unwrap_or(0) + 1,
+                        },
+                        end: Position { line: 1, column: 9 },
+                        mutator: "M".into(),
+                        replacement: None,
+                    },
+                    status: *s,
+                    killed_by: vec![],
+                    status_reason: None,
+                })
+                .collect(),
+            duration: Duration::ZERO,
+        }
+    }
+
+    fn ctx(dir: &Path) -> RunContext {
+        RunContext {
+            project_dir: dir.into(),
+            config: None,
+            run_dir: dir.into(),
+        }
+    }
+
+    fn panics(f: impl FnOnce()) -> bool {
+        std::panic::catch_unwind(AssertUnwindSafe(f)).is_err()
+    }
+
+    fn block_on<F: Future>(f: F) -> F::Output {
+        match tokio::runtime::Builder::new_current_thread().build() {
+            Ok(rt) => rt.block_on(f),
+            Err(e) => panic!("runtime: {e}"),
+        }
+    }
+
+    #[test]
+    fn empty_scope_check() {
+        let dir = tempfile::tempdir().unwrap();
+        block_on(empty_scope_reports_none(&GOOD, &ctx(dir.path())));
+        let ran = Fake { ran: true, ..GOOD };
+        assert!(panics(|| block_on(empty_scope_reports_none(
+            &ran,
+            &ctx(dir.path())
+        ))));
+        std::fs::write(dir.path().join("scope.diff"), "").unwrap();
+        assert!(panics(|| block_on(empty_scope_reports_none(
+            &GOOD,
+            &ctx(dir.path())
+        ))));
+    }
+
+    #[test]
+    fn status_mapping_check() {
+        let strict = |s: &str| match s {
+            "K" => Ok(MutantStatus::Killed),
+            _ => Err(AdapterError::Parse {
+                context: "c".into(),
+                detail: s.into(),
+            }),
+        };
+        status_mapping(strict, &[("K", MutantStatus::Killed)]);
+        assert!(panics(|| status_mapping(
+            strict,
+            &[("K", MutantStatus::Survived)]
+        )));
+        assert!(panics(|| status_mapping(
+            strict,
+            &[("X", MutantStatus::Killed)]
+        )));
+        let guessing = |_: &str| Ok(MutantStatus::Killed);
+        assert!(panics(|| status_mapping(
+            guessing,
+            &[("K", MutantStatus::Killed)]
+        )));
+    }
+
+    #[test]
+    fn parity_check() {
+        use MutantStatus::*;
+        let r = report(&[Killed, Survived]);
+        assert_parity(&r, &r.clone());
+        assert!(panics(|| assert_parity(&r, &report(&[Killed, Killed]))));
+        assert!(panics(|| assert_parity(&r, &report(&[Killed]))));
+        assert!(panics(|| assert_parity(&report(&[Killed]), &r)));
+        let mut moved = r.clone();
+        moved.results[1].mutant.end.line = 2;
+        assert!(panics(|| assert_parity(&r, &moved)));
+    }
+
+    #[test]
+    fn unsupported_check() {
+        let dir = tempfile::tempdir().unwrap();
+        let all = [
+            Operation::ListMutants,
+            Operation::Coverage,
+            Operation::CacheKey,
+        ];
+        block_on(unsupported(&GOOD, &ctx(dir.path()), &all));
+        let other_engine = Fake {
+            engine: "other",
+            ..GOOD
+        };
+        assert!(panics(|| block_on(unsupported(
+            &other_engine,
+            &ctx(dir.path()),
+            &all
+        ))));
+        let wrong_op = Fake {
+            operation: Some("x"),
+            ..GOOD
+        };
+        for op in all {
+            assert!(panics(|| block_on(unsupported(
+                &wrong_op,
+                &ctx(dir.path()),
+                &[op]
+            ))));
+        }
+    }
+}

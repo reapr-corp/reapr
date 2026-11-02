@@ -256,6 +256,24 @@ fn cargo_project_detects_cargo_mutants() {
     let v: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap();
     assert_eq!(v["engine"], "cargo-mutants");
     assert_eq!(v["score"], serde_json::Value::Null);
+
+    // run.json records the installed cargo-mutants version, or null without one.
+    let installed = Command::new("cargo")
+        .args(["mutants", "--version"])
+        .output()
+        .ok()
+        .filter(|o| o.status.success())
+        .and_then(|o| {
+            String::from_utf8(o.stdout)
+                .ok()?
+                .trim()
+                .strip_prefix("cargo-mutants ")
+                .map(str::to_owned)
+        });
+    let run_dir = std::path::PathBuf::from(v["run_dir"].as_str().unwrap());
+    let record: serde_json::Value =
+        serde_json::from_str(&std::fs::read_to_string(run_dir.join("run.json")).unwrap()).unwrap();
+    assert_eq!(record["engine_version"], serde_json::json!(installed));
 }
 
 fn json_error(out: &Output) -> String {

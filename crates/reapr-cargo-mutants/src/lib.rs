@@ -7,6 +7,7 @@
 
 mod outcomes;
 
+use std::ffi::OsString;
 use std::fmt;
 use std::io;
 use std::path::{Path, PathBuf};
@@ -70,12 +71,23 @@ fn version_warning(version: &str) -> Option<String> {
     })
 }
 
-#[derive(Debug, Default, Clone, Copy)]
-pub struct CargoMutantsAdapter;
+#[derive(Debug, Clone)]
+pub struct CargoMutantsAdapter {
+    /// The `cargo` program; a fake in tests.
+    cargo: OsString,
+}
+
+impl Default for CargoMutantsAdapter {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl CargoMutantsAdapter {
     pub fn new() -> Self {
-        Self
+        Self {
+            cargo: "cargo".into(),
+        }
     }
 
     /// Whether `file_name` is cargo-mutants' config file name (`.cargo/mutants.toml`).
@@ -85,7 +97,7 @@ impl CargoMutantsAdapter {
 
     /// The version `cargo mutants --version` prints from `project_dir`; `None` when it is not installed.
     pub async fn engine_version(&self, project_dir: &Path) -> Option<String> {
-        let out = Command::new("cargo")
+        let out = Command::new(&self.cargo)
             .args(["mutants", "--version"])
             .current_dir(project_dir)
             .stdin(Stdio::null())
@@ -126,9 +138,9 @@ fn detection_reason(version: Option<&str>) -> String {
 
 /// The cargo workspace root that cargo-mutants resolves from `project_dir` (it runs the same
 /// `cargo locate-project --workspace`), as a real path.
-async fn workspace_root(project_dir: &Path) -> Result<PathBuf, AdapterError> {
+async fn workspace_root(cargo: &OsString, project_dir: &Path) -> Result<PathBuf, AdapterError> {
     let command = "cargo locate-project --workspace --message-format plain";
-    let out = Command::new("cargo")
+    let out = Command::new(cargo)
         .args(["locate-project", "--workspace", "--message-format", "plain"])
         .current_dir(project_dir)
         .stdin(Stdio::null())
@@ -158,10 +170,10 @@ struct Layout {
     prefix: PathBuf,
 }
 
-async fn layout(ctx: &RunContext) -> Result<Layout, AdapterError> {
+async fn layout(cargo: &OsString, ctx: &RunContext) -> Result<Layout, AdapterError> {
     let project_dir = dunce::canonicalize(&ctx.project_dir)
         .map_err(io_err(format!("resolving {}", ctx.project_dir.display())))?;
-    let root = workspace_root(&project_dir).await?;
+    let root = workspace_root(cargo, &project_dir).await?;
     let prefix = project_dir
         .strip_prefix(&root)
         .map_err(|_| AdapterError::Parse {
@@ -335,7 +347,7 @@ impl MutationEngineAdapter for CargoMutantsAdapter {
         if ranges.is_empty() {
             return Ok(vec![]);
         }
-        let layout = layout(ctx).await?;
+        let layout = layout(&self.cargo, ctx).await?;
         let run_dir = std::path::absolute(&ctx.run_dir)
             .map_err(io_err(format!("resolving {}", ctx.run_dir.display())))?;
         let Some(diff) = write_scope_diff(&layout, &run_dir, &ranges).await? else {
@@ -344,7 +356,7 @@ impl MutationEngineAdapter for CargoMutantsAdapter {
         let mut args = scope_args(&layout, &diff, ctx.config.as_deref());
         args.extend(["--list".into(), "--json".into()]);
         let command = format!("cargo {}", args.join(" "));
-        let out = Command::new("cargo")
+        let out = Command::new(&self.cargo)
             .args(&args)
             .current_dir(&layout.project_dir)
             .stdin(Stdio::null())
@@ -381,7 +393,7 @@ impl MutationEngineAdapter for CargoMutantsAdapter {
         if ranges.is_empty() {
             return Ok(nothing(vec![], None));
         }
-        let layout = layout(ctx).await?;
+        let layout = layout(&self.cargo, ctx).await?;
         let version = self
             .engine_version(&layout.project_dir)
             .await
@@ -405,7 +417,7 @@ impl MutationEngineAdapter for CargoMutantsAdapter {
         let started = Instant::now();
         let before = children_usage();
         // cargo-mutants' stdout goes to our stderr: our stdout belongs to the report.
-        let status = Command::new("cargo")
+        let status = Command::new(&self.cargo)
             .args(&args)
             .current_dir(&layout.project_dir)
             .stdin(Stdio::null())
@@ -601,9 +613,12 @@ mod tests {
     #[tokio::test]
     async fn detects_cargo_toml_only() {
         let dir = tempfile::tempdir().unwrap();
-        assert_eq!(CargoMutantsAdapter.detect(dir.path()).await.unwrap(), None);
+        assert_eq!(
+            CargoMutantsAdapter::new().detect(dir.path()).await.unwrap(),
+            None
+        );
         fs::write(dir.path().join("Cargo.toml"), "[package]\nname = \"x\"\n").unwrap();
-        let d = CargoMutantsAdapter
+        let d = CargoMutantsAdapter::new()
             .detect(dir.path())
             .await
             .unwrap()
@@ -620,7 +635,7 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         let c = ctx(dir.path());
         fs::create_dir_all(&c.run_dir).unwrap();
-        reapr_core::testkit::empty_scope_reports_none(&CargoMutantsAdapter, &c).await;
+        reapr_core::testkit::empty_scope_reports_none(&CargoMutantsAdapter::new(), &c).await;
     }
 
     #[tokio::test]
@@ -628,7 +643,7 @@ mod tests {
         use reapr_core::testkit::Operation::*;
         let dir = tempfile::tempdir().unwrap();
         reapr_core::testkit::unsupported(
-            &CargoMutantsAdapter,
+            &CargoMutantsAdapter::new(),
             &ctx(dir.path()),
             &[Coverage, CacheKey],
         )
@@ -649,12 +664,268 @@ mod tests {
             total: 1,
             scope: scope.clone(),
         };
-        let out = CargoMutantsAdapter.run(&c, &shard).await.unwrap();
+        let out = CargoMutantsAdapter::new().run(&c, &shard).await.unwrap();
         assert_eq!((out.report, out.resources), (None, None));
         assert_eq!(
-            CargoMutantsAdapter.list_mutants(&c, &scope).await.unwrap(),
+            CargoMutantsAdapter::new()
+                .list_mutants(&c, &scope)
+                .await
+                .unwrap(),
             vec![]
         );
         assert!(!c.run_dir.exists());
+    }
+
+    // ---- run and list against a fake `cargo` ----
+
+    /// Records its argv and the `--in-diff` file, then answers from files next to it: `version`
+    /// (`cargo mutants --version`), `root` (workspace root for `locate-project`, default: cwd),
+    /// `list.json`, `outcomes.json` (copied to `<--output>/mutants.out/`) and `exit`.
+    #[cfg(unix)]
+    const FAKE_CARGO: &str = r#"#!/bin/sh
+d=$(dirname "$0")
+printf '%s\n' "$*" >> "$d/argv"
+if [ "$1" = locate-project ]; then
+  if [ -f "$d/root" ]; then echo "$(cat "$d/root")/Cargo.toml"; else echo "$PWD/Cargo.toml"; fi
+  exit 0
+fi
+if [ "$2" = --version ]; then
+  [ -f "$d/version" ] || exit 101
+  cat "$d/version"; exit 0
+fi
+prev=; out=
+for a in "$@"; do
+  [ "$prev" = --output ] && out=$a
+  [ "$prev" = --in-diff ] && cp "$a" "$d/seen.diff"
+  prev=$a
+done
+case " $* " in *" --list "*) cat "$d/list.json"; exit 0;; esac
+if [ -f "$d/outcomes.json" ]; then mkdir -p "$out/mutants.out"; cp "$d/outcomes.json" "$out/mutants.out/"; fi
+exit "$(cat "$d/exit")"
+"#;
+
+    #[cfg(unix)]
+    struct Fake {
+        _tmp: tempfile::TempDir,
+        bin: PathBuf,
+        project: PathBuf,
+        ctx: RunContext,
+        adapter: CargoMutantsAdapter,
+    }
+
+    #[cfg(unix)]
+    impl Fake {
+        /// A project at `<tmp>/ws/<member>` (member "" = the workspace root), with `src/lib.rs` from
+        /// the fixture crate, and a fake cargo reporting `cargo-mutants 27.1.0`.
+        fn new(member: &str) -> Fake {
+            use std::os::unix::fs::PermissionsExt;
+            let tmp = tempfile::tempdir().unwrap();
+            let root = dunce::canonicalize(tmp.path()).unwrap();
+            let bin = root.join("bin");
+            fs::create_dir_all(&bin).unwrap();
+            let cargo = bin.join("cargo");
+            fs::write(&cargo, FAKE_CARGO).unwrap();
+            fs::set_permissions(&cargo, fs::Permissions::from_mode(0o755)).unwrap();
+            let ws = root.join("ws");
+            let project = ws.join(member);
+            fs::create_dir_all(project.join("src")).unwrap();
+            let fixtures = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures");
+            fs::copy(
+                fixtures.join("crate/src/lib.rs"),
+                project.join("src/lib.rs"),
+            )
+            .unwrap();
+            fs::copy(fixtures.join("27.1.0/list.json"), bin.join("list.json")).unwrap();
+            fs::write(bin.join("root"), ws.to_str().unwrap()).unwrap();
+            fs::write(bin.join("version"), "cargo-mutants 27.1.0\n").unwrap();
+            let run_dir = root.join("run");
+            fs::create_dir_all(&run_dir).unwrap();
+            Fake {
+                ctx: RunContext {
+                    project_dir: project.clone(),
+                    config: None,
+                    run_dir,
+                },
+                adapter: CargoMutantsAdapter {
+                    cargo: cargo.into(),
+                },
+                bin,
+                project,
+                _tmp: tmp,
+            }
+        }
+
+        /// The fixture run's `outcomes.json`, with paths under `prefix`, and the exit code.
+        fn outcomes(&self, prefix: &str, exit: i32) {
+            let json = fs::read_to_string(
+                Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/27.1.0/outcomes.json"),
+            )
+            .unwrap()
+            .replace("\"src/lib.rs\"", &format!("\"{prefix}src/lib.rs\""));
+            fs::write(self.bin.join("outcomes.json"), json).unwrap();
+            self.exit(exit);
+        }
+
+        fn exit(&self, code: i32) {
+            fs::write(self.bin.join("exit"), code.to_string()).unwrap();
+        }
+
+        fn read(&self, file: &str) -> String {
+            fs::read_to_string(self.bin.join(file)).unwrap_or_default()
+        }
+
+        async fn run(&self, total: u32) -> Result<RunOutcome, AdapterError> {
+            let shard = Shard {
+                index: total - 1,
+                total,
+                scope: MutationScope {
+                    ranges: vec![range("src/lib.rs", 7, 7), range("src/lib.rs", 18, 19)],
+                },
+            };
+            self.adapter.run(&self.ctx, &shard).await
+        }
+    }
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn run_at_the_workspace_root() {
+        let f = Fake::new("");
+        f.outcomes("", 3);
+        let out = f.run(1).await.unwrap();
+        let c = out.report.unwrap().counts();
+        assert_eq!(
+            (c.killed, c.survived, c.timeout, c.compile_error),
+            (8, 6, 2, 1)
+        );
+        assert!(!out.engine_gate_failed, "exit 3 is a result, not a gate");
+        assert_eq!(out.warnings, Vec::<String>::new());
+        assert!(out.resources.is_some());
+        let run_dir = f.ctx.run_dir.display();
+        let argv = f.read("argv");
+        assert!(
+            argv.contains(&format!(
+                "mutants --in-diff {run_dir}/scope.diff --workspace --output {run_dir}\n"
+            )),
+            "{argv}"
+        );
+        assert_eq!(
+            f.read("seen.diff"),
+            "--- a/src/lib.rs\n+++ b/src/lib.rs\n\
+             @@ -6,0 +7,1 @@\n+    n % 2 == 0\n\
+             @@ -17,0 +18,2 @@\n+    while n > 0 {\n+        n -= 1;\n"
+        );
+    }
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn run_in_a_member_crate_with_shards_and_config() {
+        let mut f = Fake::new("crates/a");
+        f.ctx.config = Some(f.project.join("mutants.toml"));
+        f.outcomes("crates/a/", 2);
+        let out = f.run(2).await.unwrap();
+        let report = out.report.unwrap();
+        assert!(
+            report
+                .results
+                .iter()
+                .all(|r| r.mutant.file == Path::new("src/lib.rs"))
+        );
+        let argv = f.read("argv");
+        let argv = argv
+            .lines()
+            .find(|l| l.starts_with("mutants --in-diff"))
+            .unwrap();
+        assert!(!argv.contains("--workspace"), "{argv}");
+        assert!(argv.contains(" --config "), "{argv}");
+        assert!(argv.contains(" --shard 1/2"), "{argv}");
+        assert!(
+            f.read("seen.diff")
+                .starts_with("--- a/crates/a/src/lib.rs\n+++ b/crates/a/src/lib.rs\n")
+        );
+    }
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn run_warns_outside_the_version_range() {
+        let f = Fake::new("");
+        f.outcomes("", 0);
+        fs::write(f.bin.join("version"), "cargo-mutants 28.0.0\n").unwrap();
+        let out = f.run(1).await.unwrap();
+        assert_eq!(out.warnings, [version_warning("28.0.0").unwrap()]);
+        assert_eq!(
+            f.adapter.engine_version(&f.project).await.as_deref(),
+            Some("28.0.0")
+        );
+    }
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn run_errors() {
+        let f = Fake::new("");
+        // Not installed.
+        fs::remove_file(f.bin.join("version")).unwrap();
+        match f.run(1).await {
+            Err(AdapterError::Process { detail, .. }) => {
+                assert!(
+                    detail.contains("cargo install --locked cargo-mutants"),
+                    "{detail}"
+                )
+            }
+            other => panic!("expected Process, got {other:?}"),
+        }
+        assert_eq!(f.adapter.engine_version(&f.project).await, None);
+        fs::write(f.bin.join("version"), "cargo-mutants 27.1.0\n").unwrap();
+
+        // Exit 0 and no outcomes: no mutant in the diff.
+        f.exit(0);
+        let out = f.run(1).await.unwrap();
+        assert_eq!(out.report, None);
+        // A finished run must leave outcomes.
+        f.exit(2);
+        assert!(matches!(f.run(1).await, Err(AdapterError::Io { .. })));
+        // Baseline failure.
+        f.outcomes("", 4);
+        match f.run(1).await {
+            Err(AdapterError::Process {
+                code: Some(4),
+                detail,
+                ..
+            }) => {
+                assert!(detail.contains("log/baseline.log"), "{detail}")
+            }
+            other => panic!("expected Process, got {other:?}"),
+        }
+    }
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn list_mutants_parses_the_listing() {
+        let f = Fake::new("");
+        let scope = MutationScope {
+            ranges: vec![range("src/lib.rs", 7, 7)],
+        };
+        let list = f.adapter.list_mutants(&f.ctx, &scope).await.unwrap();
+        assert_eq!(list.len(), 12);
+        assert!(
+            f.read("argv").contains("--workspace --list --json"),
+            "{}",
+            f.read("argv")
+        );
+        fs::write(f.bin.join("list.json"), "").unwrap();
+        assert_eq!(
+            f.adapter.list_mutants(&f.ctx, &scope).await.unwrap(),
+            vec![]
+        );
+    }
+
+    #[tokio::test]
+    async fn unreadable_scope_file_is_an_error() {
+        let dir = tempfile::tempdir().unwrap();
+        fs::create_dir_all(dir.path().join("src/dir.rs")).unwrap();
+        let r = range("src/dir.rs", 1, 1);
+        assert!(matches!(
+            scope_diff(dir.path(), Path::new(""), &[&r]).await,
+            Err(AdapterError::Io { .. })
+        ));
     }
 }

@@ -5,7 +5,8 @@ pub mod diff;
 pub mod record;
 pub mod resources;
 pub mod store;
-#[cfg(feature = "testkit")]
+// Compiled in core's own tests too, so the kit is tested where it lives.
+#[cfg(any(test, feature = "testkit"))]
 pub mod testkit;
 
 use std::collections::BTreeMap;

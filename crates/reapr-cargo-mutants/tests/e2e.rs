@@ -66,7 +66,7 @@ async fn real_run_matches_cargo_mutants_on_the_same_diff() {
     };
     let scope = MutationScope { ranges };
 
-    let listed = CargoMutantsAdapter
+    let listed = CargoMutantsAdapter::new()
         .list_mutants(&ctx, &scope)
         .await
         .unwrap();
@@ -75,7 +75,7 @@ async fn real_run_matches_cargo_mutants_on_the_same_diff() {
         total: 1,
         scope,
     };
-    let outcome = CargoMutantsAdapter.run(&ctx, &shard).await.unwrap();
+    let outcome = CargoMutantsAdapter::new().run(&ctx, &shard).await.unwrap();
     let report = outcome.report.unwrap();
 
     // The fixture's own `.cargo/mutants.toml` (minimum_test_timeout = 2) was used: the two infinite
