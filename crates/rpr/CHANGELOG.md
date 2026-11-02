@@ -7,6 +7,13 @@ Sections follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and th
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Entries come from the changesets in
 [`.sampo/changesets/`](../../.sampo/changesets); see [CONTRIBUTING.md](../../CONTRIBUTING.md#changesets).
 
+## 0.3.0 — 2026-11-02
+
+### Added
+
+- Telemetry v2: the `run_completed` event adds `trigger`, `via_action`, `agent`, `first_run`, `build`, `project_id` (a salted hash of the repository's root commits), and `invoked_by` and `session_id` (set by the mutation-audit skill to measure the score change per session). See TELEMETRY.md.
+- cargo-mutants support: `rpr run` mutates the diff of a Rust project with cargo-mutants (26.2 to 27.x) and its own `.cargo/mutants.toml`. A new `--engine <stryker|cargo-mutants>` flag picks the engine when several are detected; `--config` picks it from the file name (`mutants.toml`, `stryker.config.*`).
+
 ## 0.2.0 — 2026-11-02
 
 ### Added
