@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-6 -10 182 58">
+  <title>Reapr</title>
+  <g transform="translate(0 -4) scale(1.25)">
+  <g>
+    <mask id="lockup-f">
+      <rect width="32" height="32" fill="#fff"/>
+      <g fill="#000" transform="translate(2.74 3.05) scale(0.78)">
+        <path d="M4.65 28.84 L17.15 3.34 A14.8 14.8 0 0 1 28.5 21 A16 16 0 0 0 17.65 9.15 L7.35 30.16 Z"/>
+        <path d="M11.63 18.01 L7.95 16.2 L7.16 17.82 L10.84 19.62 Z"/>
+      </g>
+    </mask>
+    <rect width="32" height="32" rx="7.5" fill="currentColor" mask="url(#lockup-f)"/>
+  </g>
+  </g>
+  <g transform="translate(52 0)" fill="none" stroke="currentColor" stroke-width="3.2">
+    <path d="M1.6 32 V8 M1.6 19.6 A10 10 0 0 1 13.34 9.75"/>
+    <path d="M18.6 20 H39.4 A10.4 10.4 0 1 0 36.97 26.69"/>
+    <circle cx="57.2" cy="20" r="10.4"/><path d="M67.6 8 V32"/>
+    <circle cx="86.4" cy="20" r="10.4"/><path d="M76 8 V42"/>
+    <path d="M104.4 32 V8 M104.4 19.6 A10 10 0 0 1 116.14 9.75"/>
+  </g>
+</svg>
