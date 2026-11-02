@@ -23,6 +23,9 @@ your project or your machine.
   rpr collects anonymous usage data (no code, paths or names) to improve the tool. Disable: rpr telemetry disable or DO_NOT_TRACK=1. Details: https://github.com/reapr-corp/reapr/blob/main/TELEMETRY.md
   ```
 
+- Only when the event is sent, `rpr` runs `git rev-parse --is-shallow-repository` and
+  `git rev-list --max-parents=0 HEAD` in the project directory for `project_id` (below), each cut off after 1
+  second. Opted out, it runs nothing.
 - In CI (any of `GITHUB_ACTIONS`, `GITLAB_CI`, `CIRCLECI`, `BUILDKITE`, `JENKINS_URL` or `CI` is set), nothing is
   written to disk: each run uses a fresh random id and prints the notice (one stderr line).
 
@@ -59,6 +62,14 @@ new one per run). It is not derived from anything about you or the machine. `tim
 | `ci` | `true` | Whether a CI variable listed above is set. |
 | `ci_provider` | `"github_actions"` | `github_actions`, `gitlab`, `circleci`, `buildkite`, `jenkins`, `other` (only `CI` is set) or `null` (not CI). From which variables are set, never their values. |
 | `runner` | `"github_hosted"` | `local` when not in CI; `github_hosted` or `self_hosted` from GitHub's `RUNNER_ENVIRONMENT`; else `null`. |
+| `trigger` | `"pull_request"` | What started the run. `local` when not in CI. In GitHub Actions, `GITHUB_EVENT_NAME` when it is `pull_request`, `pull_request_target`, `push`, `schedule`, `workflow_dispatch` or `merge_group`, else `other`. In GitLab CI, `CI_PIPELINE_SOURCE` mapped: `merge_request_event` → `pull_request`, `push`, `schedule`, `web` → `manual`, else `other`. `null` on other CI providers. Why: the share of runs that gate pull requests, Reapr's main use. |
+| `via_action` | `true` | `RPR_VIA_ACTION` is `1`, which the [GitHub Action](https://github.com/reapr-corp/run) sets. Why: Action runs vs direct CLI runs in CI. |
+| `agent` | `"claude_code"` | The coding agent running `rpr`, from which variables are set (never their values): `claude_code` (`CLAUDECODE`), `cursor` (`CURSOR_AGENT`), `codex` (`CODEX_THREAD_ID`, `CODEX_SANDBOX` or `CODEX_SANDBOX_NETWORK_DISABLED`), `gemini_cli` (`GEMINI_CLI`); `null` otherwise (a person, or an agent without a documented marker, such as the GitHub Copilot coding agent). Claude Code's IDE extensions also set `CLAUDECODE` in their integrated terminals. Why: runs by agents vs by people. Sources below. |
+| `invoked_by` | `"mutation-audit"` | `RPR_INVOKED_BY`, set by the tool that ran `rpr`: `mutation-audit` (Reapr's agent skill), `other` for any other value (never the value itself), `null` when unset. Why: score change per agent-skill session. |
+| `session_id` | `"6f1c2a9e-3b7d-4e21-9c55-0a8d7e4b12f3"` | `RPR_SESSION_ID`: a random UUID v4 the skill generates once per session (`uuidgen`), so the runs of one session can be grouped and its first and last score compared. Sent only if it is a UUID v4, else `null`. Not derived from anything. Why: score change per agent-skill session. |
+| `first_run` | `true` | `true` on the run that created the state file (a new install), `false` afterwards, `null` when nothing persists (CI, or no config dir). Why: new installs per week and how many come back. |
+| `build` | `"release"` | `debug` for a debug build (`cargo build`, `cargo run`), else `release`. Why: development runs are filtered out of every chart. |
+| `project_id` | `"cad1fb6d3fe90e6cebcffe875d929949"` | Anonymous project fingerprint (recipe below); `null` outside a git repository, in a shallow clone, or when git fails or takes over a second. Why: active projects per week, without knowing which projects they are. |
 | `cpu_count` | `4` | Available parallelism. |
 | `flags` | `["json", "min_score"]` | Names of the optional flags given: `json`, `min_score`, `config`, `engine`, `project`. Never their values. `--diff` is always given and is not listed. |
 | `engine` | `"stryker"` | Engine id: `stryker` or `cargo-mutants`; `null` on errors. |
@@ -78,18 +89,46 @@ new one per run). It is not derived from anything about you or the machine. `tim
 | `engine_max_rss_kb` | `812000` | Peak RSS of the engine's largest process, in KiB; `null` where it is not measured. |
 | `$process_person_profile` | `false` | Tells PostHog not to create a person profile. |
 
+Coding agent markers, as each vendor documents them:
+
+- Claude Code: `CLAUDECODE`, "Set to `1` in subprocesses Claude Code spawns"
+  ([docs](https://code.claude.com/docs/en/env-vars)).
+- Cursor: `CURSOR_AGENT`, "to detect when Cursor is running" ([docs](https://cursor.com/docs/agent/terminal)).
+- Codex CLI: `CODEX_THREAD_ID`, `CODEX_SANDBOX`, `CODEX_SANDBOX_NETWORK_DISABLED`, set on spawned commands in
+  its official source ([exec_env.rs](https://github.com/openai/codex/blob/main/codex-rs/core/src/exec_env.rs),
+  [spawn.rs](https://github.com/openai/codex/blob/main/codex-rs/core/src/spawn.rs)). Not `CODEX_HOME`, a user
+  setting.
+- Gemini CLI: `GEMINI_CLI`, set to `1` for shell commands
+  ([docs](https://github.com/google-gemini/gemini-cli/blob/main/docs/tools/shell.md)).
+
+### `project_id`
+
+The hex SHA-256 of `reapr-telemetry-v1:` followed by the repository's root commit shas (`git rev-list
+--max-parents=0 HEAD`, sorted, joined with `,`), truncated to its first 32 hex characters. You can compute it:
+
+```sh
+printf 'reapr-telemetry-v1:%s' "$(git rev-list --max-parents=0 HEAD | sort | paste -sd, -)" | sha256sum | cut -c1-32
+```
+
+The same repository gives the same id on every machine and clone, so runs of one project can be counted
+together; the sha itself is not sent and cannot be read back from the hash. The limitation: for a public
+repository, someone who computes the same hash for a known repository could confirm it uses Reapr; nothing else
+about the project is revealed. A shallow clone sends `null`: its root is the shallow boundary, a different commit
+on every run. Turn telemetry off to send nothing at all.
+
 On errors, the run-result properties (`engine` through `engine_max_rss_kb`, except `outcome`, `error_kind` and
 `duration_ms_total`) are `null` or empty. There is no `configs` property: `rpr` runs one config per call (the
 GitHub Action's `configs` input calls it once per config).
 
 ## What is never sent
 
-Code, mutants, file paths, file or repository names, URLs, branch names or the `--diff` base, commit shas, emails,
-commit trailers, git config, the contents of your engine config, error or warning messages (only their kind),
-usernames, hostnames, runner names, and the values of environment variables. The event has no IP address field;
+Code, mutants, file paths, file or repository names, URLs, branch names or the `--diff` base, commit shas (only
+the `project_id` hash of the root commits), emails, commit trailers, git config, the contents of your engine
+config, error or warning messages (only their kind), usernames, hostnames, runner names, and the values of
+environment variables (except `trigger`'s allow-listed event names and `RPR_VIA_ACTION=1`). The event has no IP address field;
 PostHog, like any server, sees the IP address the request comes from.
 A unit test builds an event from a run full of paths, emails and shas and fails if any value contains `/`, `\`,
-`@` or a 40-character hex sha.
+`@` or 32 or more hex characters in a row, except `project_id`, which must be exactly a 32-character hex hash.
 
 ## How to turn it off
 

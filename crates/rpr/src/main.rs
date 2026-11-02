@@ -195,6 +195,7 @@ async fn main() -> ExitCode {
     };
     let json = args.json;
     let flags = args.flag_names();
+    let project = args.project.clone().unwrap_or_else(|| PathBuf::from("."));
     let result = run(args).await;
     let code = match &result {
         Ok((summary, _)) => {
@@ -226,7 +227,7 @@ async fn main() -> ExitCode {
     // After the output is printed: telemetry never delays or changes it.
     let run = result.as_ref().map(|(s, v)| (s, v.as_deref()));
     let props = telemetry::Properties::new(&telemetry::os_env, flags, run, started.elapsed());
-    telemetry::report(&props).await;
+    telemetry::report(&props, &project).await;
     code
 }
 

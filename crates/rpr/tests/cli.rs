@@ -365,6 +365,13 @@ fn telemetry_debug_prints_the_payload_on_stderr_only() {
     assert_eq!(props["engine"], "stryker");
     assert_eq!(props["ranges_bucket"], "0");
     assert_eq!(props["$process_person_profile"], false);
+    assert_eq!(props["build"], "debug");
+    assert_eq!(props["trigger"], "local");
+    let id = props["project_id"].as_str().unwrap();
+    assert!(
+        id.len() == 32 && id.bytes().all(|b| b.is_ascii_hexdigit()),
+        "{id}"
+    );
     assert!(!json.contains(project) && !json.contains("repo"), "{json}");
     // Without a project key nothing is persisted, even in debug mode.
     if p["api_key"] == "" {
@@ -374,11 +381,11 @@ fn telemetry_debug_prints_the_payload_on_stderr_only() {
     // stdout is the same single --json document as without telemetry.
     let v: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap();
     assert!(v["run_id"].is_string() && v["score"].is_null());
-    let plain = rpr_with_telemetry(&args, &config_home, false);
+    // Opted out: a run with telemetry on and debug off would send a real event.
+    let plain = rpr(&args);
     let w: serde_json::Value = serde_json::from_slice(&plain.stdout).unwrap();
     let keys = |v: &serde_json::Value| v.as_object().unwrap().keys().cloned().collect::<Vec<_>>();
     assert_eq!(keys(&v), keys(&w));
-    assert!(!String::from_utf8_lossy(&plain.stderr).contains("run_completed"));
 
     // Errors after argument parsing send an error kind, never the message.
     let args = ["run", "--diff", "HEAD", "--project", "/no/such/dir"];
@@ -389,6 +396,7 @@ fn telemetry_debug_prints_the_payload_on_stderr_only() {
     let p: serde_json::Value = serde_json::from_str(json).unwrap();
     assert_eq!(p["properties"]["outcome"], "error");
     assert_eq!(p["properties"]["error_kind"], "args");
+    assert!(p["properties"]["project_id"].is_null());
     assert!(!json.contains("/no/such"), "{json}");
 }
 

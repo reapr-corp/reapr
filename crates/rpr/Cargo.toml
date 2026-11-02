@@ -26,6 +26,7 @@ reapr-core.workspace = true
 reapr-stryker = { path = "../reapr-stryker" }
 serde.workspace = true
 serde_json.workspace = true
+sha2 = "0.11.1"
 thiserror.workspace = true
 tokio = { workspace = true, features = ["rt", "macros", "process", "time", "io-util"] }
 
