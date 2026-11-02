@@ -19,13 +19,13 @@ concurrency:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     permissions:
       contents: write       # push the release PR branch and the release tag
       pull-requests: write  # open and update the release PR
       actions: write        # dispatch release.yml
     steps:
-      - uses: actions/checkout@v5
+      - uses: useblacksmith/checkout@v1
         with:
           # Sampo reads the tags to know which versions are already released.
           fetch-depth: 0
