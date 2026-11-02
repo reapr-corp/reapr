@@ -10,9 +10,10 @@ use std::path::{Path, PathBuf};
 use std::process::Stdio;
 use std::time::Instant;
 
+use reapr_core::resources::{children_usage, usage_since};
 use reapr_core::{
     AdapterError, CacheKey, CoverageMap, Detection, FileRange, Mutant, MutationEngineAdapter,
-    MutationScope, Resources, RunContext, RunOutcome, Shard,
+    MutationScope, RunContext, RunOutcome, Shard,
 };
 use serde::Deserialize;
 use tokio::process::Command;
@@ -52,6 +53,11 @@ impl StrykerAdapter {
         Self
     }
 
+    /// Whether `file_name` is one of Stryker's own config file names.
+    pub fn owns_config(file_name: &str) -> bool {
+        CONFIG_FILES.contains(&file_name)
+    }
+
     /// `version` of the `@stryker-mutator/core` that Node would resolve from `project_dir` (nearest
     /// `node_modules`, walking up). `None` when it is not installed or unreadable.
     pub async fn engine_version(&self, project_dir: &Path) -> Option<String> {
@@ -63,48 +69,6 @@ impl StrykerAdapter {
             }
         }
         None
-    }
-}
-
-/// Cumulative usage of all waited-for children and their waited-for descendants
-/// (`getrusage(RUSAGE_CHILDREN)`). `max_rss_kb` is a high-water mark, not a sum.
-#[cfg(unix)]
-fn children_usage() -> Option<Resources> {
-    // SAFETY: `rusage` is plain C data for which all-zero bytes are valid; `getrusage` only writes
-    // into the struct we pass, which outlives the call.
-    let (rc, ru) = unsafe {
-        let mut ru: libc::rusage = std::mem::zeroed();
-        (libc::getrusage(libc::RUSAGE_CHILDREN, &mut ru), ru)
-    };
-    if rc != 0 {
-        return None;
-    }
-    // time_t / suseconds_t width varies by platform; both are non-negative here.
-    let ms = |tv: libc::timeval| (tv.tv_sec as u64) * 1_000 + (tv.tv_usec as u64) / 1_000;
-    let max_rss = u64::try_from(ru.ru_maxrss).unwrap_or(0);
-    Some(Resources {
-        cpu_user_ms: ms(ru.ru_utime),
-        cpu_sys_ms: ms(ru.ru_stime),
-        // ru_maxrss is KiB on Linux and the BSDs, bytes on macOS.
-        max_rss_kb: if cfg!(target_vendor = "apple") {
-            max_rss / 1_024
-        } else {
-            max_rss
-        },
-    })
-}
-
-#[cfg(not(unix))]
-fn children_usage() -> Option<Resources> {
-    None
-}
-
-/// CPU time spent between two [`children_usage`] snapshots; peak RSS as of `after`.
-fn usage_since(before: Resources, after: Resources) -> Resources {
-    Resources {
-        cpu_user_ms: after.cpu_user_ms.saturating_sub(before.cpu_user_ms),
-        cpu_sys_ms: after.cpu_sys_ms.saturating_sub(before.cpu_sys_ms),
-        max_rss_kb: after.max_rss_kb,
     }
 }
 
@@ -443,8 +407,16 @@ mod tests {
             let dir = tempfile::tempdir().unwrap();
             write(&dir.path().join(name), "{}");
             let d = StrykerAdapter.detect(dir.path()).await.unwrap().unwrap();
+            assert!(StrykerAdapter::owns_config(name));
             assert_eq!(d.engine, "stryker");
             assert_eq!(d.config, Some(dir.path().join(name)), "{name}");
+        }
+    }
+
+    #[test]
+    fn owns_only_stryker_config_names() {
+        for name in ["mutants.toml", "stryker.config.ts", "vitest.config.mjs"] {
+            assert!(!StrykerAdapter::owns_config(name), "{name}");
         }
     }
 
@@ -914,24 +886,6 @@ mod tests {
         );
     }
 
-    #[cfg(unix)]
-    #[test]
-    fn children_usage_around_a_child() {
-        let before = children_usage().unwrap();
-        let status = std::process::Command::new("sh")
-            .args(["-c", ":"])
-            .status()
-            .unwrap();
-        assert!(status.success());
-        let after = children_usage().unwrap();
-        assert!(after.cpu_user_ms >= before.cpu_user_ms);
-        assert!(after.cpu_sys_ms >= before.cpu_sys_ms);
-        assert!(after.max_rss_kb > 0, "{after:?}");
-        let d = usage_since(before, after);
-        assert!(d.cpu_user_ms <= after.cpu_user_ms && d.cpu_sys_ms <= after.cpu_sys_ms);
-        assert_eq!(d.max_rss_kb, after.max_rss_kb);
-    }
-
     #[tokio::test]
     async fn engine_version_from_nearest_node_modules() {
         let dir = project();
@@ -945,31 +899,59 @@ mod tests {
         assert_eq!(StrykerAdapter.engine_version(none.path()).await, None);
     }
 
+    // ---- conformance kit ----
+
     #[tokio::test]
-    async fn unsupported_operations() {
+    async fn conformance_empty_scope_reports_none() {
         let dir = tempfile::tempdir().unwrap();
-        let c = ctx(dir.path(), None);
-        let scope = MutationScope::default();
-        assert!(matches!(
-            StrykerAdapter.list_mutants(&c, &scope).await,
-            Err(AdapterError::Unsupported { .. })
-        ));
-        assert!(matches!(
-            StrykerAdapter.coverage(&c, &scope).await,
-            Err(AdapterError::Unsupported { .. })
-        ));
-        let m = Mutant {
-            id: "1".into(),
-            file: "a.ts".into(),
-            start: reapr_core::Position { line: 1, column: 1 },
-            end: reapr_core::Position { line: 1, column: 2 },
-            mutator: "M".into(),
-            replacement: None,
+        write(&dir.path().join("stryker.config.mjs"), "export default {};");
+        let c = ctx(dir.path(), Some("stryker.config.mjs"));
+        fs::create_dir_all(&c.run_dir).unwrap();
+        reapr_core::testkit::empty_scope_reports_none(&StrykerAdapter, &c).await;
+    }
+
+    #[test]
+    fn conformance_status_mapping() {
+        use reapr_core::MutantStatus::*;
+        let parse = |status: &str| {
+            let json = format!(
+                r#"{{ "files": {{ "a.ts": {{ "mutants": [{{ "id": "1", "mutatorName": "M", "status": "{status}",
+                    "location": {{ "start": {{ "line": 1, "column": 1 }}, "end": {{ "line": 1, "column": 2 }} }} }}] }} }} }}"#
+            );
+            let r = parse_report(
+                &json,
+                ENGINE,
+                Path::new("/p"),
+                std::time::Duration::ZERO,
+                &[range("a.ts", 1, 1)],
+            )?;
+            Ok(r.report.results[0].status)
         };
-        assert!(matches!(
-            StrykerAdapter.cache_key(&c, &m).await,
-            Err(AdapterError::Unsupported { .. })
-        ));
+        reapr_core::testkit::status_mapping(
+            parse,
+            &[
+                ("Killed", Killed),
+                ("Survived", Survived),
+                ("NoCoverage", NoCoverage),
+                ("Timeout", Timeout),
+                ("CompileError", CompileError),
+                ("RuntimeError", RuntimeError),
+                ("Ignored", Ignored),
+                ("Pending", Pending),
+            ],
+        );
+    }
+
+    #[tokio::test]
+    async fn conformance_unsupported_operations() {
+        use reapr_core::testkit::Operation::*;
+        let dir = tempfile::tempdir().unwrap();
+        reapr_core::testkit::unsupported(
+            &StrykerAdapter,
+            &ctx(dir.path(), None),
+            &[ListMutants, Coverage, CacheKey],
+        )
+        .await;
         assert_eq!(StrykerAdapter::new().id(), "stryker");
     }
 }

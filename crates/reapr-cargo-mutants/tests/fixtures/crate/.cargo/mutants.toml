@@ -1,0 +1,2 @@
+# The fixture's own config: Reapr must use it unchanged.
+minimum_test_timeout = 2

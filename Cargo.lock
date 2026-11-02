@@ -245,10 +245,23 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f8dcc9c7d52a811697d2151c701e0d08956f92b0e24136cf4cf27b57a6a0d9bf"
 
 [[package]]
+name = "reapr-cargo-mutants"
+version = "0.2.0"
+dependencies = [
+ "dunce",
+ "reapr-core",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "tokio",
+]
+
+[[package]]
 name = "reapr-core"
 version = "0.2.0"
 dependencies = [
  "dunce",
+ "libc",
  "serde",
  "serde_json",
  "tempfile",
@@ -261,7 +274,6 @@ name = "reapr-stryker"
 version = "0.2.0"
 dependencies = [
  "dunce",
- "libc",
  "reapr-core",
  "serde",
  "serde_json",
@@ -276,6 +288,7 @@ dependencies = [
  "anyhow",
  "clap",
  "dunce",
+ "reapr-cargo-mutants",
  "reapr-core",
  "reapr-stryker",
  "serde",

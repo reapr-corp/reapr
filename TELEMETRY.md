@@ -60,12 +60,12 @@ new one per run). It is not derived from anything about you or the machine. `tim
 | `ci_provider` | `"github_actions"` | `github_actions`, `gitlab`, `circleci`, `buildkite`, `jenkins`, `other` (only `CI` is set) or `null` (not CI). From which variables are set, never their values. |
 | `runner` | `"github_hosted"` | `local` when not in CI; `github_hosted` or `self_hosted` from GitHub's `RUNNER_ENVIRONMENT`; else `null`. |
 | `cpu_count` | `4` | Available parallelism. |
-| `flags` | `["json", "min_score"]` | Names of the optional flags given: `json`, `min_score`, `config`, `project`. Never their values. `--diff` is always given and is not listed. |
-| `engine` | `"stryker"` | Engine id; `null` on errors. |
+| `flags` | `["json", "min_score"]` | Names of the optional flags given: `json`, `min_score`, `config`, `engine`, `project`. Never their values. `--diff` is always given and is not listed. |
+| `engine` | `"stryker"` | Engine id: `stryker` or `cargo-mutants`; `null` on errors. |
 | `engine_version` | `"9.6.1"` | The engine's version; `null` when unknown, on errors, or when it has any character other than letters, digits, `.`, `+` or `-`. |
 | `outcome` | `"passed"` | `passed`, `min_score_failed`, `engine_gate_failed`, `nothing_to_mutate` or `error`. |
-| `error_kind` | `"git"` | On errors: `config_missing`, `no_engine`, `git`, `engine_process`, `parse`, `io`, `args` (invalid `--project` or `--config` path) or `other`. A fixed kind, never the error message. `null` otherwise. |
-| `warning_kinds` | `["vitest_bail"]` | Kinds of the warnings printed: `vitest_bail`, `incremental_carried_over`, `git_metadata`, `other`. Never their text. |
+| `error_kind` | `"git"` | On errors: `config_missing`, `no_engine`, `ambiguous_engine` (several engines detected, no `--engine`), `git`, `engine_process`, `parse`, `io`, `args` (invalid `--project` or `--config` path) or `other`. A fixed kind, never the error message. `null` otherwise. |
+| `warning_kinds` | `["vitest_bail"]` | Kinds of the warnings printed: `vitest_bail`, `incremental_carried_over`, `git_metadata`, `engine_version_unsupported` (the engine version is outside the adapter's supported range), `other`. Never their text. |
 | `duration_ms_total` | `90123` | Wall time of `rpr`, from start to the printed output. |
 | `duration_ms_engine` | `83456` | Engine wall time (`duration_ms` in the JSON output); `null` on errors. |
 | `mutants_in_scope` | `16` | Mutants in the diff scope (sum of `counts`). |

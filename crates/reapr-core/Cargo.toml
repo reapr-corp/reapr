@@ -16,6 +16,14 @@ serde_json.workspace = true
 thiserror.workspace = true
 tokio = { workspace = true, features = ["process"] }
 
+[target.'cfg(unix)'.dependencies]
+libc.workspace = true
+
+[features]
+# Adapter conformance checks (`reapr_core::testkit`), for adapters' tests only: use it from
+# `[dev-dependencies]`, never from `[dependencies]`.
+testkit = []
+
 [dev-dependencies]
 tempfile.workspace = true
 tokio = { workspace = true, features = ["rt", "macros", "process"] }

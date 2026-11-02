@@ -33,6 +33,7 @@ must match the engine's own run, mutant by mutant.
 Cargo.toml                 # [workspace], resolver 3, edition 2024, shared deps
 crates/reapr-core          # FSL-1.1-ALv2. Types, trait, diff parsing, score. No engine knowledge.
 crates/reapr-stryker       # MIT. StrykerJS adapter.
+crates/reapr-cargo-mutants # MIT. cargo-mutants adapter.
 crates/rpr                 # FSL-1.1-ALv2. Binary `rpr`.
 ```
 
@@ -113,7 +114,8 @@ parallel). The trait's default `merge` calls it.
 
 Native `async fn` in trait. Returned futures must be `Send`, so declare methods as
 `fn x(&self, ..) -> impl Future<Output = Result<T, AdapterError>> + Send`. Not dyn-compatible on purpose:
-the CLI dispatches through `enum Engine { Stryker(StrykerAdapter) }`.
+the CLI dispatches through `enum Engine { Stryker(StrykerAdapter), CargoMutants(CargoMutantsAdapter) }`
+([ADR 0001](../adr/0001-engine-adapter-trait.md)).
 
 ```rust
 pub trait MutationEngineAdapter: Send + Sync {
@@ -187,7 +189,8 @@ Raw facts only, never derived judgments; metrics are computed later from these. 
 there is nothing to mutate; not on errors. Gathering facts never fails the run: a git command that fails
 becomes a warning and leaves its fact empty (`null` / `[]`). Facts come from `reapr_core::record`
 (`git_facts`, `Environment::detect`, `rfc3339`); the engine version from the adapter (Stryker:
-`version` of the `@stryker-mutator/core` package Node resolves from project_dir).
+`version` of the `@stryker-mutator/core` package Node resolves from project_dir; cargo-mutants: what
+`cargo mutants --version` prints).
 
 - `run_id`.
 - git: `head_sha`, `base`, `merge_base_sha`; commits in `merge_base..HEAD`: sha, author email, trailers
@@ -199,7 +202,7 @@ becomes a warning and leaves its fact empty (`null` / `[]`). Facts come from `re
 - environment: `kind` (`local` | `github-actions`), `runner_name`, `os`, `arch` (`RUNNER_*` when set, else
   Rust's `std::env::consts`), `cpu_count` (`available_parallelism`).
 - resources: `cpu_user_ms`, `cpu_sys_ms`, `max_rss_kb` of the whole engine process tree: the adapter reads
-  `getrusage(RUSAGE_CHILDREN)` right before spawning the engine and right after its `wait` returns (CPU =
+  `getrusage(RUSAGE_CHILDREN)` (`reapr_core::resources::children_usage`) right before spawning the engine and right after its `wait` returns (CPU =
   delta; RSS = the high-water mark after, normalized to KiB). `null` on Windows for now. CPU vs wall time is
   the first profiling signal: it says where to optimize (and what to rewrite in Rust) before anything moves.
 - result: ranges, counts, score, `min_score`, `passed`, `engine_gate_failed`, `warnings`.
@@ -270,15 +273,43 @@ needs it; it stays in this crate until then.
 `list_mutants`, `coverage`, `cache_key` → `AdapterError::Unsupported`. Stryker cannot list mutants without
 running them; these arrive with the Node-side bridge.
 
+## reapr-cargo-mutants
+
+Verified against cargo-mutants 26.2.0 and 27.1.0 (`SUPPORTED_VERSIONS = >=26.2.0, <28.0.0`, real fixtures in
+`tests/fixtures/<version>/`); another version runs with a warning ([ADR 0002](../adr/0002-engine-version-support.md)).
+
+- **detect:** `Cargo.toml` in project_dir → `Detection { config: None }` (cargo-mutants reads
+  `.cargo/mutants.toml` in the workspace root itself); the reason says whether `cargo mutants --version` works
+  and, if not, how to install it.
+- **run:** Rust ranges only (cargo-mutants ignores other files); none → `report: None`, nothing spawned. Not
+  installed → `AdapterError::Process` with the install hint. The scope diff is synthesized from the ranges,
+  since the trait gives ranges, not the base: one insertion-only hunk per range whose `+` lines are the file's
+  current lines, paths relative to the workspace root (`cargo locate-project --workspace`). cargo-mutants
+  checks the diff's new text against the tree (exit 5 otherwise) and takes inserted lines as the changed ones,
+  so it selects the mutants that intersect the ranges by its own rule. Then
+  `cargo mutants --in-diff <run_dir>/scope.diff --output <run_dir> [--workspace] [--config <path>]
+  [--shard k/n]`, cwd = project_dir, stdout and stderr → our stderr, awaited; `--workspace` only when
+  project_dir is the workspace root; `--config` only when given on the CLI.
+- **exit codes** (`exit_code.rs`): 0, 2 (missed) and 3 (timeouts) are finished runs, `engine_gate_failed =
+  false` (cargo-mutants has no thresholds); 0 without `outcomes.json` = no mutant in the diff → `report: None`;
+  4 (baseline tests fail) → `Process` naming `mutants.out/log/baseline.log`; anything else → `Process`.
+- **outcomes.json:** mutant scenarios only (the baseline is skipped). `CaughtMutant` → Killed, `MissedMutant` →
+  Survived, `Unviable` → CompileError, `Timeout` → Timeout; any other summary → `Parse`. id = the mutant's
+  `name`, mutator = `genre`, positions = `span` (1-based), file re-based to project_dir.
+- **list_mutants:** the same diff and args with `--list --json`; empty stdout = no mutants.
+- `coverage`, `cache_key` → `Unsupported`.
+
 ## rpr (CLI)
 
 ```
-rpr run --diff <base> [--json] [--min-score <N>] [--config <path>] [--project <dir>]
+rpr run --diff <base> [--json] [--min-score <N>] [--config <path>] [--engine <stryker|cargo-mutants>] [--project <dir>]
 rpr telemetry [status|enable|disable]
 ```
 
 - `--project` defaults to cwd and is canonicalized once (`dunce::canonicalize`: real path, no Windows `\\?\`
-  prefix). `--diff` values that start with `-` are rejected. Detect engine (or `--config`), compute ranges,
+  prefix). `--diff` values that start with `-` are rejected. Engine: `--engine`, else the engine whose own
+  config file name `--config` has, else detection; more than one engine detected → error asking for
+  `--engine`. Then detect the config (unless `--config`), compute ranges,
   create run dir, collect git facts, run one shard, store `report.json` and `run.json`, print.
 - Human output (stdout):
   ```
@@ -330,6 +361,11 @@ every property, is [TELEMETRY.md](../../TELEMETRY.md).
   `${{ github.base_ref }}`), `min-score`, `config`, `working-directory`, `version` (default `latest`). Installs
   through the dist installer from the release, fetches the base ref, runs `rpr run --diff origin/<base> --json`,
   renders `$GITHUB_STEP_SUMMARY` from the JSON with `jq`, and exits with rpr's exit code.
+
+## Adapter conformance kit
+
+`reapr_core::testkit` (feature `testkit`, dev-dependencies only): `empty_scope_reports_none`, `status_mapping`,
+`assert_parity`, `unsupported`. Every adapter's tests call them; see CONTRIBUTING.md.
 
 ## Out of Phase 1
 
