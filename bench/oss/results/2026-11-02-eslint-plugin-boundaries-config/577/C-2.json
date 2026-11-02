@@ -1,0 +1,622 @@
+{
+ "cmd": [
+  "taskset",
+  "-c",
+  "0-3",
+  "rpr",
+  "run",
+  "--diff",
+  "e496bd8b3ed86493b3e2bd5fc2427be0eca83668",
+  "--json"
+ ],
+ "loadavg_before": [
+  34.30126953125,
+  33.86767578125,
+  28.6015625
+ ],
+ "start": "2026-11-02T22:29:54Z",
+ "wall_ms": 32520,
+ "exit": 0,
+ "timed_out": false,
+ "cpu_user_ms": 75280,
+ "cpu_sys_ms": 5730,
+ "max_rss_kb": 678388,
+ "loadavg_after": [
+  25.607421875,
+  31.74755859375,
+  28.0859375
+ ],
+ "rpr": {
+  "run_id": "1793658594-2804810",
+  "run_dir": "<repo>/.git/reapr/runs/1793658594-2804810",
+  "engine": "stryker",
+  "base": "e496bd8b3ed86493b3e2bd5fc2427be0eca83668",
+  "ranges": [
+   {
+    "path": ".gitignore",
+    "start": 28,
+    "end": 32
+   },
+   {
+    "path": "AGENTS.md",
+    "start": 34,
+    "end": 34
+   },
+   {
+    "path": "README.md",
+    "start": 1,
+    "end": 1
+   },
+   {
+    "path": "package.json",
+    "start": 55,
+    "end": 55
+   },
+   {
+    "path": "package.json",
+    "start": 59,
+    "end": 60
+   },
+   {
+    "path": "serve.test-mutation-report.json",
+    "start": 1,
+    "end": 4
+   },
+   {
+    "path": "src/Config/Config.ts",
+    "start": 179,
+    "end": 179
+   },
+   {
+    "path": "src/Diagnostics/Diagnostics.spec.ts",
+    "start": 82,
+    "end": 90
+   },
+   {
+    "path": "src/RuleOptions/RuleOptions.spec.ts",
+    "start": 24,
+    "end": 28
+   },
+   {
+    "path": "src/RuleOptions/RuleOptions.spec.ts",
+    "start": 151,
+    "end": 160
+   },
+   {
+    "path": "src/RuleOptions/RuleOptions.spec.ts",
+    "start": 1236,
+    "end": 1260
+   },
+   {
+    "path": "src/RuleOptions/RuleOptions.spec.ts",
+    "start": 1264,
+    "end": 1271
+   },
+   {
+    "path": "src/RuleOptions/RuleOptions.spec.ts",
+    "start": 1275,
+    "end": 1275
+   },
+   {
+    "path": "src/RuleOptions/RuleOptions.spec.ts",
+    "start": 1277,
+    "end": 1287
+   },
+   {
+    "path": "src/RuleOptions/RuleOptions.spec.ts",
+    "start": 1290,
+    "end": 1290
+   },
+   {
+    "path": "src/RuleOptions/RuleOptions.spec.ts",
+    "start": 1293,
+    "end": 1293
+   },
+   {
+    "path": "src/RuleOptions/RuleOptions.spec.ts",
+    "start": 1297,
+    "end": 1297
+   },
+   {
+    "path": "src/RuleOptions/RuleOptions.spec.ts",
+    "start": 1299,
+    "end": 1335
+   },
+   {
+    "path": "src/RuleOptions/RuleOptions.spec.ts",
+    "start": 1410,
+    "end": 1410
+   },
+   {
+    "path": "src/RuleOptions/RuleOptions.spec.ts",
+    "start": 1415,
+    "end": 1415
+   },
+   {
+    "path": "src/RuleOptions/RuleOptions.spec.ts",
+    "start": 1417,
+    "end": 1424
+   },
+   {
+    "path": "src/RuleOptions/RuleOptions.spec.ts",
+    "start": 1453,
+    "end": 1453
+   },
+   {
+    "path": "src/RuleOptions/RuleOptions.spec.ts",
+    "start": 1464,
+    "end": 1464
+   },
+   {
+    "path": "src/RuleOptions/RuleOptions.spec.ts",
+    "start": 1468,
+    "end": 1475
+   },
+   {
+    "path": "src/RuleOptions/RuleOptions.spec.ts",
+    "start": 1634,
+    "end": 1907
+   },
+   {
+    "path": "src/RuleOptions/RuleOptions.ts",
+    "start": 300,
+    "end": 300
+   },
+   {
+    "path": "src/RuleOptions/RuleOptions.ts",
+    "start": 332,
+    "end": 332
+   },
+   {
+    "path": "src/RuleOptions/RuleOptions.ts",
+    "start": 466,
+    "end": 466
+   },
+   {
+    "path": "src/Schemas/Schemas.spec.ts",
+    "start": 2,
+    "end": 56
+   },
+   {
+    "path": "src/Schemas/Schemas.spec.ts",
+    "start": 106,
+    "end": 106
+   },
+   {
+    "path": "src/Schemas/Schemas.spec.ts",
+    "start": 108,
+    "end": 133
+   },
+   {
+    "path": "src/Schemas/Schemas.spec.ts",
+    "start": 135,
+    "end": 135
+   },
+   {
+    "path": "src/Schemas/Schemas.spec.ts",
+    "start": 137,
+    "end": 140
+   },
+   {
+    "path": "src/Schemas/Schemas.spec.ts",
+    "start": 142,
+    "end": 148
+   },
+   {
+    "path": "src/Schemas/Schemas.spec.ts",
+    "start": 151,
+    "end": 158
+   },
+   {
+    "path": "src/Schemas/Schemas.spec.ts",
+    "start": 160,
+    "end": 269
+   },
+   {
+    "path": "src/Schemas/Schemas.spec.ts",
+    "start": 271,
+    "end": 271
+   },
+   {
+    "path": "src/Schemas/Schemas.spec.ts",
+    "start": 273,
+    "end": 287
+   },
+   {
+    "path": "src/Schemas/Schemas.spec.ts",
+    "start": 289,
+    "end": 301
+   },
+   {
+    "path": "src/Schemas/Schemas.spec.ts",
+    "start": 303,
+    "end": 303
+   },
+   {
+    "path": "src/Schemas/Schemas.spec.ts",
+    "start": 305,
+    "end": 320
+   },
+   {
+    "path": "src/Schemas/Schemas.spec.ts",
+    "start": 322,
+    "end": 348
+   },
+   {
+    "path": "src/Schemas/Schemas.spec.ts",
+    "start": 351,
+    "end": 364
+   },
+   {
+    "path": "src/Schemas/Schemas.spec.ts",
+    "start": 367,
+    "end": 368
+   },
+   {
+    "path": "src/Schemas/Schemas.spec.ts",
+    "start": 370,
+    "end": 374
+   },
+   {
+    "path": "src/Schemas/Schemas.spec.ts",
+    "start": 376,
+    "end": 411
+   },
+   {
+    "path": "src/Schemas/Schemas.spec.ts",
+    "start": 413,
+    "end": 416
+   },
+   {
+    "path": "src/Schemas/Schemas.spec.ts",
+    "start": 418,
+    "end": 438
+   },
+   {
+    "path": "src/Schemas/Schemas.spec.ts",
+    "start": 441,
+    "end": 465
+   },
+   {
+    "path": "src/Schemas/Schemas.spec.ts",
+    "start": 468,
+    "end": 746
+   },
+   {
+    "path": "src/Schemas/Schemas.spec.ts",
+    "start": 749,
+    "end": 751
+   },
+   {
+    "path": "src/Schemas/Schemas.spec.ts",
+    "start": 753,
+    "end": 787
+   },
+   {
+    "path": "src/Schemas/Schemas.spec.ts",
+    "start": 789,
+    "end": 882
+   },
+   {
+    "path": "src/Schemas/Schemas.spec.ts",
+    "start": 885,
+    "end": 1294
+   },
+   {
+    "path": "src/Schemas/Schemas.spec.ts",
+    "start": 1297,
+    "end": 1358
+   },
+   {
+    "path": "src/Schemas/Schemas.spec.ts",
+    "start": 1361,
+    "end": 1421
+   },
+   {
+    "path": "src/Schemas/Schemas.spec.ts",
+    "start": 1424,
+    "end": 1431
+   },
+   {
+    "path": "src/Schemas/Schemas.spec.ts",
+    "start": 1434,
+    "end": 1445
+   },
+   {
+    "path": "src/Schemas/Validator.spec.ts",
+    "start": 1,
+    "end": 2
+   },
+   {
+    "path": "src/Schemas/Validator.spec.ts",
+    "start": 10,
+    "end": 38
+   },
+   {
+    "path": "src/Schemas/Validator.spec.ts",
+    "start": 164,
+    "end": 164
+   },
+   {
+    "path": "src/Schemas/Validator.spec.ts",
+    "start": 208,
+    "end": 278
+   },
+   {
+    "path": "src/Schemas/Validator.ts",
+    "start": 30,
+    "end": 30
+   },
+   {
+    "path": "src/Schemas/Validator.ts",
+    "start": 32,
+    "end": 32
+   },
+   {
+    "path": "src/Schemas/Validator.ts",
+    "start": 34,
+    "end": 34
+   },
+   {
+    "path": "src/Schemas/Validator.ts",
+    "start": 36,
+    "end": 36
+   },
+   {
+    "path": "src/Schemas/Validator.ts",
+    "start": 57,
+    "end": 57
+   },
+   {
+    "path": "src/Schemas/Validator.ts",
+    "start": 60,
+    "end": 60
+   },
+   {
+    "path": "src/Schemas/Validator.ts",
+    "start": 67,
+    "end": 67
+   },
+   {
+    "path": "src/Schemas/Validator.ts",
+    "start": 102,
+    "end": 102
+   },
+   {
+    "path": "src/Schemas/Validator.ts",
+    "start": 129,
+    "end": 129
+   },
+   {
+    "path": "src/Settings/Settings.spec.ts",
+    "start": 56,
+    "end": 69
+   },
+   {
+    "path": "src/Settings/Settings.spec.ts",
+    "start": 215,
+    "end": 230
+   },
+   {
+    "path": "src/Settings/Settings.spec.ts",
+    "start": 272,
+    "end": 277
+   },
+   {
+    "path": "src/Settings/Settings.spec.ts",
+    "start": 281,
+    "end": 288
+   },
+   {
+    "path": "src/Settings/Settings.spec.ts",
+    "start": 299,
+    "end": 304
+   },
+   {
+    "path": "src/Settings/Settings.spec.ts",
+    "start": 308,
+    "end": 317
+   },
+   {
+    "path": "src/Settings/Settings.spec.ts",
+    "start": 349,
+    "end": 366
+   },
+   {
+    "path": "src/Settings/Settings.spec.ts",
+    "start": 585,
+    "end": 745
+   },
+   {
+    "path": "src/Settings/Settings.spec.ts",
+    "start": 757,
+    "end": 758
+   },
+   {
+    "path": "src/Settings/Settings.spec.ts",
+    "start": 763,
+    "end": 771
+   },
+   {
+    "path": "src/Settings/Settings.spec.ts",
+    "start": 904,
+    "end": 954
+   },
+   {
+    "path": "src/Settings/Settings.spec.ts",
+    "start": 1024,
+    "end": 1050
+   },
+   {
+    "path": "src/Settings/Settings.spec.ts",
+    "start": 1103,
+    "end": 1118
+   },
+   {
+    "path": "src/Settings/Settings.spec.ts",
+    "start": 1182,
+    "end": 1182
+   },
+   {
+    "path": "src/Settings/Settings.spec.ts",
+    "start": 1268,
+    "end": 1284
+   },
+   {
+    "path": "src/Settings/Settings.spec.ts",
+    "start": 1371,
+    "end": 1390
+   },
+   {
+    "path": "src/Settings/Settings.spec.ts",
+    "start": 1434,
+    "end": 1444
+   },
+   {
+    "path": "src/Settings/Settings.spec.ts",
+    "start": 1495,
+    "end": 1523
+   },
+   {
+    "path": "src/Settings/Settings.spec.ts",
+    "start": 1562,
+    "end": 1562
+   },
+   {
+    "path": "src/Settings/Settings.spec.ts",
+    "start": 1569,
+    "end": 1584
+   },
+   {
+    "path": "src/Settings/Settings.ts",
+    "start": 174,
+    "end": 176
+   },
+   {
+    "path": "src/Settings/Settings.ts",
+    "start": 195,
+    "end": 196
+   },
+   {
+    "path": "src/Settings/Settings.ts",
+    "start": 198,
+    "end": 198
+   },
+   {
+    "path": "src/Settings/Settings.ts",
+    "start": 454,
+    "end": 454
+   },
+   {
+    "path": "src/Settings/Settings.ts",
+    "start": 461,
+    "end": 462
+   },
+   {
+    "path": "src/Settings/Settings.ts",
+    "start": 466,
+    "end": 466
+   },
+   {
+    "path": "src/Settings/Settings.ts",
+    "start": 470,
+    "end": 479
+   },
+   {
+    "path": "src/Settings/Settings.ts",
+    "start": 544,
+    "end": 544
+   },
+   {
+    "path": "src/Settings/Settings.ts",
+    "start": 567,
+    "end": 567
+   },
+   {
+    "path": "src/Settings/Settings.ts",
+    "start": 581,
+    "end": 590
+   },
+   {
+    "path": "src/Settings/Settings.ts",
+    "start": 630,
+    "end": 630
+   },
+   {
+    "path": "src/Settings/Settings.ts",
+    "start": 657,
+    "end": 659
+   },
+   {
+    "path": "src/Settings/Settings.ts",
+    "start": 766,
+    "end": 766
+   },
+   {
+    "path": "src/Settings/Settings.ts",
+    "start": 772,
+    "end": 772
+   },
+   {
+    "path": "src/Settings/Settings.ts",
+    "start": 774,
+    "end": 774
+   },
+   {
+    "path": "src/Settings/Settings.ts",
+    "start": 778,
+    "end": 778
+   },
+   {
+    "path": "src/Settings/Settings.ts",
+    "start": 785,
+    "end": 785
+   },
+   {
+    "path": "src/Settings/Settings.ts",
+    "start": 789,
+    "end": 789
+   },
+   {
+    "path": "src/Settings/Settings.ts",
+    "start": 995,
+    "end": 995
+   },
+   {
+    "path": "src/Settings/Settings.ts",
+    "start": 1038,
+    "end": 1038
+   },
+   {
+    "path": "stryker.config.mjs",
+    "start": 1,
+    "end": 18
+   }
+  ],
+  "score": 100.0,
+  "counts": {
+   "killed": 43,
+   "survived": 0,
+   "no_coverage": 0,
+   "timeout": 0,
+   "compile_error": 0,
+   "runtime_error": 0,
+   "ignored": 0,
+   "pending": 0
+  },
+  "survivors": [],
+  "duration_ms": 32121,
+  "min_score": null,
+  "passed": true,
+  "engine_gate_failed": false,
+  "warnings": [],
+  "resources": {
+   "cpu_user_ms": 75090,
+   "cpu_sys_ms": 5679,
+   "max_rss_kb": 678388
+  }
+ },
+ "mutants": 43,
+ "score": 100.0,
+ "engine_ms": 32121
+}
