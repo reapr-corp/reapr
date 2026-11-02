@@ -14,3 +14,11 @@ updates:
     ignore:
       # Its tags carry a `cargo-` prefix that dependabot misorders (it proposed a downgrade); bump by hand.
       - dependency-name: bruits/sampo
+  - package-ecosystem: npm
+    # The mutation-audit skill's eval fixture pins its versions on purpose (reproducible evals).
+    directory: /plugins/reapr/skills/mutation-audit/evals/files/fixture/base
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 0
+    ignore:
+      - dependency-name: "*"
