@@ -13,5 +13,6 @@
     { "pattern": "www.reapr.dev", "custom_domain": true }
   ],
   // Serve only the custom domains, not *.workers.dev.
-  "workers_dev": false
+  "workers_dev": false,
+  "preview_urls": false
 }
