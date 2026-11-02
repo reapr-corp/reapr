@@ -20,7 +20,7 @@ jobs:
     name: fmt + clippy
     runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       # Installs the toolchain pinned in rust-toolchain.toml (with rustfmt and clippy).
       - run: rustup toolchain install
       - uses: Swatinem/rust-cache@v2
@@ -31,7 +31,7 @@ jobs:
     name: test
     runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       # The StrykerJS plan step tests run plan.mjs (Node >= 20.10) with the minimatch bundled in npm.
       - uses: actions/setup-node@v5
         with:
@@ -45,7 +45,7 @@ jobs:
     name: cargo-deny
     runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: EmbarkStudios/cargo-deny-action@v2
 
   # Dogfood: Reapr gates its own pull requests with the cargo-mutants adapter, on the PR's diff only.
@@ -54,7 +54,7 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           # The base branch's history, for `origin/<base>...HEAD`.
           fetch-depth: 0

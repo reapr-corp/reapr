@@ -13,7 +13,7 @@ jobs:
     name: changeset
     runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           # The merge commit and its first parent (the base branch).
           fetch-depth: 2
