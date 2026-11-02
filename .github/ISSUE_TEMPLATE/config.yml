@@ -1,5 +1,11 @@
 blank_issues_enabled: false
 contact_links:
+  - name: Question or "how do I..."
+    url: https://github.com/reapr-corp/reapr/discussions/categories/q-a
+    about: Ask in Discussions. Issues are for confirmed bugs and accepted work.
+  - name: Idea or feature request
+    url: https://github.com/reapr-corp/reapr/discussions/categories/ideas
+    about: Propose it in Discussions first; accepted ideas become issues.
   - name: Security vulnerability
     url: https://github.com/reapr-corp/reapr/security/advisories/new
     about: Report security issues privately, not as a public issue.
