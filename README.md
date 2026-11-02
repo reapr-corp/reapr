@@ -324,10 +324,16 @@ Claude Code:
 /plugin install reapr@reapr
 ```
 
+On Claude Code 2.1.275 or later, one step does both:
+
+```text
+/plugin install reapr --marketplace reapr-corp/reapr
+```
+
 Then ask Claude to check the tests on your branch, or run `/reapr:mutation-audit`.
 
-Other agents (Cursor, Codex and others): use [plugins/reapr/AGENTS.md](plugins/reapr/AGENTS.md), the same
-workflow as plain instructions.
+Other agents (Cursor, Codex and others): point them at [plugins/reapr/AGENTS.md](plugins/reapr/AGENTS.md). It
+has the hard rules and links the full workflow in the skill's `SKILL.md`.
 
 ## How it works
 

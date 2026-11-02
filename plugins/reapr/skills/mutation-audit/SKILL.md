@@ -136,6 +136,13 @@ Also read the tests in scope for assertions that cannot fail:
 - tautologies (`expect(x).toBe(x)`, asserting the input against itself)
 - assertions inside a callback or loop that never runs
 
+Then check what the existing tests in scope expect against the spec (public docs, README, the exported
+function's doc comment, types). A killed mutant only proves that some test notices the change, not that the
+test expects the right value: a test that pins a bug kills mutants too. Code, an inline comment and a test
+can all agree and still contradict the documented contract. A test like that is the most important finding
+of the audit. Report it with both sides quoted and ask; do not change it, and do not add tests that agree with
+it.
+
 Report each with evidence (test name, file, what it asserts, mutants covered and killed) and propose a fix.
 Change existing tests only with the human's OK.
 
@@ -181,7 +188,7 @@ Added: <test> protects <behavior> (specified by <source>)
 Proposed: <case>, <behavior it would protect>, <why>, <what I need to know>
 
 ### Findings
-<tests that show the code disagrees with its spec; nothing was changed in production code>
+<code or existing tests that disagree with the spec, both sides quoted; nothing was changed in production code>
 ```
 
 Every score in the report comes from an `rpr` run, never from an estimate. If a survivor stays open, say why.

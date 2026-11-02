@@ -141,7 +141,7 @@ were added. To order them, edit `crates/rpr/CHANGELOG.md` in the release pull re
 ## Commits and pull requests
 
 - [Conventional Commits](https://www.conventionalcommits.org/): `feat(stryker): ...`, `fix(core): ...`,
-  `docs: ...`, `ci: ...`. Scopes: `core`, `cli`, `stryker`, `ci`, `docs`.
+  `docs: ...`, `ci: ...`. Scopes: `core`, `cli`, `stryker`, `plugins`, `ci`, `docs`.
 - Each commit message describes the change and why.
 - One topic per pull request. Fill in the checklist in the template.
 
