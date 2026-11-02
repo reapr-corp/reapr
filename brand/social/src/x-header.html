@@ -1,0 +1,20 @@
+<!doctype html>
+<html data-size="1500x500"><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+  /* X puts the avatar over the lower left: keep that corner empty. */
+  .copy { position: absolute; left: 112px; top: 138px; font-size: 84px; }
+  .diff { position: absolute; right: 112px; top: 90px; width: 640px; padding: 36px 40px; font-size: 30px; line-height: 1.75; }
+  .diff .path { font-size: 22px; margin-bottom: 10px; }
+  .sign { display: inline-block; width: 1.4em; color: var(--muted); }
+  .verdict { margin-top: 14px; font-size: 22px; }
+  .dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: var(--survived); margin-right: 12px; vertical-align: 1px; }
+</style></head>
+<body style="width:1500px;height:500px">
+  <div class="copy h">Kill the mutants<br>your tests miss.</div>
+  <div class="diff panel mono">
+    <div class="path muted">src/discount.js:2</div>
+    <div class="muted"><span class="sign">-</span>if (total &gt;= 100) {</div>
+    <div><span class="sign">+</span>if (total &gt; 100) {</div>
+    <div class="verdict pre"><span class="dot"></span><span class="survived">Survived</span><span class="muted">   2 tests passed</span></div>
+  </div>
+</body></html>

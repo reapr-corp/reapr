@@ -1,0 +1,32 @@
+<!doctype html>
+<html data-size="1600x900"><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+  .copy { position: absolute; left: 120px; top: 96px; width: 660px; }
+  .copy .h { font-size: 196px; line-height: 1; }
+  .copy .sub { margin-top: 40px; font-size: 40px; line-height: 1.4; }
+  /* One cell per cargo-mutants outcome on Reapr's own code, in run order. */
+  .grid { position: absolute; right: 120px; top: 120px; display: grid; grid-template-columns: repeat(20, 26px); gap: 7px; }
+  .grid i { width: 26px; height: 26px; border-radius: 4px; background: #343A35; }
+  .grid i.s { background: var(--survived); }
+  .grid i.u { background: none; box-shadow: inset 0 0 0 2px var(--border); }
+  .key { position: absolute; right: 120px; bottom: 96px; font-size: 30px; display: flex; gap: 36px; }
+  .key b { display: inline-block; width: 20px; height: 20px; border-radius: 3px; margin-right: 12px; vertical-align: -2px; }
+  .lockup { position: absolute; left: 120px; bottom: 96px; height: 52px; }
+</style></head>
+<body style="width:1600px;height:900px">
+  <div class="copy">
+    <div class="h">86.2%</div>
+    <div class="sub muted">Reapr's own score, from<br>cargo-mutants on its Rust code.<br>Our tests miss things too.</div>
+  </div>
+  <div class="grid" id="g"></div>
+  <div class="key mono muted">
+    <span><b style="background:#343A35"></b>287 killed</span>
+    <span class="survived"><b style="background:var(--survived)"></b>46 survived</span>
+    <span><b style="box-shadow:inset 0 0 0 2px var(--border)"></b>32 unviable</span>
+  </div>
+  <div class="lockup"></div>
+  <script>
+    const outcomes = "kkkkkkkkkkkkkkkkkkkkuukuuuksksssssssssssssssssssukkkkkukkukkkkkkkkkkkkkkkkkkkkkkkkkkukkkkkkkukkkkuksskkkkkkkkkkkkkkkskkskkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkksssssssuskkkkkkukkkkkkkkukskukkukksssussskkkkkkkukukkkkkkkkkukkkkuukkskkkuukukuukkkkkkkkkkkkkkkkkkkkkkkkkkkuukkkkkkkkkkkkkkkkksksskkkkkukukkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkukkkkskkkkksks";
+    document.getElementById('g').innerHTML = [...outcomes].map((c) => '<i class="' + c + '"></i>').join('');
+  </script>
+</body></html>

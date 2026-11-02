@@ -1,0 +1,18 @@
+<!doctype html>
+<html data-size="1200x630"><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+  /* Real output of rpr 0.2.0 on a two-test fixture (the run: line is left out). */
+  .term { position: absolute; left: 72px; right: 72px; top: 72px; padding: 40px 44px; font-size: 24px; line-height: 1.75; white-space: pre; }
+  .term .bar { font-size: 20px; margin-bottom: 18px; }
+  .foot { position: absolute; left: 72px; right: 72px; bottom: 72px; display: flex; justify-content: space-between; align-items: center; }
+  .foot .h { font-size: 40px; }
+  .foot .lockup { height: 48px; }
+</style></head>
+<body style="width:1200px;height:630px">
+<div class="term panel mono"><div class="bar muted">git branch: feat/discount</div><span class="muted">$</span> rpr run --diff main
+rpr · stryker · diff vs main · 2 ranges in 2 files
+score 83.33%  (5 killed, 0 timeout, <span class="survived">1 survived</span>, 0 no coverage)  6s
+survivors:
+  <span class="survived">src/discount.js:2:7  EqualityOperator  → total &gt; 100</span></div>
+  <div class="foot"><div class="h">Both tests passed when &gt;= became &gt;.</div><div class="lockup"></div></div>
+</body></html>

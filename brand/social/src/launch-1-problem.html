@@ -1,0 +1,19 @@
+<!doctype html>
+<html data-size="1600x900"><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+  .copy { position: absolute; left: 120px; top: 112px; font-size: 128px; }
+  .diff { position: absolute; left: 120px; top: 452px; font-size: 60px; line-height: 1.6; }
+  .sign { display: inline-block; width: 1.3em; color: var(--muted); }
+  .tag { margin-left: 56px; font-size: 44px; }
+  .note { position: absolute; left: 120px; bottom: 100px; font-size: 46px; }
+  .lockup { position: absolute; right: 120px; bottom: 104px; height: 52px; }
+</style></head>
+<body style="width:1600px;height:900px">
+  <div class="copy h">Your tests passed.<br>So did this bug.</div>
+  <div class="diff mono">
+    <div class="muted"><span class="sign">-</span>if (total &gt;= 100)</div>
+    <div><span class="sign">+</span>if (total &gt; 100)<span class="tag survived">Survived</span></div>
+  </div>
+  <div class="note muted">Line coverage: 100%.</div>
+  <div class="lockup"></div>
+</body></html>
