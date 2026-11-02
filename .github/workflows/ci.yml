@@ -47,3 +47,32 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: EmbarkStudios/cargo-deny-action@v2
+
+  # Dogfood: Reapr gates its own pull requests with the cargo-mutants adapter, on the PR's diff only.
+  mutation:
+    name: mutation (rpr + cargo-mutants)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # The base branch's history, for `origin/<base>...HEAD`.
+          fetch-depth: 0
+      - run: rustup toolchain install
+      - uses: Swatinem/rust-cache@v2
+      # Prebuilt, checksum-verified binary. Keep the version inside SUPPORTED_VERSIONS
+      # (crates/reapr-cargo-mutants/src/lib.rs).
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-mutants@27.1.0
+      - name: cargo-mutants adapter end-to-end test
+        run: cargo test -p reapr-cargo-mutants --test e2e -- --ignored
+      - run: cargo build -p rpr
+      - name: rpr run on this pull request's diff
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          # Below the full-run baseline (86.2% on main, cargo-mutants 27.1.0); raised as survivors are killed.
+          MIN_SCORE: "80"
+          # Reapr's own CI is not usage.
+          DO_NOT_TRACK: "1"
+        run: ./target/debug/rpr run --diff "origin/$BASE_REF" --engine cargo-mutants --min-score "$MIN_SCORE"
