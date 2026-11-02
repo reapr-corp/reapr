@@ -1,0 +1,28 @@
+# cargo-deny: https://embarkstudios.github.io/cargo-deny/
+[graph]
+all-features = true
+
+[advisories]
+yanked = "deny"
+
+[licenses]
+# Every license in the dependency tree today, plus the project's own (FSL-1.1-ALv2, MIT).
+allow = [
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "FSL-1.1-ALv2",
+    "MIT",
+    "Unicode-3.0",
+    "Unlicense",
+]
+confidence-threshold = 0.9
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+# Path dependencies between the workspace crates have no version; allowed because every crate is `publish = false`.
+allow-wildcard-paths = true
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"

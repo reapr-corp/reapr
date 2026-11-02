@@ -1,0 +1,45 @@
+# Release flow (https://github.com/bruits/sampo/blob/main/crates/sampo-github-action/README.md):
+# - push to main with pending changesets: open or update the release PR (versions, changelogs).
+# - push to main without changesets (the release PR was merged): tag `rpr-v<version>`, then start release.yml,
+#   where dist builds the binaries and creates the GitHub Release. A tag pushed with GITHUB_TOKEN does not
+#   trigger workflows, hence the explicit dispatch (dist-workspace.toml has `dispatch-releases = true`).
+name: Sampo
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sampo
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write       # push the release PR branch and the release tag
+      pull-requests: write  # open and update the release PR
+      actions: write        # dispatch release.yml
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # Sampo reads the tags to know which versions are already released.
+          fetch-depth: 0
+      # Sampo regenerates Cargo.lock with cargo; install the toolchain pinned in rust-toolchain.toml.
+      - run: rustup toolchain install
+      - id: sampo
+        uses: bruits/sampo/crates/sampo-github-action@cargo-sampo-github-action-v0.22.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Start the dist release
+        if: steps.sampo.outputs.published == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag=$(git tag --points-at HEAD --list 'rpr-v*')
+          test -n "$tag"
+          gh workflow run release.yml --ref "$tag" -f tag="$tag"

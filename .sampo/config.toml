@@ -1,0 +1,26 @@
+# Sampo configuration: https://github.com/bruits/sampo/blob/main/crates/sampo/README.md#configuration
+version = 1
+
+[git]
+default_branch = "main"
+# Only `rpr` gets a release tag (`rpr-v<version>`, the default `tag_format`). dist builds that tag; a tag for a
+# library crate would make dist announce a build-less release of it.
+tag_unpublished = ["cargo/rpr"]
+
+[github]
+repository = "reapr-corp/reapr"
+
+[changesets]
+# Keep a Changelog sections: `cargo/rpr: minor (Added)` goes under `### Added`.
+tags = ["Added", "Changed", "Deprecated", "Removed", "Fixed", "Security"]
+
+[changelog]
+show_commit_hash = false
+show_acknowledgments = false
+# Releases that only follow the fixed group get one line, not "Updated dependencies" lists.
+automatic_entries = "collapse"
+
+[packages]
+# One product version: the three crates are bumped together. Nothing is published to crates.io
+# (`publish = false` on every crate), so `sampo publish` only tags `rpr`.
+fixed = [["cargo/reapr-core", "cargo/reapr-stryker", "cargo/rpr"]]

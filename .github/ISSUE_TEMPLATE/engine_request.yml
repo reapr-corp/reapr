@@ -1,0 +1,47 @@
+name: Engine request
+description: Ask for support for another mutation testing engine.
+labels: [engine]
+body:
+  - type: input
+    id: engine
+    attributes:
+      label: Engine
+      placeholder: PIT
+    validations:
+      required: true
+  - type: input
+    id: language
+    attributes:
+      label: Language and build tool
+      placeholder: Java, Maven
+    validations:
+      required: true
+  - type: input
+    id: link
+    attributes:
+      label: Link
+      description: Project page or repository.
+    validations:
+      required: true
+  - type: dropdown
+    id: schema
+    attributes:
+      label: Does it emit mutation-testing-report-schema JSON?
+      description: See https://github.com/stryker-mutator/mutation-testing-elements/tree/master/packages/report-schema
+      options:
+        - "Yes"
+        - "No"
+        - Through a plugin
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: report
+    attributes:
+      label: How its report looks
+      description: Format, where it is written, and a short sample if you have one.
+  - type: textarea
+    id: scope
+    attributes:
+      label: How to restrict it to changed lines
+      description: Flags or config the engine has to limit mutation to files or line ranges, if you know them.

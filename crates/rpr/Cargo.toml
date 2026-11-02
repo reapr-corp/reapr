@@ -1,0 +1,31 @@
+[package]
+name = "rpr"
+description = "Reapr: mutation testing scoped to your diff."
+license = "FSL-1.1-ALv2"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+# Not published to crates.io in Phase 1: binaries ship with dist (GitHub Releases).
+publish = false
+
+# `publish = false` would make dist skip the package; this keeps it distributed.
+[package.metadata.dist]
+dist = true
+
+[[bin]]
+name = "rpr"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+dunce.workspace = true
+reapr-core.workspace = true
+reapr-stryker = { path = "../reapr-stryker" }
+serde.workspace = true
+serde_json.workspace = true
+tokio = { workspace = true, features = ["rt", "macros"] }
+
+[dev-dependencies]
+tempfile.workspace = true

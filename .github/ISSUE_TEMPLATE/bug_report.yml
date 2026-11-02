@@ -1,0 +1,63 @@
+name: Bug report
+description: Reapr did something wrong or failed.
+labels: [bug]
+body:
+  - type: input
+    id: reapr-version
+    attributes:
+      label: Reapr version
+      description: Output of `rpr --version`, or the commit you built from.
+      placeholder: rpr 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: engine
+    attributes:
+      label: Engine and version
+      description: For StrykerJS, the version of `@stryker-mutator/core`, plus the test runner and its version.
+      placeholder: StrykerJS 9.6.1, Vitest 4.1.5
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: OS
+      placeholder: Ubuntu 24.04 x86_64 / macOS 15 arm64 / Windows 11, local or CI
+    validations:
+      required: true
+  - type: input
+    id: node
+    attributes:
+      label: Node version
+      description: Output of `node --version` (JavaScript engines only).
+  - type: textarea
+    id: command
+    attributes:
+      label: Command
+      description: The exact command, and the directory you ran it from.
+      render: shell
+      placeholder: rpr run --diff origin/main --json --project packages/lib
+    validations:
+      required: true
+  - type: textarea
+    id: json
+    attributes:
+      label: --json output
+      description: The stdout of the same command with `--json`. Remove anything private.
+      render: json
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: If a verdict looks wrong, include what the engine's own run (`npx stryker run --mutate ...`) reports for the same ranges.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What happened instead. Include stderr if relevant.
+    validations:
+      required: true

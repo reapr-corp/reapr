@@ -1,0 +1,29 @@
+# A pull request that changes crates/ needs a changeset (CONTRIBUTING.md#changesets), or the `no-changeset` label.
+name: Changeset
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+permissions:
+  contents: read
+
+jobs:
+  changeset:
+    name: changeset
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # The merge commit and its first parent (the base branch).
+          fetch-depth: 2
+      - env:
+          NO_CHANGESET: ${{ contains(github.event.pull_request.labels.*.name, 'no-changeset') }}
+        run: |
+          if [ "$NO_CHANGESET" = true ]; then echo "Label no-changeset: not checked."; exit 0; fi
+          changed=$(git diff --name-only HEAD^1 HEAD)
+          if ! grep -q '^crates/' <<<"$changed"; then echo "No change in crates/."; exit 0; fi
+          # Added, changed or (in the release PR) consumed changesets.
+          if grep -q '^\.sampo/changesets/.*\.md$' <<<"$changed"; then echo "Changeset found."; exit 0; fi
+          echo "::error::This pull request changes crates/ without a changeset. Run 'sampo add' (CONTRIBUTING.md#changesets), or add the no-changeset label."
+          exit 1

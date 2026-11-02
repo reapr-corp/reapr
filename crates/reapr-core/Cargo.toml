@@ -1,0 +1,20 @@
+[package]
+name = "reapr-core"
+description = "Engine-agnostic core of Reapr: types, adapter trait, diff scope, score."
+license = "FSL-1.1-ALv2"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+# Not published to crates.io in Phase 1.
+publish = false
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tokio = { workspace = true, features = ["process"] }
+
+[dev-dependencies]
+tempfile.workspace = true
+tokio = { workspace = true, features = ["rt", "macros", "process"] }

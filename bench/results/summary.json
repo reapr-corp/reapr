@@ -1,0 +1,2549 @@
+{
+ "A": {
+  "phases_ms": {
+   "P0 start->first Stryker line": [
+    37124,
+    18034,
+    16210,
+    22205,
+    15997
+   ],
+   "  P0a start->npx up (npm warn line)": [
+    4532,
+    1981,
+    1898,
+    2881,
+    2058
+   ],
+   "P1 ->ProjectReader Found": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "P2 ->Starting initial test run": [
+    38503,
+    21291,
+    28612,
+    22669,
+    39624
+   ],
+   "  P2a instrument+preprocess (->Creating N process(es))": [
+    10078,
+    3828,
+    3843,
+    4093,
+    4424
+   ],
+   "  P2b checker init (->Creating a sandbox)": [],
+   "  P2c sandbox copy (->Start symlink)": [],
+   "  P2d symlink+reporters (->runner worker started)": [],
+   "  P2e runner startup (->Starting initial test run)": [],
+   "  P2bcde checker+sandbox+runner (info-level split)": [
+    28425,
+    17463,
+    24769,
+    18576,
+    35200
+   ],
+   "P3 dry run (->Initial test run succeeded)": [
+    1388,
+    2674,
+    2323,
+    1182,
+    1421
+   ],
+   "P4 mutation testing (->Done in)": [
+    2667,
+    6881,
+    4681,
+    2542,
+    2665
+   ],
+   "P5 ->process exit": [
+    1701,
+    4366,
+    2142,
+    1597,
+    1711
+   ],
+   "  P5a reporters/dispose (->Deleting temp dir)": [],
+   "  P5b temp dir delete+exit": [],
+   "TOTAL wall": [
+    81383,
+    53246,
+    53968,
+    50195,
+    61418
+   ]
+  },
+  "cpu_ms": [
+   104585,
+   72458,
+   78293,
+   71495,
+   83372
+  ],
+  "runs": [
+   {
+    "rep": "A-1",
+    "t": {
+     "start": 1793644032551,
+     "npx_up": 1793644037083,
+     "first": 1793644069675,
+     "found": 1793644069675,
+     "pool": 1793644079753,
+     "dry_start": 1793644108178,
+     "dry_ok": 1793644109566,
+     "done": 1793644112233,
+     "exit": 1793644113934
+    },
+    "lag": {
+     "found": 675,
+     "pool": 753,
+     "dry_start": 178,
+     "dry_ok": 566,
+     "done": 233
+    },
+    "meta": {
+     "cmd": [
+      "rpr",
+      "run",
+      "--diff",
+      "<base>",
+      "--config",
+      "<config>",
+      "--json"
+     ],
+     "loadavg_before": [
+      28.5458984375,
+      23.9111328125,
+      24.2802734375
+     ],
+     "start_ms": 1793644032551,
+     "end_ms": 1793644113934,
+     "exit": 0,
+     "wall_ms": 81383,
+     "cpu_user_ms": 83028,
+     "cpu_sys_ms": 21557,
+     "max_rss_kb": 622560,
+     "loadavg_after": [
+      30.73828125,
+      26.52001953125,
+      25.21923828125
+     ]
+    },
+    "reapr": {
+     "duration_ms": 77697,
+     "cpu_user_ms": 80035,
+     "cpu_sys_ms": 21298,
+     "max_rss_kb": 622560,
+     "score": 100.0,
+     "counts": {
+      "killed": 3,
+      "survived": 0,
+      "no_coverage": 0,
+      "timeout": 0,
+      "compile_error": 0,
+      "runtime_error": 0,
+      "ignored": 0,
+      "pending": 0
+     }
+    },
+    "quiet": false
+   },
+   {
+    "rep": "A-2",
+    "t": {
+     "start": 1793644358603,
+     "npx_up": 1793644360584,
+     "first": 1793644376637,
+     "found": 1793644376637,
+     "pool": 1793644380465,
+     "dry_start": 1793644397928,
+     "dry_ok": 1793644400602,
+     "done": 1793644407483,
+     "exit": 1793644411849
+    },
+    "lag": {
+     "found": 637,
+     "pool": 465,
+     "dry_start": 928,
+     "dry_ok": 602,
+     "done": 483
+    },
+    "meta": {
+     "cmd": [
+      "rpr",
+      "run",
+      "--diff",
+      "<base>",
+      "--config",
+      "<config>",
+      "--json"
+     ],
+     "loadavg_before": [
+      26.6630859375,
+      29.27783203125,
+      26.8349609375
+     ],
+     "top3_before": [
+      "157 MainThread",
+      "83.3 python3",
+      "29.1 claude"
+     ],
+     "start_ms": 1793644358603,
+     "end_ms": 1793644411849,
+     "exit": 0,
+     "wall_ms": 53246,
+     "cpu_user_ms": 55089,
+     "cpu_sys_ms": 17369,
+     "max_rss_kb": 621200,
+     "loadavg_after": [
+      41.677734375,
+      31.58203125,
+      27.6806640625
+     ]
+    },
+    "reapr": {
+     "duration_ms": 51552,
+     "cpu_user_ms": 53371,
+     "cpu_sys_ms": 17192,
+     "max_rss_kb": 621200,
+     "score": 100.0,
+     "counts": {
+      "killed": 3,
+      "survived": 0,
+      "no_coverage": 0,
+      "timeout": 0,
+      "compile_error": 0,
+      "runtime_error": 0,
+      "ignored": 0,
+      "pending": 0
+     }
+    },
+    "quiet": false
+   },
+   {
+    "rep": "A-3",
+    "t": {
+     "start": 1793644665866,
+     "npx_up": 1793644667764,
+     "first": 1793644682076,
+     "found": 1793644682076,
+     "pool": 1793644685919,
+     "dry_start": 1793644710688,
+     "dry_ok": 1793644713011,
+     "done": 1793644717692,
+     "exit": 1793644719834
+    },
+    "lag": {
+     "found": 76,
+     "pool": 919,
+     "dry_start": 688,
+     "dry_ok": 11,
+     "done": 692
+    },
+    "meta": {
+     "cmd": [
+      "rpr",
+      "run",
+      "--diff",
+      "<base>",
+      "--config",
+      "<config>",
+      "--json"
+     ],
+     "loadavg_before": [
+      20.42626953125,
+      29.28173828125,
+      28.16796875
+     ],
+     "top3_before": [
+      "163 MainThread",
+      "161 MainThread",
+      "142 orca-ide"
+     ],
+     "start_ms": 1793644665866,
+     "end_ms": 1793644719834,
+     "exit": 0,
+     "wall_ms": 53968,
+     "cpu_user_ms": 56642,
+     "cpu_sys_ms": 21651,
+     "max_rss_kb": 614720,
+     "loadavg_after": [
+      26.134765625,
+      28.9716796875,
+      28.1005859375
+     ]
+    },
+    "reapr": {
+     "duration_ms": 52374,
+     "cpu_user_ms": 55016,
+     "cpu_sys_ms": 21483,
+     "max_rss_kb": 614720,
+     "score": 100.0,
+     "counts": {
+      "killed": 3,
+      "survived": 0,
+      "no_coverage": 0,
+      "timeout": 0,
+      "compile_error": 0,
+      "runtime_error": 0,
+      "ignored": 0,
+      "pending": 0
+     }
+    },
+    "quiet": false
+   },
+   {
+    "rep": "A-4",
+    "t": {
+     "start": 1793644887556,
+     "npx_up": 1793644890437,
+     "first": 1793644909761,
+     "found": 1793644909761,
+     "pool": 1793644913854,
+     "dry_start": 1793644932430,
+     "dry_ok": 1793644933612,
+     "done": 1793644936154,
+     "exit": 1793644937751
+    },
+    "lag": {
+     "found": 761,
+     "pool": 854,
+     "dry_start": 430,
+     "dry_ok": 612,
+     "done": 154
+    },
+    "meta": {
+     "cmd": [
+      "rpr",
+      "run",
+      "--diff",
+      "<base>",
+      "--config",
+      "<config>",
+      "--json"
+     ],
+     "loadavg_before": [
+      16.45458984375,
+      23.65478515625,
+      26.2373046875
+     ],
+     "top3_before": [
+      "2000 node",
+      "128 claude",
+      "70.0 python3"
+     ],
+     "start_ms": 1793644887556,
+     "end_ms": 1793644937751,
+     "exit": 0,
+     "wall_ms": 50195,
+     "cpu_user_ms": 55431,
+     "cpu_sys_ms": 16064,
+     "max_rss_kb": 621856,
+     "loadavg_after": [
+      18.63525390625,
+      23.32177734375,
+      25.99755859375
+     ]
+    },
+    "reapr": {
+     "duration_ms": 47863,
+     "cpu_user_ms": 53355,
+     "cpu_sys_ms": 15868,
+     "max_rss_kb": 621856,
+     "score": 100.0,
+     "counts": {
+      "killed": 3,
+      "survived": 0,
+      "no_coverage": 0,
+      "timeout": 0,
+      "compile_error": 0,
+      "runtime_error": 0,
+      "ignored": 0,
+      "pending": 0
+     }
+    },
+    "quiet": false
+   },
+   {
+    "rep": "A-5",
+    "t": {
+     "start": 1793645089460,
+     "npx_up": 1793645091518,
+     "first": 1793645105457,
+     "found": 1793645105457,
+     "pool": 1793645109881,
+     "dry_start": 1793645145081,
+     "dry_ok": 1793645146502,
+     "done": 1793645149167,
+     "exit": 1793645150878
+    },
+    "lag": {
+     "found": 457,
+     "pool": 881,
+     "dry_start": 81,
+     "dry_ok": 502,
+     "done": 167
+    },
+    "meta": {
+     "cmd": [
+      "rpr",
+      "run",
+      "--diff",
+      "<base>",
+      "--config",
+      "<config>",
+      "--json"
+     ],
+     "loadavg_before": [
+      17.326171875,
+      20.681640625,
+      24.6025390625
+     ],
+     "top3_before": [
+      "293 2.1.316",
+      "85.7 python3",
+      "23.5 gh"
+     ],
+     "start_ms": 1793645089460,
+     "end_ms": 1793645150878,
+     "exit": 0,
+     "wall_ms": 61418,
+     "cpu_user_ms": 61296,
+     "cpu_sys_ms": 22076,
+     "max_rss_kb": 646624,
+     "loadavg_after": [
+      26.2763671875,
+      22.65673828125,
+      25.0166015625
+     ]
+    },
+    "reapr": {
+     "duration_ms": 59781,
+     "cpu_user_ms": 59626,
+     "cpu_sys_ms": 21895,
+     "max_rss_kb": 646624,
+     "score": 100.0,
+     "counts": {
+      "killed": 3,
+      "survived": 0,
+      "no_coverage": 0,
+      "timeout": 0,
+      "compile_error": 0,
+      "runtime_error": 0,
+      "ignored": 0,
+      "pending": 0
+     }
+    },
+    "quiet": false
+   }
+  ]
+ },
+ "B": {
+  "phases_ms": {
+   "P0 start->first Stryker line": [
+    1527,
+    4963,
+    1657,
+    1302,
+    1640
+   ],
+   "  P0a start->npx up (npm warn line)": [
+    480,
+    1450,
+    455,
+    353,
+    437
+   ],
+   "P1 ->ProjectReader Found": [
+    27040,
+    26193,
+    17738,
+    11166,
+    16533
+   ],
+   "P2 ->Starting initial test run": [
+    36209,
+    46633,
+    23459,
+    17808,
+    36718
+   ],
+   "  P2a instrument+preprocess (->Creating N process(es))": [
+    7675,
+    9563,
+    4959,
+    3382,
+    4162
+   ],
+   "  P2b checker init (->Creating a sandbox)": [
+    5021,
+    5527,
+    2477,
+    2538,
+    2880
+   ],
+   "  P2c sandbox copy (->Start symlink)": [
+    21048,
+    28112,
+    13784,
+    10407,
+    28072
+   ],
+   "  P2d symlink+reporters (->runner worker started)": [
+    509,
+    676,
+    361,
+    220,
+    258
+   ],
+   "  P2e runner startup (->Starting initial test run)": [
+    1956,
+    2755,
+    1878,
+    1261,
+    1346
+   ],
+   "  P2bcde checker+sandbox+runner (info-level split)": [
+    28534,
+    37070,
+    18500,
+    14426,
+    32556
+   ],
+   "P3 dry run (->Initial test run succeeded)": [
+    2060,
+    2403,
+    1827,
+    1061,
+    976
+   ],
+   "P4 mutation testing (->Done in)": [
+    3102,
+    4254,
+    4948,
+    2241,
+    2279
+   ],
+   "P5 ->process exit": [
+    1455,
+    2497,
+    2558,
+    1379,
+    1245
+   ],
+   "  P5a reporters/dispose (->Deleting temp dir)": [
+    124,
+    182,
+    208,
+    103,
+    78
+   ],
+   "  P5b temp dir delete+exit": [
+    1331,
+    2315,
+    2350,
+    1276,
+    1167
+   ],
+   "TOTAL wall": [
+    71393,
+    86943,
+    52187,
+    34957,
+    59391
+   ]
+  },
+  "cpu_ms": [
+   94719,
+   107878,
+   72561,
+   52759,
+   76121
+  ],
+  "runs": [
+   {
+    "rep": "B-1",
+    "t": {
+     "start": 1793644114004,
+     "npx_up": 1793644114484,
+     "first": 1793644115531,
+     "found": 1793644142571,
+     "pool": 1793644150246,
+     "sandbox": 1793644155267,
+     "symlink": 1793644176315,
+     "runner": 1793644176824,
+     "dry_start": 1793644178780,
+     "dry_ok": 1793644180840,
+     "done": 1793644183942,
+     "rmtmp": 1793644184066,
+     "exit": 1793644185397
+    },
+    "lag": {
+     "found": 571,
+     "pool": 246,
+     "sandbox": 267,
+     "symlink": 315,
+     "runner": 824,
+     "dry_start": 780,
+     "dry_ok": 840,
+     "done": 942,
+     "rmtmp": 66
+    },
+    "meta": {
+     "cmd": [
+      "npx",
+      "stryker",
+      "run",
+      "<config>",
+      "--mutate",
+      "<ranges>",
+      "--logLevel",
+      "debug"
+     ],
+     "loadavg_before": [
+      30.73828125,
+      26.52001953125,
+      25.21923828125
+     ],
+     "start_ms": 1793644114004,
+     "end_ms": 1793644185397,
+     "exit": 0,
+     "wall_ms": 71393,
+     "cpu_user_ms": 72187,
+     "cpu_sys_ms": 22532,
+     "max_rss_kb": 621600,
+     "loadavg_after": [
+      38.0341796875,
+      29.6484375,
+      26.41015625
+     ]
+    },
+    "reapr": null,
+    "quiet": false
+   },
+   {
+    "rep": "B-2",
+    "t": {
+     "start": 1793644412839,
+     "npx_up": 1793644414289,
+     "first": 1793644417802,
+     "found": 1793644443995,
+     "pool": 1793644453558,
+     "sandbox": 1793644459085,
+     "symlink": 1793644487197,
+     "runner": 1793644487873,
+     "dry_start": 1793644490628,
+     "dry_ok": 1793644493031,
+     "done": 1793644497285,
+     "rmtmp": 1793644497467,
+     "exit": 1793644499782
+    },
+    "lag": {
+     "found": 995,
+     "pool": 558,
+     "sandbox": 85,
+     "symlink": 197,
+     "runner": 873,
+     "dry_start": 628,
+     "dry_ok": 31,
+     "done": 285,
+     "rmtmp": 467
+    },
+    "meta": {
+     "cmd": [
+      "npx",
+      "stryker",
+      "run",
+      "<config>",
+      "--mutate",
+      "<ranges>",
+      "--logLevel",
+      "debug"
+     ],
+     "loadavg_before": [
+      41.677734375,
+      31.58203125,
+      27.6806640625
+     ],
+     "top3_before": [
+      "127 MainThread",
+      "87.0 beam.smp",
+      "53.0 git"
+     ],
+     "start_ms": 1793644412839,
+     "end_ms": 1793644499782,
+     "exit": 0,
+     "wall_ms": 86943,
+     "cpu_user_ms": 80844,
+     "cpu_sys_ms": 27034,
+     "max_rss_kb": 673320,
+     "loadavg_after": [
+      41.029296875,
+      35.328125,
+      29.46826171875
+     ]
+    },
+    "reapr": null,
+    "quiet": false
+   },
+   {
+    "rep": "B-3",
+    "t": {
+     "start": 1793644720181,
+     "npx_up": 1793644720636,
+     "first": 1793644721838,
+     "found": 1793644739576,
+     "pool": 1793644744535,
+     "sandbox": 1793644747012,
+     "symlink": 1793644760796,
+     "runner": 1793644761157,
+     "dry_start": 1793644763035,
+     "dry_ok": 1793644764862,
+     "done": 1793644769810,
+     "rmtmp": 1793644770018,
+     "exit": 1793644772368
+    },
+    "lag": {
+     "found": 576,
+     "pool": 535,
+     "sandbox": 12,
+     "symlink": 796,
+     "runner": 157,
+     "dry_start": 35,
+     "dry_ok": 862,
+     "done": 810,
+     "rmtmp": 18
+    },
+    "meta": {
+     "cmd": [
+      "npx",
+      "stryker",
+      "run",
+      "<config>",
+      "--mutate",
+      "<ranges>",
+      "--logLevel",
+      "debug"
+     ],
+     "loadavg_before": [
+      26.134765625,
+      28.9716796875,
+      28.1005859375
+     ],
+     "top3_before": [
+      "420 MainThread",
+      "128 MainThread",
+      "77.7 python3"
+     ],
+     "start_ms": 1793644720181,
+     "end_ms": 1793644772368,
+     "exit": 0,
+     "wall_ms": 52187,
+     "cpu_user_ms": 56930,
+     "cpu_sys_ms": 15631,
+     "max_rss_kb": 648244,
+     "loadavg_after": [
+      27.9716796875,
+      28.67431640625,
+      28.0244140625
+     ]
+    },
+    "reapr": null,
+    "quiet": false
+   },
+   {
+    "rep": "B-4",
+    "t": {
+     "start": 1793644938004,
+     "npx_up": 1793644938357,
+     "first": 1793644939306,
+     "found": 1793644950472,
+     "pool": 1793644953854,
+     "sandbox": 1793644956392,
+     "symlink": 1793644966799,
+     "runner": 1793644967019,
+     "dry_start": 1793644968280,
+     "dry_ok": 1793644969341,
+     "done": 1793644971582,
+     "rmtmp": 1793644971685,
+     "exit": 1793644972961
+    },
+    "lag": {
+     "found": 472,
+     "pool": 854,
+     "sandbox": 392,
+     "symlink": 799,
+     "runner": 19,
+     "dry_start": 280,
+     "dry_ok": 341,
+     "done": 582,
+     "rmtmp": 685
+    },
+    "meta": {
+     "cmd": [
+      "npx",
+      "stryker",
+      "run",
+      "<config>",
+      "--mutate",
+      "<ranges>",
+      "--logLevel",
+      "debug"
+     ],
+     "loadavg_before": [
+      18.63525390625,
+      23.32177734375,
+      25.99755859375
+     ],
+     "top3_before": [
+      "156 MainThread",
+      "80.0 python3",
+      "34.9 MainThread"
+     ],
+     "start_ms": 1793644938004,
+     "end_ms": 1793644972961,
+     "exit": 0,
+     "wall_ms": 34957,
+     "cpu_user_ms": 40148,
+     "cpu_sys_ms": 12611,
+     "max_rss_kb": 648692,
+     "loadavg_after": [
+      19.4169921875,
+      23.23974609375,
+      25.8837890625
+     ]
+    },
+    "reapr": null,
+    "quiet": false
+   },
+   {
+    "rep": "B-5",
+    "t": {
+     "start": 1793645151173,
+     "npx_up": 1793645151610,
+     "first": 1793645152813,
+     "found": 1793645169346,
+     "pool": 1793645173508,
+     "sandbox": 1793645176388,
+     "symlink": 1793645204460,
+     "runner": 1793645204718,
+     "dry_start": 1793645206064,
+     "dry_ok": 1793645207040,
+     "done": 1793645209319,
+     "rmtmp": 1793645209397,
+     "exit": 1793645210564
+    },
+    "lag": {
+     "found": 346,
+     "pool": 508,
+     "sandbox": 388,
+     "symlink": 460,
+     "runner": 718,
+     "dry_start": 64,
+     "dry_ok": 40,
+     "done": 319,
+     "rmtmp": 397
+    },
+    "meta": {
+     "cmd": [
+      "npx",
+      "stryker",
+      "run",
+      "<config>",
+      "--mutate",
+      "<ranges>",
+      "--logLevel",
+      "debug"
+     ],
+     "loadavg_before": [
+      26.2763671875,
+      22.65673828125,
+      25.0166015625
+     ],
+     "top3_before": [
+      "182 MainThread",
+      "158 MainThread",
+      "153 MainThread"
+     ],
+     "start_ms": 1793645151173,
+     "end_ms": 1793645210564,
+     "exit": 0,
+     "wall_ms": 59391,
+     "cpu_user_ms": 59460,
+     "cpu_sys_ms": 16661,
+     "max_rss_kb": 649520,
+     "loadavg_after": [
+      23.572265625,
+      22.55615234375,
+      24.8330078125
+     ]
+    },
+    "reapr": null,
+    "quiet": false
+   }
+  ]
+ },
+ "B0": {
+  "phases_ms": {
+   "P0 start->first Stryker line": [
+    19799,
+    24406,
+    13562,
+    12164,
+    12321
+   ],
+   "  P0a start->npx up (npm warn line)": [
+    429,
+    676,
+    460,
+    349,
+    434
+   ],
+   "P1 ->ProjectReader Found": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "P2 ->Starting initial test run": [
+    31867,
+    28975,
+    18208,
+    14894,
+    19522
+   ],
+   "  P2a instrument+preprocess (->Creating N process(es))": [
+    9051,
+    6148,
+    3218,
+    2823,
+    3060
+   ],
+   "  P2b checker init (->Creating a sandbox)": [],
+   "  P2c sandbox copy (->Start symlink)": [],
+   "  P2d symlink+reporters (->runner worker started)": [],
+   "  P2e runner startup (->Starting initial test run)": [],
+   "  P2bcde checker+sandbox+runner (info-level split)": [
+    22816,
+    22827,
+    14990,
+    12071,
+    16462
+   ],
+   "P3 dry run (->Initial test run succeeded)": [
+    1298,
+    1171,
+    1296,
+    714,
+    1349
+   ],
+   "P4 mutation testing (->Done in)": [
+    3161,
+    2670,
+    2266,
+    1839,
+    3639
+   ],
+   "P5 ->process exit": [
+    1491,
+    1480,
+    1331,
+    1063,
+    1588
+   ],
+   "  P5a reporters/dispose (->Deleting temp dir)": [],
+   "  P5b temp dir delete+exit": [],
+   "TOTAL wall": [
+    57616,
+    58702,
+    36663,
+    30674,
+    38419
+   ]
+  },
+  "cpu_ms": [
+   78394,
+   79941,
+   54824,
+   46200,
+   62750
+  ],
+  "runs": [
+   {
+    "rep": "B0-1",
+    "t": {
+     "start": 1793644185661,
+     "npx_up": 1793644186090,
+     "first": 1793644205460,
+     "found": 1793644205460,
+     "pool": 1793644214511,
+     "dry_start": 1793644237327,
+     "dry_ok": 1793644238625,
+     "done": 1793644241786,
+     "exit": 1793644243277
+    },
+    "lag": {
+     "found": 460,
+     "pool": 511,
+     "dry_start": 327,
+     "dry_ok": 625,
+     "done": 786
+    },
+    "meta": {
+     "cmd": [
+      "npx",
+      "stryker",
+      "run",
+      "<config>",
+      "--mutate",
+      "<ranges>"
+     ],
+     "loadavg_before": [
+      38.0341796875,
+      29.6484375,
+      26.41015625
+     ],
+     "top3_before": [
+      "182 MainThread",
+      "160 MainThread",
+      "161 MainThread"
+     ],
+     "start_ms": 1793644185661,
+     "end_ms": 1793644243277,
+     "exit": 0,
+     "wall_ms": 57616,
+     "cpu_user_ms": 60432,
+     "cpu_sys_ms": 17962,
+     "max_rss_kb": 647736,
+     "loadavg_after": [
+      27.64306640625,
+      28.23486328125,
+      26.1162109375
+     ]
+    },
+    "reapr": null,
+    "quiet": false
+   },
+   {
+    "rep": "B0-2",
+    "t": {
+     "start": 1793644500199,
+     "npx_up": 1793644500875,
+     "first": 1793644524605,
+     "found": 1793644524605,
+     "pool": 1793644530753,
+     "dry_start": 1793644553580,
+     "dry_ok": 1793644554751,
+     "done": 1793644557421,
+     "exit": 1793644558901
+    },
+    "lag": {
+     "found": 605,
+     "pool": 753,
+     "dry_start": 580,
+     "dry_ok": 751,
+     "done": 421
+    },
+    "meta": {
+     "cmd": [
+      "npx",
+      "stryker",
+      "run",
+      "<config>",
+      "--mutate",
+      "<ranges>"
+     ],
+     "loadavg_before": [
+      41.029296875,
+      35.328125,
+      29.46826171875
+     ],
+     "top3_before": [
+      "153 MainThread",
+      "115 MainThread",
+      "101 MainThread"
+     ],
+     "start_ms": 1793644500199,
+     "end_ms": 1793644558901,
+     "exit": 0,
+     "wall_ms": 58702,
+     "cpu_user_ms": 63975,
+     "cpu_sys_ms": 15966,
+     "max_rss_kb": 615940,
+     "loadavg_after": [
+      30.45703125,
+      33.63427734375,
+      29.2431640625
+     ]
+    },
+    "reapr": null,
+    "quiet": false
+   },
+   {
+    "rep": "B0-3",
+    "t": {
+     "start": 1793644772710,
+     "npx_up": 1793644773170,
+     "first": 1793644786272,
+     "found": 1793644786272,
+     "pool": 1793644789490,
+     "dry_start": 1793644804480,
+     "dry_ok": 1793644805776,
+     "done": 1793644808042,
+     "exit": 1793644809373
+    },
+    "lag": {
+     "found": 272,
+     "pool": 490,
+     "dry_start": 480,
+     "dry_ok": 776,
+     "done": 42
+    },
+    "meta": {
+     "cmd": [
+      "npx",
+      "stryker",
+      "run",
+      "<config>",
+      "--mutate",
+      "<ranges>"
+     ],
+     "loadavg_before": [
+      27.9716796875,
+      28.67431640625,
+      28.0244140625
+     ],
+     "top3_before": [
+      "165 MainThread",
+      "106 claude",
+      "77.7 python3"
+     ],
+     "start_ms": 1793644772710,
+     "end_ms": 1793644809373,
+     "exit": 0,
+     "wall_ms": 36663,
+     "cpu_user_ms": 42418,
+     "cpu_sys_ms": 12406,
+     "max_rss_kb": 649200,
+     "loadavg_after": [
+      20.4443359375,
+      26.6669921875,
+      27.373046875
+     ]
+    },
+    "reapr": null,
+    "quiet": false
+   },
+   {
+    "rep": "B0-4",
+    "t": {
+     "start": 1793644973239,
+     "npx_up": 1793644973588,
+     "first": 1793644985403,
+     "found": 1793644985403,
+     "pool": 1793644988226,
+     "dry_start": 1793645000297,
+     "dry_ok": 1793645001011,
+     "done": 1793645002850,
+     "exit": 1793645003913
+    },
+    "lag": {
+     "found": 403,
+     "pool": 226,
+     "dry_start": 297,
+     "dry_ok": 11,
+     "done": 850
+    },
+    "meta": {
+     "cmd": [
+      "npx",
+      "stryker",
+      "run",
+      "<config>",
+      "--mutate",
+      "<ranges>"
+     ],
+     "loadavg_before": [
+      19.4169921875,
+      23.23974609375,
+      25.8837890625
+     ],
+     "top3_before": [
+      "66.6 python3",
+      "26.4 claude",
+      "26.2 beam.smp"
+     ],
+     "start_ms": 1793644973239,
+     "end_ms": 1793645003913,
+     "exit": 0,
+     "wall_ms": 30674,
+     "cpu_user_ms": 35946,
+     "cpu_sys_ms": 10254,
+     "max_rss_kb": 619564,
+     "loadavg_after": [
+      15.84814453125,
+      22.0048828125,
+      25.38818359375
+     ]
+    },
+    "reapr": null,
+    "quiet": false
+   },
+   {
+    "rep": "B0-5",
+    "t": {
+     "start": 1793645210779,
+     "npx_up": 1793645211213,
+     "first": 1793645223100,
+     "found": 1793645223100,
+     "pool": 1793645226160,
+     "dry_start": 1793645242622,
+     "dry_ok": 1793645243971,
+     "done": 1793645247610,
+     "exit": 1793645249198
+    },
+    "lag": {
+     "found": 100,
+     "pool": 160,
+     "dry_start": 622,
+     "dry_ok": 971,
+     "done": 610
+    },
+    "meta": {
+     "cmd": [
+      "npx",
+      "stryker",
+      "run",
+      "<config>",
+      "--mutate",
+      "<ranges>"
+     ],
+     "loadavg_before": [
+      23.572265625,
+      22.55615234375,
+      24.8330078125
+     ],
+     "top3_before": [
+      "300 MainThread",
+      "83.3 python3",
+      "39.6 systemd-tmpfile"
+     ],
+     "start_ms": 1793645210779,
+     "end_ms": 1793645249198,
+     "exit": 0,
+     "wall_ms": 38419,
+     "cpu_user_ms": 43630,
+     "cpu_sys_ms": 19120,
+     "max_rss_kb": 621068,
+     "loadavg_after": [
+      20.44970703125,
+      21.76318359375,
+      24.47607421875
+     ]
+    },
+    "reapr": null,
+    "quiet": false
+   }
+  ]
+ },
+ "C": {
+  "phases_ms": {
+   "P0 start->first Stryker line": [
+    1473,
+    1287,
+    1203,
+    974,
+    1517
+   ],
+   "  P0a start->npx up (npm warn line)": [
+    410,
+    414,
+    347,
+    271,
+    457
+   ],
+   "P1 ->ProjectReader Found": [
+    13877,
+    13092,
+    11475,
+    10025,
+    11613
+   ],
+   "P2 ->Starting initial test run": [
+    28610,
+    33176,
+    15318,
+    20823,
+    20109
+   ],
+   "  P2a instrument+preprocess (->Creating N process(es))": [
+    6036,
+    4048,
+    3348,
+    3218,
+    4190
+   ],
+   "  P2b checker init (->Creating a sandbox)": [
+    2183,
+    1370,
+    1046,
+    1084,
+    1070
+   ],
+   "  P2c sandbox copy (->Start symlink)": [
+    18731,
+    25708,
+    9401,
+    14539,
+    12995
+   ],
+   "  P2d symlink+reporters (->runner worker started)": [
+    293,
+    451,
+    252,
+    348,
+    324
+   ],
+   "  P2e runner startup (->Starting initial test run)": [
+    1367,
+    1599,
+    1271,
+    1634,
+    1530
+   ],
+   "  P2bcde checker+sandbox+runner (info-level split)": [
+    22574,
+    29128,
+    11970,
+    17605,
+    15919
+   ],
+   "P3 dry run (->Initial test run succeeded)": [
+    1296,
+    1202,
+    1639,
+    1118,
+    1087
+   ],
+   "P4 mutation testing (->Done in)": [
+    1672,
+    2119,
+    2058,
+    1475,
+    1569
+   ],
+   "P5 ->process exit": [
+    1825,
+    1573,
+    1703,
+    1328,
+    1282
+   ],
+   "  P5a reporters/dispose (->Deleting temp dir)": [
+    99,
+    107,
+    122,
+    93,
+    72
+   ],
+   "  P5b temp dir delete+exit": [
+    1726,
+    1466,
+    1581,
+    1235,
+    1210
+   ],
+   "TOTAL wall": [
+    48753,
+    52449,
+    33396,
+    35743,
+    37177
+   ]
+  },
+  "cpu_ms": [
+   67131,
+   72579,
+   51864,
+   55361,
+   56525
+  ],
+  "runs": [
+   {
+    "rep": "C-1",
+    "t": {
+     "start": 1793644243487,
+     "npx_up": 1793644243897,
+     "first": 1793644244960,
+     "found": 1793644258837,
+     "pool": 1793644264873,
+     "sandbox": 1793644267056,
+     "symlink": 1793644285787,
+     "runner": 1793644286080,
+     "dry_start": 1793644287447,
+     "dry_ok": 1793644288743,
+     "done": 1793644290415,
+     "rmtmp": 1793644290514,
+     "exit": 1793644292240
+    },
+    "lag": {
+     "found": 837,
+     "pool": 873,
+     "sandbox": 56,
+     "symlink": 787,
+     "runner": 80,
+     "dry_start": 447,
+     "dry_ok": 743,
+     "done": 415,
+     "rmtmp": 514
+    },
+    "meta": {
+     "cmd": [
+      "npx",
+      "stryker",
+      "run",
+      "<config>",
+      "--mutate",
+      "<ranges>",
+      "--logLevel",
+      "debug",
+      "--checkers",
+      ""
+     ],
+     "loadavg_before": [
+      27.64306640625,
+      28.23486328125,
+      26.1162109375
+     ],
+     "top3_before": [
+      "150 MainThread",
+      "149 MainThread",
+      "124 MainThread"
+     ],
+     "start_ms": 1793644243487,
+     "end_ms": 1793644292240,
+     "exit": 0,
+     "wall_ms": 48753,
+     "cpu_user_ms": 50755,
+     "cpu_sys_ms": 16376,
+     "max_rss_kb": 649928,
+     "loadavg_after": [
+      29.8310546875,
+      29.03125,
+      26.51123046875
+     ]
+    },
+    "reapr": null,
+    "quiet": false
+   },
+   {
+    "rep": "C-2",
+    "t": {
+     "start": 1793644559182,
+     "npx_up": 1793644559596,
+     "first": 1793644560469,
+     "found": 1793644573561,
+     "pool": 1793644577609,
+     "sandbox": 1793644578979,
+     "symlink": 1793644604687,
+     "runner": 1793644605138,
+     "dry_start": 1793644606737,
+     "dry_ok": 1793644607939,
+     "done": 1793644610058,
+     "rmtmp": 1793644610165,
+     "exit": 1793644611631
+    },
+    "lag": {
+     "found": 561,
+     "pool": 609,
+     "sandbox": 979,
+     "symlink": 687,
+     "runner": 138,
+     "dry_start": 737,
+     "dry_ok": 939,
+     "done": 58,
+     "rmtmp": 165
+    },
+    "meta": {
+     "cmd": [
+      "npx",
+      "stryker",
+      "run",
+      "<config>",
+      "--mutate",
+      "<ranges>",
+      "--logLevel",
+      "debug",
+      "--checkers",
+      ""
+     ],
+     "loadavg_before": [
+      30.45703125,
+      33.63427734375,
+      29.2431640625
+     ],
+     "top3_before": [
+      "175 MainThread",
+      "101 .postgres-wrapp",
+      "85.7 python3"
+     ],
+     "start_ms": 1793644559182,
+     "end_ms": 1793644611631,
+     "exit": 0,
+     "wall_ms": 52449,
+     "cpu_user_ms": 54711,
+     "cpu_sys_ms": 17868,
+     "max_rss_kb": 632964,
+     "loadavg_after": [
+      26.0439453125,
+      31.77978515625,
+      28.853515625
+     ]
+    },
+    "reapr": null,
+    "quiet": false
+   },
+   {
+    "rep": "C-3",
+    "t": {
+     "start": 1793644809611,
+     "npx_up": 1793644809958,
+     "first": 1793644810814,
+     "found": 1793644822289,
+     "pool": 1793644825637,
+     "sandbox": 1793644826683,
+     "symlink": 1793644836084,
+     "runner": 1793644836336,
+     "dry_start": 1793644837607,
+     "dry_ok": 1793644839246,
+     "done": 1793644841304,
+     "rmtmp": 1793644841426,
+     "exit": 1793644843007
+    },
+    "lag": {
+     "found": 289,
+     "pool": 637,
+     "sandbox": 683,
+     "symlink": 84,
+     "runner": 336,
+     "dry_start": 607,
+     "dry_ok": 246,
+     "done": 304,
+     "rmtmp": 426
+    },
+    "meta": {
+     "cmd": [
+      "npx",
+      "stryker",
+      "run",
+      "<config>",
+      "--mutate",
+      "<ranges>",
+      "--logLevel",
+      "debug",
+      "--checkers",
+      ""
+     ],
+     "loadavg_before": [
+      20.4443359375,
+      26.6669921875,
+      27.373046875
+     ],
+     "top3_before": [
+      "80.0 python3",
+      "39.0 claude",
+      "21.2 orca-ide"
+     ],
+     "start_ms": 1793644809611,
+     "end_ms": 1793644843007,
+     "exit": 0,
+     "wall_ms": 33396,
+     "cpu_user_ms": 38567,
+     "cpu_sys_ms": 13297,
+     "max_rss_kb": 650072,
+     "loadavg_after": [
+      15.939453125,
+      24.8408203125,
+      26.73388671875
+     ]
+    },
+    "reapr": null,
+    "quiet": false
+   },
+   {
+    "rep": "C-4",
+    "t": {
+     "start": 1793645004091,
+     "npx_up": 1793645004362,
+     "first": 1793645005065,
+     "found": 1793645015090,
+     "pool": 1793645018308,
+     "sandbox": 1793645019392,
+     "symlink": 1793645033931,
+     "runner": 1793645034279,
+     "dry_start": 1793645035913,
+     "dry_ok": 1793645037031,
+     "done": 1793645038506,
+     "rmtmp": 1793645038599,
+     "exit": 1793645039834
+    },
+    "lag": {
+     "found": 90,
+     "pool": 308,
+     "sandbox": 392,
+     "symlink": 931,
+     "runner": 279,
+     "dry_start": 913,
+     "dry_ok": 31,
+     "done": 506,
+     "rmtmp": 599
+    },
+    "meta": {
+     "cmd": [
+      "npx",
+      "stryker",
+      "run",
+      "<config>",
+      "--mutate",
+      "<ranges>",
+      "--logLevel",
+      "debug",
+      "--checkers",
+      ""
+     ],
+     "loadavg_before": [
+      15.84814453125,
+      22.0048828125,
+      25.38818359375
+     ],
+     "top3_before": [
+      "75.0 python3",
+      "22.0 claude",
+      "21.2 orca-ide"
+     ],
+     "start_ms": 1793645004091,
+     "end_ms": 1793645039834,
+     "exit": 0,
+     "wall_ms": 35743,
+     "cpu_user_ms": 40099,
+     "cpu_sys_ms": 15262,
+     "max_rss_kb": 650032,
+     "loadavg_after": [
+      14.83642578125,
+      20.90869140625,
+      24.87109375
+     ]
+    },
+    "reapr": null,
+    "quiet": false
+   },
+   {
+    "rep": "C-5",
+    "t": {
+     "start": 1793645249439,
+     "npx_up": 1793645249896,
+     "first": 1793645250956,
+     "found": 1793645262569,
+     "pool": 1793645266759,
+     "sandbox": 1793645267829,
+     "symlink": 1793645280824,
+     "runner": 1793645281148,
+     "dry_start": 1793645282678,
+     "dry_ok": 1793645283765,
+     "done": 1793645285334,
+     "rmtmp": 1793645285406,
+     "exit": 1793645286616
+    },
+    "lag": {
+     "found": 569,
+     "pool": 759,
+     "sandbox": 829,
+     "symlink": 824,
+     "runner": 148,
+     "dry_start": 678,
+     "dry_ok": 765,
+     "done": 334,
+     "rmtmp": 406
+    },
+    "meta": {
+     "cmd": [
+      "npx",
+      "stryker",
+      "run",
+      "<config>",
+      "--mutate",
+      "<ranges>",
+      "--logLevel",
+      "debug",
+      "--checkers",
+      ""
+     ],
+     "loadavg_before": [
+      20.44970703125,
+      21.76318359375,
+      24.47607421875
+     ],
+     "top3_before": [
+      "100 python3",
+      "40.7 systemd-tmpfile",
+      "21.3 orca-ide"
+     ],
+     "start_ms": 1793645249439,
+     "end_ms": 1793645286616,
+     "exit": 0,
+     "wall_ms": 37177,
+     "cpu_user_ms": 42198,
+     "cpu_sys_ms": 14327,
+     "max_rss_kb": 654020,
+     "loadavg_after": [
+      18.8212890625,
+      21.36474609375,
+      24.23828125
+     ]
+    },
+    "reapr": null,
+    "quiet": false
+   }
+  ]
+ },
+ "D": {
+  "phases_ms": {
+   "P0 start->first Stryker line": [
+    3625,
+    1739,
+    1249,
+    1472,
+    1650
+   ],
+   "  P0a start->npx up (npm warn line)": [
+    959,
+    480,
+    374,
+    434,
+    438
+   ],
+   "P1 ->ProjectReader Found": [
+    22873,
+    15786,
+    10204,
+    14264,
+    10551
+   ],
+   "P2 ->Starting initial test run": [
+    34130,
+    30758,
+    26275,
+    27428,
+    23760
+   ],
+   "  P2a instrument+preprocess (->Creating N process(es))": [
+    6220,
+    5693,
+    2815,
+    4662,
+    3697
+   ],
+   "  P2b checker init (->Creating a sandbox)": [
+    9220,
+    8865,
+    9204,
+    7248,
+    6194
+   ],
+   "  P2c sandbox copy (->Start symlink)": [
+    16568,
+    14260,
+    12640,
+    13376,
+    12050
+   ],
+   "  P2d symlink+reporters (->runner worker started)": [
+    469,
+    295,
+    298,
+    349,
+    322
+   ],
+   "  P2e runner startup (->Starting initial test run)": [
+    1653,
+    1645,
+    1318,
+    1793,
+    1497
+   ],
+   "  P2bcde checker+sandbox+runner (info-level split)": [
+    27910,
+    25065,
+    23460,
+    22766,
+    20063
+   ],
+   "P3 dry run (->Initial test run succeeded)": [
+    1346,
+    1281,
+    1366,
+    1463,
+    1520
+   ],
+   "P4 mutation testing (->Done in)": [
+    2022,
+    1755,
+    2507,
+    2187,
+    1457
+   ],
+   "P5 ->process exit": [
+    1775,
+    2321,
+    2278,
+    2257,
+    1637
+   ],
+   "  P5a reporters/dispose (->Deleting temp dir)": [
+    380,
+    929,
+    474,
+    362,
+    531
+   ],
+   "  P5b temp dir delete+exit": [
+    1395,
+    1392,
+    1804,
+    1895,
+    1106
+   ],
+   "TOTAL wall": [
+    65771,
+    53640,
+    43879,
+    49071,
+    40575
+   ]
+  },
+  "cpu_ms": [
+   117390,
+   105705,
+   92963,
+   98866,
+   81834
+  ],
+  "runs": [
+   {
+    "rep": "D-1",
+    "t": {
+     "start": 1793644292581,
+     "npx_up": 1793644293540,
+     "first": 1793644296206,
+     "found": 1793644319079,
+     "pool": 1793644325299,
+     "sandbox": 1793644334519,
+     "symlink": 1793644351087,
+     "runner": 1793644351556,
+     "dry_start": 1793644353209,
+     "dry_ok": 1793644354555,
+     "done": 1793644356577,
+     "rmtmp": 1793644356957,
+     "exit": 1793644358352
+    },
+    "lag": {
+     "found": 79,
+     "pool": 299,
+     "sandbox": 519,
+     "symlink": 87,
+     "runner": 556,
+     "dry_start": 209,
+     "dry_ok": 555,
+     "done": 577,
+     "rmtmp": 957
+    },
+    "meta": {
+     "cmd": [
+      "npx",
+      "stryker",
+      "run",
+      "<config>",
+      "--mutate",
+      "<ranges>",
+      "--logLevel",
+      "debug",
+      "--concurrency",
+      "8"
+     ],
+     "loadavg_before": [
+      29.8310546875,
+      29.03125,
+      26.51123046875
+     ],
+     "top3_before": [
+      "200 MainThread",
+      "136 MainThread",
+      "100 MainThread"
+     ],
+     "start_ms": 1793644292581,
+     "end_ms": 1793644358352,
+     "exit": 0,
+     "wall_ms": 65771,
+     "cpu_user_ms": 95201,
+     "cpu_sys_ms": 22189,
+     "max_rss_kb": 620320,
+     "loadavg_after": [
+      26.6630859375,
+      29.27783203125,
+      26.8349609375
+     ]
+    },
+    "reapr": null,
+    "quiet": false
+   },
+   {
+    "rep": "D-2",
+    "t": {
+     "start": 1793644611938,
+     "npx_up": 1793644612418,
+     "first": 1793644613677,
+     "found": 1793644629463,
+     "pool": 1793644635156,
+     "sandbox": 1793644644021,
+     "symlink": 1793644658281,
+     "runner": 1793644658576,
+     "dry_start": 1793644660221,
+     "dry_ok": 1793644661502,
+     "done": 1793644663257,
+     "rmtmp": 1793644664186,
+     "exit": 1793644665578
+    },
+    "lag": {
+     "found": 463,
+     "pool": 1156,
+     "sandbox": 21,
+     "symlink": 281,
+     "runner": 576,
+     "dry_start": 221,
+     "dry_ok": 502,
+     "done": 257,
+     "rmtmp": 186
+    },
+    "meta": {
+     "cmd": [
+      "npx",
+      "stryker",
+      "run",
+      "<config>",
+      "--mutate",
+      "<ranges>",
+      "--logLevel",
+      "debug",
+      "--concurrency",
+      "8"
+     ],
+     "loadavg_before": [
+      26.0439453125,
+      31.77978515625,
+      28.853515625
+     ],
+     "top3_before": [
+      "205 MainThread",
+      "157 MainThread",
+      "71.4 python3"
+     ],
+     "start_ms": 1793644611938,
+     "end_ms": 1793644665578,
+     "exit": 0,
+     "wall_ms": 53640,
+     "cpu_user_ms": 83811,
+     "cpu_sys_ms": 21894,
+     "max_rss_kb": 630980,
+     "loadavg_after": [
+      20.42626953125,
+      29.28173828125,
+      28.16796875
+     ]
+    },
+    "reapr": null,
+    "quiet": false
+   },
+   {
+    "rep": "D-3",
+    "t": {
+     "start": 1793644843285,
+     "npx_up": 1793644843659,
+     "first": 1793644844534,
+     "found": 1793644854738,
+     "pool": 1793644857553,
+     "sandbox": 1793644866757,
+     "symlink": 1793644879397,
+     "runner": 1793644879695,
+     "dry_start": 1793644881013,
+     "dry_ok": 1793644882379,
+     "done": 1793644884886,
+     "rmtmp": 1793644885360,
+     "exit": 1793644887164
+    },
+    "lag": {
+     "found": 738,
+     "pool": 553,
+     "sandbox": 757,
+     "symlink": 397,
+     "runner": 695,
+     "dry_start": 13,
+     "dry_ok": 379,
+     "done": 886,
+     "rmtmp": 360
+    },
+    "meta": {
+     "cmd": [
+      "npx",
+      "stryker",
+      "run",
+      "<config>",
+      "--mutate",
+      "<ranges>",
+      "--logLevel",
+      "debug",
+      "--concurrency",
+      "8"
+     ],
+     "loadavg_before": [
+      15.939453125,
+      24.8408203125,
+      26.73388671875
+     ],
+     "top3_before": [
+      "188 MainThread",
+      "146 MainThread",
+      "85.7 python3"
+     ],
+     "start_ms": 1793644843285,
+     "end_ms": 1793644887164,
+     "exit": 0,
+     "wall_ms": 43879,
+     "cpu_user_ms": 71930,
+     "cpu_sys_ms": 21033,
+     "max_rss_kb": 647940,
+     "loadavg_after": [
+      16.45458984375,
+      23.65478515625,
+      26.2373046875
+     ]
+    },
+    "reapr": null,
+    "quiet": false
+   },
+   {
+    "rep": "D-4",
+    "t": {
+     "start": 1793645040048,
+     "npx_up": 1793645040482,
+     "first": 1793645041520,
+     "found": 1793645055784,
+     "pool": 1793645060446,
+     "sandbox": 1793645067694,
+     "symlink": 1793645081070,
+     "runner": 1793645081419,
+     "dry_start": 1793645083212,
+     "dry_ok": 1793645084675,
+     "done": 1793645086862,
+     "rmtmp": 1793645087224,
+     "exit": 1793645089119
+    },
+    "lag": {
+     "found": 784,
+     "pool": 446,
+     "sandbox": 694,
+     "symlink": 70,
+     "runner": 419,
+     "dry_start": 212,
+     "dry_ok": 675,
+     "done": 862,
+     "rmtmp": 224
+    },
+    "meta": {
+     "cmd": [
+      "npx",
+      "stryker",
+      "run",
+      "<config>",
+      "--mutate",
+      "<ranges>",
+      "--logLevel",
+      "debug",
+      "--concurrency",
+      "8"
+     ],
+     "loadavg_before": [
+      14.83642578125,
+      20.90869140625,
+      24.87109375
+     ],
+     "top3_before": [
+      "320 2.1.316",
+      "60.0 python3",
+      "21.2 orca-ide"
+     ],
+     "start_ms": 1793645040048,
+     "end_ms": 1793645089119,
+     "exit": 0,
+     "wall_ms": 49071,
+     "cpu_user_ms": 76777,
+     "cpu_sys_ms": 22089,
+     "max_rss_kb": 646172,
+     "loadavg_after": [
+      17.326171875,
+      20.681640625,
+      24.6025390625
+     ]
+    },
+    "reapr": null,
+    "quiet": false
+   },
+   {
+    "rep": "D-5",
+    "t": {
+     "start": 1793645286853,
+     "npx_up": 1793645287291,
+     "first": 1793645288503,
+     "found": 1793645299054,
+     "pool": 1793645302751,
+     "sandbox": 1793645308945,
+     "symlink": 1793645320995,
+     "runner": 1793645321317,
+     "dry_start": 1793645322814,
+     "dry_ok": 1793645324334,
+     "done": 1793645325791,
+     "rmtmp": 1793645326322,
+     "exit": 1793645327428
+    },
+    "lag": {
+     "found": 54,
+     "pool": 751,
+     "sandbox": 945,
+     "symlink": 995,
+     "runner": 317,
+     "dry_start": 814,
+     "dry_ok": 334,
+     "done": 791,
+     "rmtmp": 322
+    },
+    "meta": {
+     "cmd": [
+      "npx",
+      "stryker",
+      "run",
+      "<config>",
+      "--mutate",
+      "<ranges>",
+      "--logLevel",
+      "debug",
+      "--concurrency",
+      "8"
+     ],
+     "loadavg_before": [
+      18.8212890625,
+      21.36474609375,
+      24.23828125
+     ],
+     "top3_before": [
+      "80.0 python3",
+      "41.3 systemd-tmpfile",
+      "21.3 orca-ide"
+     ],
+     "start_ms": 1793645286853,
+     "end_ms": 1793645327428,
+     "exit": 0,
+     "wall_ms": 40575,
+     "cpu_user_ms": 65019,
+     "cpu_sys_ms": 16815,
+     "max_rss_kb": 631236,
+     "loadavg_after": [
+      15.96337890625,
+      20.27685546875,
+      23.74853515625
+     ]
+    },
+    "reapr": null,
+    "quiet": false
+   }
+  ]
+ },
+ "E": {
+  "phases_ms": {
+   "P0 start->first Stryker line": [
+    4377,
+    2468,
+    2632,
+    2561,
+    2267
+   ],
+   "  P0a start->npx up (npm warn line)": [
+    729,
+    449,
+    388,
+    418,
+    363
+   ],
+   "P1 ->ProjectReader Found": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "P2 ->Starting initial test run": [
+    6616,
+    5890,
+    5693,
+    3967,
+    3867
+   ],
+   "  P2a instrument+preprocess (->Creating N process(es))": [
+    550,
+    444,
+    614,
+    345,
+    382
+   ],
+   "  P2b checker init (->Creating a sandbox)": [],
+   "  P2c sandbox copy (->Start symlink)": [],
+   "  P2d symlink+reporters (->runner worker started)": [],
+   "  P2e runner startup (->Starting initial test run)": [],
+   "  P2bcde checker+sandbox+runner (info-level split)": [
+    6066,
+    5446,
+    5079,
+    3622,
+    3485
+   ],
+   "P3 dry run (->Initial test run succeeded)": [
+    1510,
+    1369,
+    1230,
+    1177,
+    1056
+   ],
+   "P4 mutation testing (->Done in)": [
+    2624,
+    2485,
+    2720,
+    2253,
+    2050
+   ],
+   "P5 ->process exit": [
+    201,
+    241,
+    205,
+    192,
+    177
+   ],
+   "  P5a reporters/dispose (->Deleting temp dir)": [],
+   "  P5b temp dir delete+exit": [],
+   "TOTAL wall": [
+    15328,
+    12453,
+    12480,
+    10150,
+    9417
+   ]
+  },
+  "cpu_ms": [
+   23343,
+   19775,
+   19822,
+   17100,
+   16167
+  ],
+  "runs": [
+   {
+    "rep": "E-1",
+    "t": {
+     "start": 1793645356317,
+     "npx_up": 1793645357046,
+     "first": 1793645360694,
+     "found": 1793645360694,
+     "pool": 1793645361244,
+     "dry_start": 1793645367310,
+     "dry_ok": 1793645368820,
+     "done": 1793645371444,
+     "exit": 1793645371645
+    },
+    "lag": {
+     "found": 694,
+     "pool": 244,
+     "dry_start": 310,
+     "dry_ok": 820,
+     "done": 444
+    },
+    "meta": {
+     "cmd": [
+      "npx",
+      "stryker",
+      "run",
+      "<config>",
+      "--mutate",
+      "<ranges>",
+      "--ignorePatterns",
+      "<the config's ignorePatterns>,.turbo"
+     ],
+     "loadavg_before": [
+      21.2041015625,
+      21.0009765625,
+      23.87158203125
+     ],
+     "top3_before": [
+      "575 MainThread",
+      "230 git",
+      "196 MainThread"
+     ],
+     "start_ms": 1793645356317,
+     "end_ms": 1793645371645,
+     "exit": 0,
+     "wall_ms": 15328,
+     "cpu_user_ms": 20324,
+     "cpu_sys_ms": 3019,
+     "max_rss_kb": 408384,
+     "loadavg_after": [
+      21.1689453125,
+      21.0009765625,
+      23.8251953125
+     ]
+    },
+    "reapr": null,
+    "quiet": false
+   },
+   {
+    "rep": "E-2",
+    "t": {
+     "start": 1793645371899,
+     "npx_up": 1793645372348,
+     "first": 1793645374367,
+     "found": 1793645374367,
+     "pool": 1793645374811,
+     "dry_start": 1793645380257,
+     "dry_ok": 1793645381626,
+     "done": 1793645384111,
+     "exit": 1793645384352
+    },
+    "lag": {
+     "found": 367,
+     "pool": 811,
+     "dry_start": 257,
+     "dry_ok": 626,
+     "done": 111
+    },
+    "meta": {
+     "cmd": [
+      "npx",
+      "stryker",
+      "run",
+      "<config>",
+      "--mutate",
+      "<ranges>",
+      "--ignorePatterns",
+      "<the config's ignorePatterns>,.turbo"
+     ],
+     "loadavg_before": [
+      21.1689453125,
+      21.0009765625,
+      23.8251953125
+     ],
+     "top3_before": [
+      "155 MainThread",
+      "139 MainThread",
+      "83.3 python3"
+     ],
+     "start_ms": 1793645371899,
+     "end_ms": 1793645384352,
+     "exit": 0,
+     "wall_ms": 12453,
+     "cpu_user_ms": 17274,
+     "cpu_sys_ms": 2501,
+     "max_rss_kb": 369104,
+     "loadavg_after": [
+      19.611328125,
+      20.67138671875,
+      23.68701171875
+     ]
+    },
+    "reapr": null,
+    "quiet": false
+   },
+   {
+    "rep": "E-3",
+    "t": {
+     "start": 1793645384624,
+     "npx_up": 1793645385012,
+     "first": 1793645387256,
+     "found": 1793645387256,
+     "pool": 1793645387870,
+     "dry_start": 1793645392949,
+     "dry_ok": 1793645394179,
+     "done": 1793645396899,
+     "exit": 1793645397104
+    },
+    "lag": {
+     "found": 256,
+     "pool": 870,
+     "dry_start": 949,
+     "dry_ok": 179,
+     "done": 899
+    },
+    "meta": {
+     "cmd": [
+      "npx",
+      "stryker",
+      "run",
+      "<config>",
+      "--mutate",
+      "<ranges>",
+      "--ignorePatterns",
+      "<the config's ignorePatterns>,.turbo"
+     ],
+     "loadavg_before": [
+      19.611328125,
+      20.67138671875,
+      23.68701171875
+     ],
+     "top3_before": [
+      "1400 git",
+      "328 MainThread",
+      "236 node"
+     ],
+     "start_ms": 1793645384624,
+     "end_ms": 1793645397104,
+     "exit": 0,
+     "wall_ms": 12480,
+     "cpu_user_ms": 17160,
+     "cpu_sys_ms": 2662,
+     "max_rss_kb": 409204,
+     "loadavg_after": [
+      20.14208984375,
+      20.73681640625,
+      23.66015625
+     ]
+    },
+    "reapr": null,
+    "quiet": false
+   },
+   {
+    "rep": "E-4",
+    "t": {
+     "start": 1793645397361,
+     "npx_up": 1793645397779,
+     "first": 1793645399922,
+     "found": 1793645399922,
+     "pool": 1793645400267,
+     "dry_start": 1793645403889,
+     "dry_ok": 1793645405066,
+     "done": 1793645407319,
+     "exit": 1793645407511
+    },
+    "lag": {
+     "found": 922,
+     "pool": 267,
+     "dry_start": 889,
+     "dry_ok": 66,
+     "done": 319
+    },
+    "meta": {
+     "cmd": [
+      "npx",
+      "stryker",
+      "run",
+      "<config>",
+      "--mutate",
+      "<ranges>",
+      "--ignorePatterns",
+      "<the config's ignorePatterns>,.turbo"
+     ],
+     "loadavg_before": [
+      20.14208984375,
+      20.73681640625,
+      23.66015625
+     ],
+     "top3_before": [
+      "184 MainThread",
+      "171 MainThread",
+      "163 MainThread"
+     ],
+     "start_ms": 1793645397361,
+     "end_ms": 1793645407511,
+     "exit": 0,
+     "wall_ms": 10150,
+     "cpu_user_ms": 14103,
+     "cpu_sys_ms": 2997,
+     "max_rss_kb": 376052,
+     "loadavg_after": [
+      18.2138671875,
+      20.30078125,
+      23.486328125
+     ]
+    },
+    "reapr": null,
+    "quiet": false
+   },
+   {
+    "rep": "E-5",
+    "t": {
+     "start": 1793645407708,
+     "npx_up": 1793645408071,
+     "first": 1793645409975,
+     "found": 1793645409975,
+     "pool": 1793645410357,
+     "dry_start": 1793645413842,
+     "dry_ok": 1793645414898,
+     "done": 1793645416948,
+     "exit": 1793645417125
+    },
+    "lag": {
+     "found": 975,
+     "pool": 357,
+     "dry_start": 842,
+     "dry_ok": 898,
+     "done": 948
+    },
+    "meta": {
+     "cmd": [
+      "npx",
+      "stryker",
+      "run",
+      "<config>",
+      "--mutate",
+      "<ranges>",
+      "--ignorePatterns",
+      "<the config's ignorePatterns>,.turbo"
+     ],
+     "loadavg_before": [
+      18.2138671875,
+      20.30078125,
+      23.486328125
+     ],
+     "top3_before": [
+      "160 MainThread",
+      "80.0 python3",
+      "42.4 systemd-tmpfile"
+     ],
+     "start_ms": 1793645407708,
+     "end_ms": 1793645417125,
+     "exit": 0,
+     "wall_ms": 9417,
+     "cpu_user_ms": 13337,
+     "cpu_sys_ms": 2830,
+     "max_rss_kb": 411212,
+     "loadavg_after": [
+      16.9501953125,
+      19.9609375,
+      23.34130859375
+     ]
+    },
+    "reapr": null,
+    "quiet": false
+   }
+  ]
+ }
+}
