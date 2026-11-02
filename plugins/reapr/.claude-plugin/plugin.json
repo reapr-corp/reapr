@@ -1,7 +1,7 @@
 {
   "name": "reapr",
-  "version": "0.1.0",
-  "description": "Improve tests with mutation testing as evidence: kill surviving mutants with focused tests, flag weak tests, audit edge cases. Uses Reapr (rpr).",
+  "version": "0.2.0",
+  "description": "Set up Reapr (rpr) and improve tests with mutation testing as evidence: kill surviving mutants with focused tests, flag weak tests, audit edge cases. Uses Reapr (rpr).",
   "author": { "name": "reapr-corp", "url": "https://github.com/reapr-corp" },
   "homepage": "https://github.com/reapr-corp/reapr",
   "repository": "https://github.com/reapr-corp/reapr",

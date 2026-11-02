@@ -397,8 +397,13 @@ new mode 100755
 
     #[test]
     fn hunk_content_resembling_headers_is_ignored() {
-        let d = "+++ b/a.patch\n@@ -1 +1,2 @@\n-x\n+++ b/fake.ts\n+diff --git a/x b/x\n";
-        assert_eq!(parse_unified_zero(d), vec![r("a.patch", 1, 2)]);
+        // Added lines `++ b/fake.ts` and `diff --git a/x b/x`, then a later hunk of the same file:
+        // read as headers, they would move that hunk to `fake.ts` or drop it.
+        let d = "+++ b/a.patch\n@@ -1 +1,2 @@\n-x\n+++ b/fake.ts\n+diff --git a/x b/x\n@@ -5 +6 @@\n-p\n+q\n";
+        assert_eq!(
+            parse_unified_zero(d),
+            vec![r("a.patch", 1, 2), r("a.patch", 6, 6)]
+        );
     }
 
     #[test]

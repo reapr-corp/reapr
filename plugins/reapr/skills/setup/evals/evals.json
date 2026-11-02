@@ -1,0 +1,38 @@
+{
+  "skill_name": "setup",
+  "fixtures": {
+    "note": "Each eval runs in a fixture repo built by files/build-fixture.sh <variant> <dest>; the variant name is the eval name. Run the agent with the fixture as its working directory and DO_NOT_TRACK=1 in its environment (eval runs never send telemetry). The agent may install nothing without the user's consent; the prompts give it where the eval needs it.",
+    "js-no-config": "The mutation-audit TypeScript + Vitest 3.2.7 fixture on main, without stryker.config.mjs; package.json lists @stryker-mutator/core. Run the agent with a PATH that has no rpr.",
+    "rust": "A one-crate Rust repo (src/lib.rs: price() with a `units >= 10` bulk discount and one unit test for small orders), no .cargo/mutants.toml. Run the agent with rpr and cargo-mutants on PATH. rpr run --all: 55.56% (5 killed, 4 survived, all in src/lib.rs, the untested discount arithmetic)."
+  },
+  "evals": [
+    {
+      "id": 1,
+      "name": "js-no-config",
+      "prompt": "I want to start using Reapr on this repo. Set it up for me. You can install rpr if it's missing.",
+      "expected_output": "Finds rpr missing, shows the installer and runs it only with the consent the prompt gives, then verifies rpr --version. Detects a JavaScript/TypeScript project with Vitest and no Stryker config. Does not write any Stryker config and tells the user to run Stryker's own wizard themselves (`! npx stryker init` in Claude Code), then stops before any baseline run.",
+      "files": ["evals/files/build-fixture.sh"],
+      "expectations": [
+        "The response says rpr was not installed and shows the one-line installer",
+        "No Stryker config file (stryker.*config*, .stryker.*) was created or modified anywhere in the repo",
+        "The response tells the user to run `npx stryker init` themselves",
+        "No rpr run --all baseline is reported, and the response says setup stops until a config exists",
+        "No source or test file was changed"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "rust",
+      "prompt": "Set up Reapr here so I can see how good my tests are. Ask me before adding anything to the repo.",
+      "expected_output": "Detects a Rust project, confirms cargo-mutants is installed and that no config is needed, does not create .cargo/mutants.toml, runs `RPR_INVOKED_BY=setup RPR_SESSION_ID=<uuid> rpr run --all --json`, reports the score, the survivors per file and the time from rpr's output, asks before offering the CI job or agent rule (and writes neither without a yes), and ends by pointing to /reapr:mutation-audit with the survivor count.",
+      "files": ["evals/files/build-fixture.sh"],
+      "expectations": [
+        "An `rpr run --all` baseline ran with RPR_INVOKED_BY=setup and a UUID v4 RPR_SESSION_ID",
+        "The score, survivors per file and duration reported match the rpr JSON output",
+        ".cargo/mutants.toml does not exist and src/lib.rs is unchanged",
+        "No workflow file and no AGENTS.md or CLAUDE.md was written without the user's yes",
+        "The response ends by suggesting /reapr:mutation-audit, with the number of survivors"
+      ]
+    }
+  ]
+}

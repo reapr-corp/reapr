@@ -25,7 +25,7 @@ verdict, and raw timing data for every run) that the speed work will be measured
 - [Output](#output)
 - [Run record](#run-record)
 - [GitHub Action](#github-action)
-- [Agent skill](#agent-skill)
+- [Agent skills](#agent-skills)
 - [How it works](#how-it-works)
 - [Measurements](#measurements)
 - [Known limitations](#known-limitations)
@@ -42,7 +42,7 @@ Phase 1, released: see the [latest release](https://github.com/reapr-corp/reapr/
 
 - A CLI, `rpr`: `rpr run`, plus `rpr telemetry` to see or change [telemetry](#telemetry).
 - A GitHub Action, [`reapr-corp/run@v1`](https://github.com/marketplace/actions/reapr-mutation-testing).
-- An agent skill for Claude Code (and AGENTS.md for other agents): [Agent skill](#agent-skill).
+- Agent skills for Claude Code (and AGENTS.md for other agents): [Agent skills](#agent-skills).
 - Two engines: StrykerJS (JavaScript and TypeScript) and cargo-mutants (Rust).
 - Linux only (x86_64 and aarch64), tested on Ubuntu. macOS and Windows are not supported yet: see the
   [roadmap](#roadmap). Nothing runs in the cloud. The only thing sent anywhere is anonymous usage
@@ -110,11 +110,15 @@ rpr run --diff origin/main --project packages/lib --config packages/lib/stryker.
 
 # A repo where several engines are detected (a Rust crate with a JS frontend): pick one.
 rpr run --diff origin/main --engine cargo-mutants
+
+# Whole-project audit: every git-tracked file, not a diff.
+rpr run --all
 ```
 
 | Flag | Meaning |
 |---|---|
-| `--diff <BASE>` | Required. Base ref; the diff is `<BASE>...HEAD`. Must not start with `-`. |
+| `--diff <BASE>` | Base ref; the diff is `<BASE>...HEAD`. Must not start with `-`. Required unless `--all`. |
+| `--all` | Mutate every git-tracked file under the project directory, in full, instead of a diff. Not with `--diff`. |
 | `--json` | Print a single JSON document on stdout instead of the human summary. |
 | `--min-score <N>` | Fail (exit 1) when the score is below `N` percent (0 to 100). |
 | `--config <PATH>` | Engine config file. Skips config detection. Its file name picks the engine when it is one the engine looks for (`stryker.config.mjs` and Stryker's other names, `mutants.toml`). |
@@ -123,6 +127,12 @@ rpr run --diff origin/main --engine cargo-mutants
 
 Relative paths in `--config` and `--project` resolve against the current directory. Only changed files inside
 the project directory count.
+
+`--all` is for auditing a whole codebase. Reapr lists the tracked files (`git ls-files`) under the project
+directory and gives each engine every line of each one (binary and empty files are skipped). The engine then
+narrows that scope with its own config, as it does a diff: Stryker keeps what your `mutate` patterns select,
+cargo-mutants what it would mutate in a plain `cargo mutants` run. Lines are read from the work tree, so
+uncommitted edits to tracked files count; untracked files do not.
 
 ### Engine and config detection
 
@@ -198,7 +208,8 @@ survivors:
 run: /home/me/repo/.git/reapr/runs/1793640000-4242
 ```
 
-When nothing in the diff is mutated, the second line reads `nothing to mutate in diff vs origin/main`.
+When nothing in the diff is mutated, the second line reads `nothing to mutate in diff vs origin/main`. With
+`--all`, both lines say `all files` instead of `diff vs <base>`.
 
 ### Score
 
@@ -252,7 +263,7 @@ With `--json`, stdout holds one JSON document and nothing else.
 | `run_id` | string | `<unix seconds>-<pid>`. |
 | `run_dir` | string | Absolute path of the run directory. |
 | `engine` | string | `stryker` or `cargo-mutants`. |
-| `base` | string | The `--diff` value, as given. |
+| `base` | string or null | The `--diff` value, as given. `null` with `--all`. |
 | `ranges` | array | Changed line ranges from the diff: `path` (relative to the project directory), `start`, `end` (1-based, inclusive). Before your `mutate` patterns are applied. |
 | `score` | number or null | Percent. `null` when nothing was mutated or there were no valid mutants. |
 | `counts` | object | Mutants in scope per status: `killed`, `survived`, `no_coverage`, `timeout`, `compile_error`, `runtime_error`, `ignored`, `pending`. |
@@ -295,7 +306,8 @@ so worktrees never share runs. Reapr never sends this data anywhere and never de
 | Field | Meaning |
 |---|---|
 | `run_id` | Same as in the JSON output. |
-| `git` | `head_sha`, `base`, `merge_base_sha`, and `commits` in `merge_base..HEAD`: `sha`, `author_email`, and `trailers` as written (for example `Co-Authored-By: ...`). |
+| `scope` | `diff` (`--diff`) or `all` (`--all`). |
+| `git` | `head_sha`, `base`, `merge_base_sha`, and `commits` in `merge_base..HEAD`: `sha`, `author_email`, and `trailers` as written (for example `Co-Authored-By: ...`). With `--all`, `base` is `HEAD` and `commits` is empty. |
 | `engine`, `engine_version` | For StrykerJS, the version of `@stryker-mutator/core` that Node resolves from the project directory; for cargo-mutants, the version `cargo mutants --version` prints. |
 | `started_at` | When Reapr started, RFC 3339 UTC. |
 | `duration_ms` | Engine wall time, the same window as `resources`. |
@@ -342,10 +354,15 @@ monorepos with one config per package; not with `config`), `working-directory`, 
 (only for a private fork or mirror of the releases). Outputs: `score`, `passed`, `run-id`, and `results` (path to
 a JSON file with one entry per config). See the [action's README](https://github.com/reapr-corp/run) for details.
 
-## Agent skill
+## Agent skills
+
+The `reapr` plugin has two skills. `setup` (`/reapr:setup`) onboards a repo: it checks that `rpr` and the engine
+are installed, finds the engine config (it never writes one; for StrykerJS it asks you to run `npx stryker init`),
+runs a whole-project baseline with `rpr run --all`, and offers a pull-request gate with the GitHub Action and an
+agent rule, asking before each change.
 
 The `mutation-audit` skill lets a coding agent improve tests with Reapr's results as evidence. It runs
-`rpr run --diff <base> --json`, writes one focused test per surviving mutant and runs Reapr again to confirm
+`rpr run --diff <base> --json` (or `rpr run --all --json` for a whole-codebase audit), writes one focused test per surviving mutant and runs Reapr again to confirm
 the mutant is killed, lists tests that cover the diff but kill no mutant, and then checks the diff for edge
 cases that mutation operators do not represent (boundaries, empty input, error paths, time zones, numeric
 precision). It never changes production code or your engine config, and it asks you when the intended
@@ -364,10 +381,14 @@ On Claude Code 2.1.275 or later, one step does both:
 /plugin install reapr --marketplace reapr-corp/reapr
 ```
 
-Then ask Claude to check the tests on your branch, or run `/reapr:mutation-audit`.
+Then, in three steps:
+
+1. Install the plugin (above).
+2. Run `/reapr:setup`: installs what is missing (with your consent) and measures a baseline.
+3. Run `/reapr:mutation-audit`, or ask Claude to check the tests on your branch.
 
 Other agents (Cursor, Codex and others): point them at [plugins/reapr/AGENTS.md](plugins/reapr/AGENTS.md). It
-has the hard rules and links the full workflow in the skill's `SKILL.md`.
+has the hard rules, a short setup section, and links the full workflow in the skills' `SKILL.md` files.
 
 ## How it works
 
@@ -405,7 +426,8 @@ against 87.8 with bail off). This last one is why Reapr warns about bail, and wh
 ## Known limitations
 
 - Only committed changes count: the diff is `<base>...HEAD`, so uncommitted and untracked changes are not
-  mutated.
+  mutated. (`--all` reads the tracked files from the work tree, so it includes uncommitted edits, but still
+  not untracked files.)
 - cargo-mutants mutates the working tree. Uncommitted edits to a changed Rust file shift its lines against the
   committed diff, so the ranges can select different code; commit or stash first.
 - A `mutate` entry in your config that carries its own range (`src/a.ts:1-9`) never matches; use plain globs.
