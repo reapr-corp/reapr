@@ -10,7 +10,10 @@
     "mutate_re": "^src/.*\\.ts$",
     "exclude_re": "(\\.test\\.ts$|^src/_internals/test/|/constants\\.ts$|^src/_internals/constants/|^src/index\\.ts$)",
     "a_args": "",
-    "b": {"args": "--incremental", "file": "reports/stryker-incremental.json"}
+    "b": {
+      "args": "--incremental",
+      "file": "reports/stryker-incremental.json"
+    }
   },
   {
     "id": "boundaries-elements",
@@ -58,7 +61,7 @@
     "project": "packages/container/libraries/core",
     "config": "stryker.config.mjs",
     "node": "26.13.0",
-    "install": "npm install -g corepack && corepack pnpm install --frozen-lockfile && corepack pnpm turbo run build --filter=@inversifyjs/core^...",
+    "install": "npm install -g \"$(node -p \"require('./package.json').packageManager.replace(/\\\\+.*/, '')\")\" && pnpm install && pnpm exec turbo run build --filter=@inversifyjs/core^...",
     "mutate_re": "^packages/container/libraries/core/src/.*\\.ts$",
     "exclude_re": "(\\.spec\\.ts$|(Fixtures|Mocks)\\.ts$)",
     "a_args": "--reporters clear-text,progress,html,json",
@@ -75,6 +78,9 @@
     "mutate_re": "^packages/exchange/src/.*\\.ts$",
     "exclude_re": "(\\.test\\.ts$|/demo/)",
     "a_args": "--reporters clear-text,html,progress,json",
-    "b": {"args": "", "file": "reports/stryker-incremental.json"}
+    "b": {
+      "args": "",
+      "file": "reports/stryker-incremental.json"
+    }
   }
 ]
