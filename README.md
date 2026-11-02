@@ -297,8 +297,13 @@ jobs:
           min-score: 80
 ```
 
-Inputs: `base` (default: the pull request base), `min-score`, `config`, `working-directory`, `version`.
-Outputs: `score`, `passed`, `run-id`. See the [action's README](https://github.com/reapr-corp/run) for details.
+Linux runners only (`ubuntu-latest`, or Blacksmith Ubuntu labels such as `blacksmith-2vcpu-ubuntu-2404`; x86_64
+and aarch64). No token is needed: the action installs from the public `reapr-corp/reapr` releases.
+
+Inputs: `base` (default: the pull request base), `min-score`, `config`, `configs` (one config path per line, for
+monorepos with one config per package; not with `config`), `working-directory`, `version`, and `github-token`
+(only for a private fork or mirror of the releases). Outputs: `score`, `passed`, `run-id`, and `results` (path to
+a JSON file with one entry per config). See the [action's README](https://github.com/reapr-corp/run) for details.
 
 ## How it works
 
