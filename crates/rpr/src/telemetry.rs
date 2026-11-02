@@ -15,10 +15,10 @@ use tokio::io::AsyncWriteExt;
 use crate::CliError;
 use crate::output::Summary;
 
-/// PostHog project API key. Public and write-only by design: it can only ingest events. While it is empty,
-/// telemetry is a silent no-op (no notice, no state file, nothing sent); `RPR_TELEMETRY_DEBUG=1` still
-/// prints the payload that would be sent.
-pub const POSTHOG_PROJECT_KEY: &str = "";
+/// PostHog project API key (Reapr org, project 705587). Public and write-only by design: it can only
+/// ingest events. If it were empty, telemetry would be a silent no-op (no notice, no state file, nothing
+/// sent); `RPR_TELEMETRY_DEBUG=1` prints the payload that would be sent.
+pub const POSTHOG_PROJECT_KEY: &str = "phc_oLXpAoTpY2pSPHPhnTzcKParQPjgipUz5WUrRdojynyP";
 const CAPTURE_URL: &str = "https://us.i.posthog.com/i/v0/e/";
 /// The whole send (curl's own `-m 1` included) is cut off after this.
 const SEND_TIMEOUT: Duration = Duration::from_millis(1500);
