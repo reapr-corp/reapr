@@ -325,6 +325,7 @@ fn invoked_by(env: Env) -> Option<&'static str> {
     match env("RPR_INVOKED_BY")?.as_str() {
         "" => None,
         "mutation-audit" => Some("mutation-audit"),
+        "setup" => Some("setup"),
         _ => Some("other"),
     }
 }
@@ -1472,6 +1473,7 @@ mod tests {
         assert_eq!(invoked_by(&env_of(&[])), None);
         assert_eq!(i(""), None);
         assert_eq!(i("mutation-audit"), Some("mutation-audit"));
+        assert_eq!(i("setup"), Some("setup"));
         assert_eq!(i("my-script /home/me"), Some("other"));
         let s = |v: &str| session_id(&env_of(&[("RPR_SESSION_ID", v)]));
         let id = new_uuid();
