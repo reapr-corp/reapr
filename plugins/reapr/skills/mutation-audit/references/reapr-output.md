@@ -32,28 +32,47 @@ stdout holds one JSON document and nothing else. Engine output, warnings and not
 
 - `score`: detected / (detected + undetected) × 100, where detected = Killed + Timeout and undetected =
   Survived + NoCoverage. `null` when nothing was mutated or there were no valid mutants.
+- `base`: the `--diff` value; `null` with `--all`.
 - `ranges`: changed line ranges from the diff, before the config's `mutate` patterns apply (test files can
-  appear here and still not be mutated).
+  appear here and still not be mutated). With `--all`: every tracked text file, lines `1` to its last line.
 - `survivors`: Survived and NoCoverage mutants in the diff scope, sorted by file, line, column. `line` and
   `column` are the 1-based start position.
 - `warnings`: read them. For example, Vitest 4+ with bail on can report killed mutants as survived; Reapr
   warns and does not change the setting. Pass that warning on to the human; do not edit the config.
+- `mutator` and `replacement` depend on the engine. StrykerJS: mutator names such as `EqualityOperator`
+  (table below) and the replacement code. cargo-mutants: the genre (`BinaryOperator`, `FnValue`,
+  `MatchArmGuard`, `MatchArm`, `UnaryOperator`) and only the new token (`>=`, `true`, `()`), without the
+  original; the full description (`replace > with >= in parse_unified_zero`) is the mutant `id` in
+  `report.json`.
 - Exit codes: 0 passed (also nothing to mutate), 1 below `--min-score` or the engine's own threshold
   failed, 2 error (stdout is `{"error": "<message>"}`).
 
-Flags: `--diff <BASE>` (required), `--json`, `--min-score <N>`, `--config <PATH>`, `--project <DIR>`.
+Flags: `--diff <BASE>` or `--all` (exactly one), `--json`, `--min-score <N>`, `--config <PATH>`, `--project <DIR>`.
 Do not add `--min-score` unless the human asks; it does not change which mutants survive.
 
 ## Run directory: `<git dir>/reapr/runs/<run_id>/`
 
-Outside the work tree, never committed. Each worktree has its own git dir.
+Outside the work tree, never committed. Each worktree has its own git dir: in a linked worktree that is
+`<main repo>/.git/worktrees/<name>/reapr/runs/`, not `.git/reapr/runs/`. `run_dir` in the JSON is always right.
 
 | File | Use it for |
 |---|---|
-| `report.json` | Reapr's normalized report: every mutant in the diff scope with `mutant` (`id`, `file`, `start`, `end`, `mutator`, `replacement`), `status`, `killed_by` (test ids), `status_reason`. |
+| `report.json` | Reapr's normalized report: every mutant in the scope with `mutant` (`id`, `file`, `start`, `end`, `mutator`, `replacement`), `status`, `killed_by` (test ids; always `[]` for cargo-mutants), `status_reason`. |
+| `run.json` | Facts about the run: `scope` (`diff` or `all`), git shas, base, engine version, duration, counts, score. |
+
+StrykerJS runs also have:
+
+| File | Use it for |
+|---|---|
 | `mutation.json` | Stryker's raw report (mutation-testing-report-schema v2), unfiltered: per mutant `coveredBy` and `killedBy` (test ids), `statusReason`; `testFiles` maps each test file to its tests (`id`, `name`). |
-| `run.json` | Facts about the run: git shas, base, engine version, duration, counts, score. |
 | `stryker.wrapper.mjs` | The config that actually ran: the project's config with only `mutate`, `reporters` and `jsonReporter.fileName` overridden. |
+
+cargo-mutants runs also have:
+
+| File | Use it for |
+|---|---|
+| `scope.diff` | The diff cargo-mutants was given (`--in-diff`): one insertion-only hunk per range. |
+| `mutants.out/` | cargo-mutants' own output: `outcomes.json`, `mutants.json`, `diff/` (each mutant as a patch) and `log/<mutant>.log`, the build and `cargo test` output per mutant. The `test <name> ... FAILED` lines in a log are the tests that killed it. |
 
 `mutation.json` covers more than the diff (and with `incremental: true`, results carried over from earlier
 runs). Use `report.json` ids to restrict to the diff scope. `scripts/test-kills.mjs` does this.

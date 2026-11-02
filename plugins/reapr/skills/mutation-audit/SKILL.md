@@ -1,6 +1,6 @@
 ---
 name: mutation-audit
-description: Find and fix weak tests with mutation testing as objective evidence, using Reapr (`rpr`). Runs `rpr run --diff` against the base branch, writes one focused test per surviving mutant and re-runs until it is killed, flags tests that cover code but kill nothing, then audits the diff for edge cases mutation operators miss. Use it whenever the user asks if their tests are good enough, wants to strengthen, harden or review the tests of a branch or pull request (including AI-written tests), or mentions mutation testing, mutation score, surviving mutants, Stryker, cargo-mutants or rpr, even if they never say "mutation testing".
+description: Find and fix weak tests with mutation testing as objective evidence, using Reapr (`rpr`). Runs `rpr run --diff` against the base branch (or `rpr run --all` for a whole-codebase audit), writes one focused test per surviving mutant and re-runs until it is killed, flags tests that cover code but kill nothing, then audits the diff for edge cases mutation operators miss. Use it whenever the user asks if their tests are good enough, wants to strengthen, harden or review the tests of a branch or pull request (including AI-written tests), or mentions mutation testing, mutation score, surviving mutants, Stryker, cargo-mutants or rpr, even if they never say "mutation testing".
 license: MIT
 ---
 
@@ -29,33 +29,34 @@ belongs to the human.
   tests.
 - **Follow the repo's test conventions**: file location and naming, framework, helpers, fixtures, assertion
   style, how `describe`/`it` names read.
-- **Stay inside the diff scope** unless the human asks for more.
+- **Stay inside the diff scope** unless the human asks for more. For a whole-codebase audit, use
+  `rpr run --all` instead of `--diff <base>` everywhere below.
 - **Assert intended behavior, not current behavior.** See "When intent is unclear" below.
 - No disable comments (`// Stryker disable ...`, `#[mutants::skip]`) without the human's approval.
+- **Do not change process-wide state in tests** (env vars, cwd, PATH) under a multi-threaded test runner. Run
+  the code in a child process, or inject through what the code already resolves (a project-local bin, a temp
+  dir).
 
 ## Step 0: Preconditions
 
 When available, run `rpr doctor` first. (It does not exist yet; until it does, check the points below.)
 
-1. `rpr --version` works. If not, tell the human and offer the installer; run it only after they agree:
-   ```sh
-   curl -LsSf https://github.com/reapr-corp/reapr/releases/latest/download/rpr-installer.sh | sh
-   ```
-   Reapr runs on Linux (x86_64, aarch64) only for now.
-2. The engine is set up. StrykerJS (JavaScript, TypeScript) needs a config: `stryker.conf.*`,
-   `stryker.config.*` (or the same with a leading dot), or a named config such as `stryker.unit.config.mjs`
-   passed with `--config`. If there is none, **stop** and tell the human to create one (`npx stryker init`).
-   Do not write one yourself, not even a minimal one: the config decides the test runner, what is mutated and
-   the thresholds, and those are the team's choices. cargo-mutants (Rust) needs `cargo mutants --version` to
-   work; its `.cargo/mutants.toml` is optional, so do not create one either.
-3. Reapr mutates committed changes only (`<base>...HEAD`). If `git status` shows uncommitted changes to
+1. `rpr --version` works, and the engine is set up: StrykerJS (JavaScript, TypeScript) needs
+   `@stryker-mutator/core` and a config (`stryker.conf.*`, `stryker.config.*`, the same with a leading dot, or
+   a named config such as `stryker.unit.config.mjs` passed with `--config`); cargo-mutants (Rust) needs
+   `cargo mutants --version` to work (its `.cargo/mutants.toml` is optional). If any of these is missing,
+   **stop and hand off to `/reapr:setup`** (other agents: the Setup section of `AGENTS.md`). Never write an
+   engine config yourself, not even a minimal one: the config decides the test runner, what is mutated and the
+   thresholds, and those are the team's choices.
+2. Reapr mutates committed changes only (`<base>...HEAD`). If `git status` shows uncommitted changes to
    source files, tell the human: those lines are not in scope. New test files you write do not need to be
-   committed; the engine runs the tests in the work tree.
-4. Monorepos with several configs: list the changed files (`git diff --name-only <base>...HEAD`), find the
+   committed; the engine runs the tests in the work tree. Exception, cargo-mutants: Rust tests usually live
+   in the source file (`mod tests`), and an uncommitted edit above changed lines shifts the scope against the
+   committed diff. Commit your tests before each re-run, or use `--all`.
+3. Monorepos with several configs: list the changed files (`git diff --name-only <base>...HEAD`), find the
    configs whose package directory contains them, and plan one run per config with
    `--project <package dir> --config <config path>`. A run that reports nothing to mutate is fine.
-
-5. Generate one session id for this whole audit, a UUID v4 (`uuidgen`, or
+4. Generate one session id for this whole audit, a UUID v4 (`uuidgen`, or
    `node -e 'console.log(crypto.randomUUID())'`), and run every `rpr` command of the session with
    `RPR_INVOKED_BY=mutation-audit RPR_SESSION_ID=<uuid>` in front. This only tags Reapr's anonymous
    telemetry (to measure the score change per session) and changes nothing when `DO_NOT_TRACK` is set.
@@ -78,7 +79,9 @@ fails. Exit code 2 means an error (the JSON is `{"error": "..."}`): report it, d
 Note the `score`, `counts`, `survivors` and `run_dir`. Field meanings and the run directory files are in
 [references/reapr-output.md](references/reapr-output.md).
 
-If `score` is `null` and nothing was mutated, say so and go to Step 4.
+If `score` is `null` and nothing was mutated, say so and go to Step 4. A diff with only test changes has
+nothing to mutate (a CI gate on such a PR measures nothing): to show what new tests achieve, compare
+`rpr run --all` before and after.
 
 ## Step 2: Survivors to tests
 
@@ -90,7 +93,8 @@ Work through `survivors` one at a time. For each:
    `quantity > 10`, so an order of exactly 10 units would lose the bulk discount."
 3. Decide what the code is meant to do there (see "When intent is unclear").
 4. Find the existing tests for that unit and follow their conventions. Add to the existing test file when
-   there is one.
+   there is one. cargo-mutants runs only the mutated package's tests: put a Rust test in that package (its
+   `mod tests` or its `tests/` directory), never in another crate.
 5. Write ONE focused test that asserts the intended behavior at the point the mutant changes. Name it after
    the behavior, not the mutant.
 6. Run the project's own test command for that file (from `package.json` scripts, for example
@@ -101,7 +105,13 @@ Work through `survivors` one at a time. For each:
    rethink it or treat the mutant as equivalent.
 
 You may write tests for several survivors before one re-run, since runs take time, but every survivor you
-claim as fixed must show as Killed in a run made after its test existed.
+claim as fixed must show as Killed in a run made after its test existed. While iterating, a faster
+engine-level check of one file is fine ([references/iteration.md](references/iteration.md)); the before and
+after scores in the report still come from the same `rpr` command.
+
+If a verdict changes between runs with no relevant change, look for randomness, time or load (timeouts)
+before claiming a kill. Report it as flaky and prefer a test that does not depend on chance
+([#24](https://github.com/reapr-corp/reapr/issues/24)).
 
 `NoCoverage` survivors mean no test even executes that code. The first test that reaches it often kills
 several mutants at once; that is fine as long as the test asserts one behavior.
@@ -109,9 +119,12 @@ several mutants at once; that is fine as long as the test asserts one behavior.
 ### Equivalent mutants
 
 Some mutants change the code but not its observable behavior, for example removing a fast path that returns
-the same value the general path would. Do not force a test (a test that inspects internals to tell them
-apart is worse than none). Explain why it is equivalent in one or two sentences and list it for the human.
-They decide whether to accept it, rewrite the code, or add a disable comment.
+the same value the general path would. Equivalence is relative to the inputs the code can actually receive:
+name the producer (for example `git diff --unified=0`) and say why it cannot emit the input that would tell
+the mutant apart. If those inputs are in doubt, it is an open question, not an equivalent. Do not force a test
+(a test that inspects internals to tell them apart is worse than none). Explain why it is equivalent in one or
+two sentences and list it for the human. They decide whether to accept it, rewrite the code, or add a disable
+comment.
 
 ### When intent is unclear
 
@@ -136,11 +149,12 @@ Mutation data also shows which tests do no work. Run:
 node ${CLAUDE_SKILL_DIR}/scripts/test-kills.mjs <run_dir>
 ```
 
-It lists, for in-scope mutants, how many each test covers and kills, and the tests that cover mutants but
-kill none. It reads Stryker's report; cargo-mutants records no per-test kills, so for Rust skip it and rely on
-reading the tests below. Use the run from Step 1 (before your new tests), so the result reflects the original suite.
-Caveat: with bail on (Stryker's default), `killedBy` holds only the first test that failed, so "kills none"
-is a lead, not proof. Confirm by reading the test.
+It lists, for in-scope mutants, how many each test covers and kills, and the tests that cover mutants but kill
+none. It reads Stryker's report. cargo-mutants records no per-test kills in `report.json`; read them from
+`<run_dir>/mutants.out/log/*.log` instead (the `test <name> ... FAILED` lines of each mutant's log). Use the
+run from Step 1 (before your new tests), so the result reflects the original suite. Caveat: with bail on
+(Stryker's default), `killedBy` holds only the first test that failed, so "kills none" is a lead, not proof.
+Confirm by reading the test.
 
 Also read the tests in scope for assertions that cannot fail:
 
@@ -179,7 +193,7 @@ Use this structure:
 ```markdown
 ## Mutation audit: <branch> vs <base>
 
-Score: <before>% → <after>% (rpr run <first run_id> → <last run_id>)
+Score: <before>% → <after>% (rpr run <first run_id> → <last run_id>, `--diff <base>` or `--all`)
 Counts after: <killed> killed, <survived> survived, <no_coverage> no coverage, <timeout> timeout
 
 ### Survivors
@@ -204,4 +218,5 @@ Proposed: <case>, <behavior it would protect>, <why>, <what I need to know>
 <code or existing tests that disagree with the spec, both sides quoted; nothing was changed in production code>
 ```
 
-Every score in the report comes from an `rpr` run, never from an estimate. If a survivor stays open, say why.
+Every score in the report comes from an `rpr` run (`--diff` or `--all`, the same command before and after),
+never from an estimate or an engine-only check. If a survivor stays open, say why.
