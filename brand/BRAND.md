@@ -1,18 +1,29 @@
 # Reapr brand
 
 Reapr runs mutation testing on the lines a pull request changes. Tests kill mutants. The mutants that survive
-show where the tests are weak. The identity is a technical reaper: one precise blade, bone on near-black,
-no ornament.
+show where the tests are weak. The identity is a technical reaper: one scythe, bone on near-black, no
+ornament.
 
-![Mark variants A, B and C on dark and light](variants/sheet.png)
+![Round 2: scythe variants D, E and F on dark and light](variants/sheet-2.png)
 
 ## Mark
 
-The mark is a lowercase `r` drawn as a scythe. The stem is the snath (the handle), and the arm is the blade.
-Every curve is a circular arc, so the geometry is exact at any size. The mark is always one color.
+The mark is a scythe, the old public-domain reaper's tool. It has a long snath (handle), a short grip
+(the nib), and a crescent blade that is fixed near the top and sweeps down to a fine point. Every curve is a
+circular arc, so the geometry is exact at any size. The mark is always one color.
 
-Three variants are open for the owner to choose from. Once one is picked, it moves to `brand/mark.svg`
-and the other two are deleted.
+Six variants are open for the owner to choose from. Once one is picked, it moves to `brand/mark.svg` and the
+others are deleted.
+
+Round 2 (scythe first):
+
+| Variant | File | Description |
+| --- | --- | --- |
+| D, Scythe | `variants/mark-d.svg`, `mark-d-small.svg` | The full scythe: the snath leans 27° from vertical, a nib grips it, and a wide crescent blade at the top right sweeps down to a point. |
+| E, Snath r | `variants/mark-e.svg` | Still an `r`: an upright snath that drops below the baseline with a nib on the back, and a long crescent blade for the arm. |
+| F, Scythe tile | `variants/mark-f.svg`, `mark-f-small.svg` | D cut out of a rounded square, for the GitHub org avatar, favicon and social cards. |
+
+Round 1 (`r` first, kept for reference; the owner found these read as a stylized `r`, not a scythe):
 
 | Variant | File | Description |
 | --- | --- | --- |
@@ -20,19 +31,22 @@ and the other two are deleted.
 | B, Crescent | `variants/mark-b.svg` | A solid glyph: an upright stem flows into a heavy crescent blade with a needle tip. |
 | C, Tile | `variants/mark-c.svg` | A monogram for app icons and avatars: a bold blade `r` cut out of a rounded square. The glyph also fits a circle. |
 
-Each variant has a lockup (`variants/lockup-*.svg`) with the shared wordmark (`wordmark.svg`).
+Each variant has a lockup (`variants/lockup-*.svg`) with the shared wordmark (`wordmark.svg`). The round 1
+sheet is `variants/sheet.png`.
 
 Construction notes:
 
-- Canvas is a 32 × 32 viewBox. Marks A and B fill roughly x 6–27.5, y 6–26 (A rises to 5.5 for overshoot).
-- The blade taper is two circles that meet at the tip. The inner circle is tangent to the shoulder, so the
-  stroke thins with no kink.
-- The A stem is 3 units wide (1.5 px at 16 px, slightly soft), and the B stem is 4 units (2 px, crisp).
-  If A is chosen, use C or a 4-unit stem for favicons under 24 px.
+- Canvas is a 32 × 32 viewBox.
+- The blade's back is a circle tangent to the snath's top edge, raised 14° (22° in the small version) so the
+  blade reaches out before it drops. The cutting edge is a flatter circle that meets the back at the tip, so
+  the blade is widest at the heel and ends in a point.
+- `-small` files are for 32 px and below. They drop the nib, widen the snath from 2.6 to 3.6 units, and
+  deepen the heel. At 16 px, the nib and the thin snath of the full mark turn into noise.
 - All files use `currentColor`, so they take the text color of the page. In an `<img>` tag, `currentColor`
   renders black, so color the file or inline it.
-- C is one compound path with `fill-rule="evenodd"`, not a mask, so it survives Figma, favicon generators
-  and older renderers.
+- F uses an SVG mask, because the nib overlaps the snath and an even-odd cutout would punch a hole there. C
+  is one compound path with `fill-rule="evenodd"`.
+- The A stem is 3 units wide (1.5 px at 16 px, slightly soft), and the B stem is 4 units (2 px, crisp).
 
 ## Wordmark
 
@@ -120,22 +134,24 @@ Short, technical, dry. State what the tool does and what the output means. No hy
 
 - **Clear space:** keep at least 25% of the mark height clear on all sides (8 units on the 32 grid). For a
   lockup, keep clear space equal to the wordmark's x-height.
-- **Minimum size:** mark B and C: 16 px. Mark A: 20 px (24 px or more is preferred). Lockup: 80 px wide on
-  screen, 20 mm in print.
+- **Minimum size:** D, E and F: 16 px, using the `-small` file at 32 px and below where one exists. A: 20 px.
+  B and C: 16 px. Lockup: 80 px wide on screen, 20 mm in print.
 - **Color:** one color only. Use bone `#E8EAE6` on dark and ink `#0B0D0C` on light. On photos, put the
   mark on a solid panel.
-- **App icon / avatar:** use C. Bone tile on a dark surface, or ink tile on a light one. For a circular crop,
+- **App icon / avatar:** use F (or C from round 1). Bone tile on a dark surface, or ink tile on a light one. For a circular crop,
   keep the glyph and let the container be a circle.
 
 Don't:
 
 - Color the mark or wordmark green, amber, or with a gradient.
 - Outline, shadow, glow, bevel, rotate, skew or animate the mark into a swing.
-- Add skulls, hoods, drips or any other reaper decoration.
+- Add skulls, hoods, figures, drips or any other reaper decoration. The scythe is enough.
+- Trace a specific scythe from a film, game or book. The archetype is public domain; someone's prop is not.
+- Mirror the scythe. The blade points right, toward the reading direction.
 - Retype the wordmark in a font, change its case, or track it out.
 - Rearrange the lockup (mark above the word, a different gap), or pair it with another logo inside the same
   clear space.
-- Put the mark inside a container other than the C tile or a circle.
+- Put the mark inside a container other than the F or C tile or a circle.
 
 ## Design tokens
 
