@@ -1,0 +1,287 @@
+# OSS benchmark: full StrykerJS (A), Stryker incremental (B) and `rpr run --diff` (C) on merged PRs of public repos.
+# Design and fairness rules: bench/oss/README.md. Harness: bench/oss/suite.py, repos: bench/oss/repos.json.
+#
+# Every run is its own job on a fresh GitHub-hosted ubuntu-latest runner (4 vCPU for public repos). No dependency
+# cache is restored: every job installs cold from the registry, and install time is recorded apart from the
+# measured command. Nothing is committed from CI; results are artifacts and the aggregate job summary.
+name: OSS benchmark
+
+on:
+  workflow_dispatch:
+    inputs:
+      repos:
+        description: Comma-separated ids from bench/oss/repos.json, or all
+        default: all
+        type: string
+      prs:
+        description: PRs per repo (the last N that touch the config's mutate files)
+        default: "10"
+        type: string
+      reps:
+        description: Repetitions per scenario and PR
+        default: "3"
+        type: string
+      scenarios:
+        description: Subset of A,B,C (B only runs for repos with a b entry in repos.json)
+        default: A,B,C
+        type: string
+      min_survivor_prs:
+        description: Minimum PRs per repo with in-diff survivors (older PRs are added to reach it)
+        default: "3"
+        type: string
+      rpr_version:
+        description: rpr release to install
+        default: 0.3.0
+        type: string
+
+permissions:
+  contents: read
+  actions: read # the aggregate job lists this run's jobs to sum runner minutes
+
+concurrency:
+  group: oss-benchmark
+  cancel-in-progress: false
+
+env:
+  DO_NOT_TRACK: "1"
+  RPR_TELEMETRY: "0"
+  NX_DAEMON: "false"
+  NX_NO_CLOUD: "true"
+  TURBO_TELEMETRY_DISABLED: "1"
+  COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
+  HUSKY: "0"
+
+jobs:
+  setup:
+    name: setup
+    runs-on: ubuntu-latest
+    outputs:
+      repos: ${{ steps.repos.outputs.repos }}
+    steps:
+      - uses: actions/checkout@v5
+      - id: repos
+        env:
+          REPOS: ${{ inputs.repos }}
+        run: python3 bench/oss/suite.py repos --select "$REPOS"
+
+  scan:
+    name: scan ${{ matrix.repo.id }}
+    needs: setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 200
+    strategy:
+      fail-fast: false
+      matrix:
+        repo: ${{ fromJSON(needs.setup.outputs.repos) }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ matrix.repo.node }}
+      - env:
+          RPR_VERSION: ${{ inputs.rpr_version }}
+        run: bench/oss/install-rpr.sh "$RPR_VERSION"
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          REPO_ID: ${{ matrix.repo.id }}
+          PRS: ${{ inputs.prs }}
+          MIN_SURVIVOR_PRS: ${{ inputs.min_survivor_prs }}
+        run: >-
+          python3 bench/oss/suite.py scan --repo-id "$REPO_ID" --n "$PRS" --min-survivor-prs "$MIN_SURVIVOR_PRS"
+          --budget-min 150 --out "out/scan-$REPO_ID.json"
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scan-${{ matrix.repo.id }}
+          path: out/scan-*.json
+          if-no-files-found: error
+
+  plan:
+    name: plan
+    needs: scan
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    outputs:
+      a: ${{ steps.plan.outputs.a }}
+      seed: ${{ steps.plan.outputs.seed }}
+      b: ${{ steps.plan.outputs.b }}
+      c: ${{ steps.plan.outputs.c }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: scan-*
+          path: scans
+          merge-multiple: true
+      - id: plan
+        env:
+          REPS: ${{ inputs.reps }}
+          SCENARIOS: ${{ inputs.scenarios }}
+        run: python3 bench/oss/suite.py plan --scans scans --reps "$REPS" --scenarios "$SCENARIOS"
+
+  a:
+    name: "A ${{ matrix.repo }} #${{ matrix.pr }} r${{ matrix.rep }}"
+    needs: plan
+    if: ${{ !cancelled() && needs.plan.outputs.a != '[]' && needs.plan.outputs.a != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      max-parallel: 12
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.a) }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ matrix.node }}
+      - env:
+          REPO_ID: ${{ matrix.repo }}
+          PR: ${{ matrix.pr }}
+          BASE: ${{ matrix.base }}
+          HEAD_SHA: ${{ matrix.head }}
+          REP: ${{ matrix.rep }}
+        run: >-
+          python3 bench/oss/suite.py run --repo-id "$REPO_ID" --pr "$PR" --base "$BASE" --head "$HEAD_SHA"
+          --scenario A --rep "$REP" --out "out/r-A-$REPO_ID-$PR-$REP.json"
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: r-A-${{ matrix.repo }}-${{ matrix.pr }}-${{ matrix.rep }}
+          path: out/r-*.json
+
+  c:
+    name: "C ${{ matrix.repo }} #${{ matrix.pr }} r${{ matrix.rep }}"
+    needs: plan
+    if: ${{ !cancelled() && needs.plan.outputs.c != '[]' && needs.plan.outputs.c != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.c) }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ matrix.node }}
+      - env:
+          RPR_VERSION: ${{ inputs.rpr_version }}
+        run: bench/oss/install-rpr.sh "$RPR_VERSION"
+      - env:
+          REPO_ID: ${{ matrix.repo }}
+          PR: ${{ matrix.pr }}
+          BASE: ${{ matrix.base }}
+          HEAD_SHA: ${{ matrix.head }}
+          REP: ${{ matrix.rep }}
+        run: >-
+          python3 bench/oss/suite.py run --repo-id "$REPO_ID" --pr "$PR" --base "$BASE" --head "$HEAD_SHA"
+          --scenario C --rep "$REP" --out "out/r-C-$REPO_ID-$PR-$REP.json"
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: r-C-${{ matrix.repo }}-${{ matrix.pr }}-${{ matrix.rep }}
+          path: out/r-*.json
+
+  seed:
+    name: "seed ${{ matrix.repo }} #${{ matrix.pr }}"
+    needs: plan
+    if: ${{ !cancelled() && needs.plan.outputs.seed != '[]' && needs.plan.outputs.seed != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.seed) }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ matrix.node }}
+      - env:
+          REPO_ID: ${{ matrix.repo }}
+          PR: ${{ matrix.pr }}
+          BASE: ${{ matrix.base }}
+          HEAD_SHA: ${{ matrix.head }}
+        run: >-
+          python3 bench/oss/suite.py run --repo-id "$REPO_ID" --pr "$PR" --base "$BASE" --head "$HEAD_SHA"
+          --scenario seed --out "out/r-seed-$REPO_ID-$PR-1.json"
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: r-seed-${{ matrix.repo }}-${{ matrix.pr }}
+          path: out/r-*.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: seed-${{ matrix.repo }}-${{ matrix.pr }}
+          path: out/incremental.json
+          if-no-files-found: error
+
+  b:
+    name: "B ${{ matrix.repo }} #${{ matrix.pr }} r${{ matrix.rep }}"
+    needs: [plan, seed]
+    if: ${{ !cancelled() && needs.plan.outputs.b != '[]' && needs.plan.outputs.b != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.b) }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ matrix.node }}
+      # A missing seed is recorded as an error result by the harness, not as a missing run.
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: seed-${{ matrix.repo }}-${{ matrix.pr }}
+          path: seed
+      - env:
+          REPO_ID: ${{ matrix.repo }}
+          PR: ${{ matrix.pr }}
+          BASE: ${{ matrix.base }}
+          HEAD_SHA: ${{ matrix.head }}
+          REP: ${{ matrix.rep }}
+        run: >-
+          python3 bench/oss/suite.py run --repo-id "$REPO_ID" --pr "$PR" --base "$BASE" --head "$HEAD_SHA"
+          --scenario B --rep "$REP" --seed seed/incremental.json --out "out/r-B-$REPO_ID-$PR-$REP.json"
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: r-B-${{ matrix.repo }}-${{ matrix.pr }}-${{ matrix.rep }}
+          path: out/r-*.json
+
+  aggregate:
+    name: aggregate
+    needs: [scan, a, b, c, seed]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: r-*
+          path: results
+          merge-multiple: true
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: scan-*
+          path: scans
+          merge-multiple: true
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/attempts/$GITHUB_RUN_ATTEMPT/jobs?per_page=100" \
+            -q '.jobs[]' | jq -s . > jobs.json
+          python3 bench/oss/suite.py aggregate --results results --scans scans --jobs jobs.json --out summary
+          cat summary/summary.md >> "$GITHUB_STEP_SUMMARY"
+          cp jobs.json summary/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: oss-benchmark-summary
+          path: summary
