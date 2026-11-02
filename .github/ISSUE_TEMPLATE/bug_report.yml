@@ -2,6 +2,18 @@ name: Bug report
 description: Reapr did something wrong or failed.
 labels: [bug, needs-triage]
 body:
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Where you saw the problem. Not sure? Pick "Not sure"; triage will route it.
+      options:
+        - CLI (rpr)
+        - GitHub Action (reapr-corp/run)
+        - Agent skill (/reapr:mutation-audit)
+        - Not sure
+    validations:
+      required: true
   - type: input
     id: reapr-version
     attributes:
