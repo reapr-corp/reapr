@@ -7,6 +7,13 @@ Sections follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and th
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Entries come from the changesets in
 [`.sampo/changesets/`](../../.sampo/changesets); see [CONTRIBUTING.md](../../CONTRIBUTING.md#changesets).
 
+## 0.4.0 — 2026-11-02
+
+### Added
+
+- rpr run --all audits a whole project: every git-tracked file under the project dir is the scope, narrowed by each engine's own config as a diff is. JSON `base` is null, run.json records `scope`, telemetry adds the `all` flag and `scope_mode`.
+- Telemetry: `invoked_by` also accepts `setup`, the onboarding skill.
+
 ## 0.3.0 — 2026-11-02
 
 ### Added
