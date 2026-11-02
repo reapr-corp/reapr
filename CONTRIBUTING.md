@@ -37,6 +37,10 @@ Develop on Linux (CI runs on Ubuntu). macOS and Windows are not supported yet.
   need a real `minimatch` (the one Stryker uses) to copy into their fake project: they take it from the npm
   that ships with Node (`npm root -g`), and print `no minimatch to copy, skipping` without one.
 - **git**, for the diff and run store tests.
+- **cargo-mutants 27.1.0** (`cargo install --locked cargo-mutants@27.1.0`) for the cargo-mutants adapter's
+  end-to-end test, which is `#[ignore]`d by default. Run it with
+  `cargo test -p reapr-cargo-mutants --test e2e -- --ignored` before you open a pull request that touches
+  `crates/reapr-cargo-mutants`; CI runs it in the `mutation` job.
 
 ## Checks
 
@@ -51,6 +55,10 @@ cargo fmt --all --check
 
 CI also runs `cargo deny check` (licenses, advisories, sources) with [deny.toml](deny.toml). A new dependency
 with a license that is not in its `allow` list fails the build.
+
+On pull requests, the `mutation` job dogfoods Reapr: it builds the pull request's `rpr` and runs
+`rpr run --diff origin/<base> --engine cargo-mutants --min-score 80` on the repository. A change whose new code
+the tests do not protect fails it; the survivors are listed in the job log.
 
 ## Code rules
 
@@ -70,28 +78,44 @@ with a license that is not in its `allow` list fails the build.
 ## Adding an engine adapter
 
 An adapter is a crate, `crates/reapr-<engine>`, that implements `MutationEngineAdapter` from `reapr-core`
-(`crates/reapr-core/src/lib.rs`). Use `crates/reapr-stryker` as the reference.
+(`crates/reapr-core/src/lib.rs`). Use `crates/reapr-cargo-mutants` (CLI engine, JSON report, native diff
+filter) or `crates/reapr-stryker` (config wrapper, Node plan step) as the reference, whichever is closer.
+
+Read the decisions first, in [docs/adr/](docs/adr/):
+
+- [0001](docs/adr/0001-engine-adapter-trait.md): one async trait, not dyn-compatible, dispatched through
+  `enum Engine` in the CLI.
+- [0002](docs/adr/0002-engine-version-support.md): declare the engine versions you support in one constant,
+  with real fixtures per version; warn outside the range.
+- [0003](docs/adr/0003-out-of-process-adapters.md) (proposed): adapters written in the engine's own language
+  speak JSON over stdio.
+- [0004](docs/adr/0004-invent-nothing.md): run the user's own config; add only the scope and the report path.
+
+The domain words (mutant, verdict, survived, scope, range, gate, ...) are defined in [GLOSSARY.md](GLOSSARY.md).
 
 ### The trait
 
 | Method | Phase 1 | What it does |
 |---|---|---|
-| `id` | Required | Short engine id, for example `stryker`. Appears in output and `run.json`. |
-| `detect` | Required | Looks at the project directory. Returns `Some(Detection)` with the config path, or `config: None` when the engine is used but has no config file. |
+| `id` | Required | Short engine id, for example `stryker` or `cargo-mutants`. Appears in output and `run.json`. |
+| `detect` | Required | Looks at the project directory. Returns `Some(Detection)` with the config path, or `config: None` when the engine has no config file (or finds its own). |
 | `run` | Required | Runs one `Shard` with the user's own config and returns a `RunOutcome`: the report (or `None` when nothing in scope), whether the engine's own gate failed, warnings, and resources. |
 | `list_mutants` | May return `Unsupported` | Lists mutants in scope without running them. |
 | `coverage` | May return `Unsupported` | Maps mutants to the tests that cover them. |
 | `cache_key` | May return `Unsupported` | Content key for one mutant, for a future cache. |
 | `merge` | Default provided | Combines shard reports with `merge_reports`. Override only if the engine needs it. |
 
-The trait is not dyn-compatible on purpose. To wire a new adapter into the CLI, add a variant to `enum Engine`
-in `crates/rpr/src/main.rs`, add it to `Engine::all()` (detection order), and dispatch each method. Also
-provide the engine version for `run.json` (the StrykerJS adapter has an `engine_version` method for this).
+The trait is not dyn-compatible on purpose (ADR 0001). To wire a new adapter into the CLI, in
+`crates/rpr/src/main.rs`: add a variant to `enum Engine` and to `EngineId` (the `--engine` values), add it to
+`Engine::all()` (detection order) and `Engine::for_config` (an `owns_config(file_name)` function on the adapter),
+and dispatch each method. Also provide the engine version for `run.json` (an `engine_version` method on the
+adapter), and add the engine id to [TELEMETRY.md](TELEMETRY.md). Add the crate to the fixed group in
+`.sampo/config.toml`.
 
 ### Where engine knowledge lives
 
 In the adapter, and only there. The core knows no engine. What a test file is, config file names and formats,
-report formats, CLI flags and the engine's scoping rules all belong to the adapter crate.
+report formats, CLI flags, exit codes and the engine's scoping rules all belong to the adapter crate.
 
 If the engine writes [mutation-testing-report-schema](https://github.com/stryker-mutator/mutation-testing-elements/tree/master/packages/report-schema)
 JSON, reuse the parser in `crates/reapr-stryker/src/schema.rs`. It is engine-agnostic in shape and moves to
@@ -99,21 +123,40 @@ JSON, reuse the parser in `crates/reapr-stryker/src/schema.rs`. It is engine-agn
 
 ### Rules for adapters
 
-- Run the user's own config unchanged, except for the diff scope and a report path Reapr owns. If the engine has
-  no config file, return `AdapterError::ConfigMissing` with a hint for creating one.
+- Run the user's own config unchanged, except for the diff scope and a report path Reapr owns (ADR 0004). If
+  the engine needs a config file and there is none, return `AdapterError::ConfigMissing` with a hint for
+  creating one.
 - Read the report from a private path in `RunContext::run_dir`, so a stale report can never be read.
-- Filter the report to the diff scope with the engine's own containment rule, and count what you drop in a
-  warning.
-- Measure the engine's process tree resources around the child process, as the StrykerJS adapter does, or
-  return `None`.
+- Scope with the engine's own containment rule: either hand the engine the scope in its own terms (cargo-mutants
+  `--in-diff`) or filter its report with its rule (StrykerJS), and count what you drop in a warning.
+- Map every engine status to a `MutantStatus`; an unknown one is `AdapterError::Parse`, never a guess.
+- A non-zero exit that only means "mutants survived" is a result, not an error. Set `engine_gate_failed` only
+  for the engine's own configured threshold.
+- Measure the engine's process tree resources around the child process with
+  `reapr_core::resources::{children_usage, usage_since}`, or return `None`.
+- Declare the supported engine versions and keep real fixtures for each (ADR 0002).
 - Adapters are MIT licensed. Add a `LICENSE` file (MIT) to the crate and set `license = "MIT"` in its
   `Cargo.toml`.
+
+### Conformance kit
+
+`reapr-core` has a `testkit` feature with the checks every adapter's tests call. Enable it in the adapter's
+`[dev-dependencies]` only (`reapr-core = { workspace = true, features = ["testkit"] }`):
+
+| Check | What it asserts |
+|---|---|
+| `testkit::empty_scope_reports_none(&adapter, &ctx)` | An empty scope gives `report: None`, no resources and nothing in the run dir: the engine was not started. |
+| `testkit::status_mapping(parse, &[("Killed", Killed), ...])` | Each engine status maps to its core status through the adapter's real parsing path, and an unknown status is a `Parse` error. |
+| `testkit::assert_parity(&reapr_report, &native_report)` | Reapr's report and the engine's own report on the same ranges have the same mutants (by file, position, mutator, replacement), the same statuses and the same score. |
+| `testkit::unsupported(&adapter, &ctx, &[Operation::Coverage, ...])` | Each listed operation returns `AdapterError::Unsupported` naming the adapter's engine id and the operation. |
 
 ### Acceptance bar: verdict parity
 
 An adapter is accepted when its verdicts match the engine's own run, mutant by mutant. Run the engine directly
-on the same ranges (for StrykerJS, `npx stryker run --mutate <ranges>`), run Reapr on the same diff, and compare
-every in-scope mutant's status. Include the comparison in the pull request: the project, engine version, the
+on the same ranges (for StrykerJS, `npx stryker run --mutate <ranges>`; for cargo-mutants,
+`cargo mutants --in-diff <git diff>`), run Reapr on the same diff, and compare every in-scope mutant's status
+with `testkit::assert_parity`. Where the engine can run in CI, make this an end-to-end test (the cargo-mutants
+adapter's `tests/e2e.rs`). Include the comparison in the pull request: the project, engine version, the
 commands, and the counts on both sides. Any difference must be explained, for example results the engine
 carried over from outside the scope.
 
@@ -136,8 +179,9 @@ sampo add -p cargo/rpr -b patch -t Fixed -m 'A `--diff` base that starts with `-
 
 `sampo add` without flags asks for each value. Commit the file it creates.
 
-- **Package:** always `cargo/rpr`. Its changelog is Reapr's, and `reapr-core`, `reapr-stryker` and `rpr` share one
-  version (a fixed group in `.sampo/config.toml`), so a change in an adapter is still a `cargo/rpr` changeset.
+- **Package:** always `cargo/rpr`. Its changelog is Reapr's, and every crate (`reapr-core`, the adapters and
+  `rpr`) shares one version (a fixed group in `.sampo/config.toml`), so a change in an adapter is still a
+  `cargo/rpr` changeset.
 - **Bump:** `patch` for fixes, `minor` for features and, before 1.0, for breaking changes; `major` only after 1.0.
 - **Tag:** the Keep a Changelog section: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed` or `Security`.
 - **Message:** what changed for a user of `rpr`, in the changelog's style. It is copied as is. Continuation lines
@@ -163,7 +207,7 @@ were added. To order them, edit `crates/rpr/CHANGELOG.md` in the release pull re
 ## Commits and pull requests
 
 - [Conventional Commits](https://www.conventionalcommits.org/): `feat(stryker): ...`, `fix(core): ...`,
-  `docs: ...`, `ci: ...`. Scopes: `core`, `cli`, `stryker`, `plugins`, `ci`, `docs`.
+  `docs: ...`, `ci: ...`. Scopes: `core`, `cli`, `stryker`, `cargo-mutants`, `plugins`, `ci`, `docs`.
 - Each commit message describes the change and why.
 - One topic per pull request. Fill in the checklist in the template.
 

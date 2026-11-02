@@ -40,7 +40,7 @@ Phase 1, pre-release. There is no published release yet. Releases and the [chang
 come from changesets: see [CONTRIBUTING.md](CONTRIBUTING.md#changesets).
 
 - A local CLI, `rpr`: `rpr run`, plus `rpr telemetry` to see or change [telemetry](#telemetry).
-- One engine: StrykerJS (JavaScript and TypeScript).
+- Two engines: StrykerJS (JavaScript and TypeScript) and cargo-mutants (Rust).
 - Linux only (x86_64 and aarch64), tested on Ubuntu. macOS and Windows are not supported yet: see the
   [roadmap](#roadmap). Nothing runs in the cloud. The only thing sent anywhere is anonymous usage
   [telemetry](#telemetry), which you can turn off.
@@ -53,8 +53,11 @@ Requirements on the machine that runs Reapr:
 
 - Linux, x86_64 or aarch64 (tested on Ubuntu). macOS and Windows are not supported yet.
 - `git`.
-- Node.js 20.10 or later (StrykerJS 9 needs Node 20; Reapr's plan step and wrapper use import attributes).
-- StrykerJS installed in the project (`npx --no-install stryker` must work), and a Stryker config file.
+- For StrykerJS: Node.js 20.10 or later (StrykerJS 9 needs Node 20; Reapr's plan step and wrapper use import
+  attributes), StrykerJS installed in the project (`npx --no-install stryker` must work), and a Stryker config
+  file.
+- For cargo-mutants: cargo-mutants 26.2 to 27.x (`cargo install --locked cargo-mutants`). Other versions run
+  with a warning. A `.cargo/mutants.toml` is optional, as for cargo-mutants itself.
 
 ### From source (works today)
 
@@ -101,6 +104,9 @@ rpr run --diff origin/main --json
 # Monorepo: run in one package (the engine's working directory), with that package's config.
 rpr run --diff origin/main --project packages/lib
 rpr run --diff origin/main --project packages/lib --config packages/lib/stryker.config.mjs
+
+# A repo where several engines are detected (a Rust crate with a JS frontend): pick one.
+rpr run --diff origin/main --engine cargo-mutants
 ```
 
 | Flag | Meaning |
@@ -108,20 +114,30 @@ rpr run --diff origin/main --project packages/lib --config packages/lib/stryker.
 | `--diff <BASE>` | Required. Base ref; the diff is `<BASE>...HEAD`. Must not start with `-`. |
 | `--json` | Print a single JSON document on stdout instead of the human summary. |
 | `--min-score <N>` | Fail (exit 1) when the score is below `N` percent (0 to 100). |
-| `--config <PATH>` | Engine config file. Skips config detection. |
+| `--config <PATH>` | Engine config file. Skips config detection. Its file name picks the engine when it is one the engine looks for (`stryker.config.mjs` and Stryker's other names, `mutants.toml`). |
+| `--engine <ENGINE>` | `stryker` or `cargo-mutants`. Needed when several engines are detected in the project. |
 | `--project <DIR>` | Project directory and engine working directory. Default: the current directory. |
 
 Relative paths in `--config` and `--project` resolve against the current directory. Only changed files inside
 the project directory count.
 
-### Config detection
+### Engine and config detection
 
-Without `--config`, Reapr looks in the project directory for a Stryker config file in Stryker's own lookup
+Reapr picks the engine from `--engine`, else from the file name of `--config`, else from what it finds in the
+project directory: StrykerJS for a Stryker config file or a `package.json` that lists `@stryker-mutator/core`,
+`vitest` or `jest`; cargo-mutants for a `Cargo.toml`. When more than one engine is found, Reapr stops and asks
+for `--engine`.
+
+For StrykerJS, without `--config`, Reapr looks in the project directory for a Stryker config file in Stryker's own lookup
 order (`stryker.conf.{json,js,mjs,cjs}`, `stryker.config.{json,js,mjs,cjs}`, then the same names with a leading
 dot) and uses the first one it finds.
 
 If there is no config file, Reapr stops with an error. When `package.json` lists `@stryker-mutator/core`,
 `vitest` or `jest`, the error suggests `npx stryker init`. Reapr never generates a config.
+
+For cargo-mutants, Reapr passes no config: cargo-mutants reads `.cargo/mutants.toml` in the workspace root
+itself, as it does when you run `cargo mutants`. `--config <PATH>` is passed on as `cargo mutants --config`. If
+cargo-mutants is not installed, the run stops with an error that says how to install it.
 
 ### For agents
 
@@ -150,6 +166,20 @@ prints a warning that bail can report killed mutants as survived. It does not ch
 
 If the diff touches no file your `mutate` patterns select, Stryker is not started and the run reports
 `nothing to mutate`.
+
+### cargo-mutants
+
+Reapr runs `cargo mutants --in-diff <run dir>/scope.diff --output <run dir>` in the project directory, plus
+`--workspace` when the project directory is the workspace root (so the diff, not cargo's default members,
+decides which packages are mutated). Nothing else: jobs, timeouts, test tool, features, exclusions and every
+other setting come from your `.cargo/mutants.toml` and environment, as written. `--output` overrides an `output`
+key in your config, so Reapr reads the report of this run only.
+
+`scope.diff` marks exactly the diff's ranges in your Rust files, so cargo-mutants selects the mutants that
+touch those lines by its own rule. If the diff changes no Rust file, cargo-mutants is not started and the run
+reports `nothing to mutate`. cargo-mutants has no thresholds, so it never fails its own gate: missed mutants
+and timeouts are results (its exit codes 2 and 3). Tests that fail without any mutation (exit code 4) are an
+error, with the path of cargo-mutants' baseline log.
 
 ## Output
 
@@ -218,7 +248,7 @@ With `--json`, stdout holds one JSON document and nothing else.
 |---|---|---|
 | `run_id` | string | `<unix seconds>-<pid>`. |
 | `run_dir` | string | Absolute path of the run directory. |
-| `engine` | string | `stryker`. |
+| `engine` | string | `stryker` or `cargo-mutants`. |
 | `base` | string | The `--diff` value, as given. |
 | `ranges` | array | Changed line ranges from the diff: `path` (relative to the project directory), `start`, `end` (1-based, inclusive). Before your `mutate` patterns are applied. |
 | `score` | number or null | Percent. `null` when nothing was mutated or there were no valid mutants. |
@@ -227,7 +257,7 @@ With `--json`, stdout holds one JSON document and nothing else.
 | `duration_ms` | integer | Engine wall time. `0` when the engine did not run. |
 | `min_score` | number or null | The `--min-score` value. |
 | `passed` | boolean | `false` when the score is below `--min-score` or the engine's own gate failed. |
-| `engine_gate_failed` | boolean | The engine's own threshold failed: Stryker exited 1 and your config has a numeric `thresholds.break`. Any other non-zero exit is an error (exit code 2). |
+| `engine_gate_failed` | boolean | The engine's own threshold failed: Stryker exited 1 and your config has a numeric `thresholds.break`. Any other non-zero Stryker exit is an error (exit code 2). Always `false` for cargo-mutants, which has no threshold. |
 | `warnings` | array of strings | The same warnings printed to stderr. |
 | `resources` | object or null | `cpu_user_ms`, `cpu_sys_ms` and `max_rss_kb` of the engine's process tree. `null` when the engine did not run. |
 
@@ -239,7 +269,7 @@ On an error (exit code 2) with `--json`, stdout holds `{ "error": "<message>" }`
 |---|---|
 | 0 | Passed. Also when nothing in the diff was mutated, or there were no valid mutants. |
 | 1 | The score is below `--min-score`, or the engine's own configured threshold failed. |
-| 2 | Error: invalid arguments, no git repository, unknown base, no engine or config found, engine crash, no report, or an engine exit other than its threshold failure. |
+| 2 | Error: invalid arguments, no git repository, unknown base, no engine or config found, several engines found without `--engine`, engine not installed, engine crash, no report, failing tests without mutations, or an engine exit other than its threshold failure. |
 
 ## Run record
 
@@ -253,8 +283,9 @@ so worktrees never share runs. Reapr never sends this data anywhere and never de
 |---|---|
 | `run.json` | Facts about the run (below). Written also when nothing was mutated; not written on errors. |
 | `report.json` | Reapr's report: every mutant in the diff scope with its status, `killed_by` and `status_reason`. |
-| `mutation.json` | Stryker's own JSON report, unfiltered. |
-| `stryker.wrapper.mjs`, `plan.mjs`, `plan-input.json` | The wrapper config and the plan step, as they ran. |
+| `mutation.json` | StrykerJS: Stryker's own JSON report, unfiltered. |
+| `stryker.wrapper.mjs`, `plan.mjs`, `plan-input.json` | StrykerJS: the wrapper config and the plan step, as they ran. |
+| `scope.diff`, `mutants.out/` | cargo-mutants: the diff it was given and its own output directory (`outcomes.json`, logs, mutant diffs). |
 
 `run.json` holds raw facts, not judgments:
 
@@ -262,7 +293,7 @@ so worktrees never share runs. Reapr never sends this data anywhere and never de
 |---|---|
 | `run_id` | Same as in the JSON output. |
 | `git` | `head_sha`, `base`, `merge_base_sha`, and `commits` in `merge_base..HEAD`: `sha`, `author_email`, and `trailers` as written (for example `Co-Authored-By: ...`). |
-| `engine`, `engine_version` | For StrykerJS, the version of `@stryker-mutator/core` that Node resolves from the project directory. |
+| `engine`, `engine_version` | For StrykerJS, the version of `@stryker-mutator/core` that Node resolves from the project directory; for cargo-mutants, the version `cargo mutants --version` prints. |
 | `started_at` | When Reapr started, RFC 3339 UTC. |
 | `duration_ms` | Engine wall time, the same window as `resources`. |
 | `environment` | `kind` (`local` or `github-actions`), `runner_name`, `os`, `arch`, `cpu_count`. |
@@ -372,6 +403,8 @@ against 87.8 with bail off). This last one is why Reapr warns about bail, and wh
 
 - Only committed changes count: the diff is `<base>...HEAD`, so uncommitted and untracked changes are not
   mutated.
+- cargo-mutants mutates the working tree. Uncommitted edits to a changed Rust file shift its lines against the
+  committed diff, so the ranges can select different code; commit or stash first.
 - A `mutate` entry in your config that carries its own range (`src/a.ts:1-9`) never matches; use plain globs.
 - Line breaks: git splits lines on `\n` only, while Babel (Stryker's parser) also treats U+2028, U+2029 and a
   lone CR as line breaks. In files that contain them, Stryker's line numbers drift from git's and the diff
@@ -390,17 +423,18 @@ It is on by default with a one-time notice on stderr; turn it off with `DO_NOT_T
 | Engine | Language | Status |
 |---|---|---|
 | [StrykerJS](https://stryker-mutator.io/) | JavaScript, TypeScript | Supported |
+| [cargo-mutants](https://mutants.rs/) | Rust | Supported: 26.2 to 27.x |
 | [PIT](https://pitest.org/) | Java, JVM | Planned |
 | [Infection](https://infection.github.io/) | PHP | Planned |
-| [cargo-mutants](https://mutants.rs/) | Rust | Planned |
 | [mutmut](https://github.com/boxed/mutmut) | Python | Planned |
 | [Stryker.NET](https://stryker-mutator.io/docs/stryker-net/introduction/) | C# | Planned |
 
 Reapr does not replace mutation engines; it runs them. Every engine plugs in through one Rust trait,
 `MutationEngineAdapter` in `reapr-core`. The core knows no engine: config formats, report formats, what counts as
 a test file and CLI flags all live in the adapter. An adapter implements `detect` and `run`; `list_mutants`,
-`coverage` and `cache_key` may return `Unsupported` (the StrykerJS adapter does, in Phase 1). See
-[CONTRIBUTING.md](CONTRIBUTING.md#adding-an-engine-adapter) to add one.
+`coverage` and `cache_key` may return `Unsupported` (the StrykerJS adapter does, in Phase 1; the cargo-mutants
+adapter implements `list_mutants`). See [CONTRIBUTING.md](CONTRIBUTING.md#adding-an-engine-adapter) to add one,
+and [docs/adr/](docs/adr/) for the decisions behind the adapter design.
 
 ## Roadmap
 
@@ -412,7 +446,7 @@ Planned, not built:
 - **Content cache** of mutant results, so unchanged mutants are not run again.
 - **MCP server** (`rpr mcp`) so agents can call Reapr as a tool.
 - **macOS and Windows** support (binaries, installers and CI). Phase 1 is Linux only.
-- **More engines**: PIT, Infection, cargo-mutants, mutmut, Stryker.NET.
+- **More engines**: PIT, Infection, mutmut, Stryker.NET.
 - **Hosted compute** (warm workers, parallel shards), a **global cache**, and **history and metrics** across
   runs. This is the planned paid layer. The CLI and the engine adapters stay open source and work without it.
 
@@ -423,7 +457,7 @@ Reapr is open core. The tool is free to use, modify and self-host; the planned h
 | Crate | License |
 |---|---|
 | `reapr-core`, `rpr` | [FSL-1.1-ALv2](LICENSE.md) |
-| Engine adapters (`reapr-stryker`) | [MIT](crates/reapr-stryker/LICENSE) |
+| Engine adapters (`reapr-stryker`, `reapr-cargo-mutants`) | MIT ([reapr-stryker](crates/reapr-stryker/LICENSE), [reapr-cargo-mutants](crates/reapr-cargo-mutants/LICENSE)) |
 | Agent skills (`plugins/reapr`) | [MIT](plugins/reapr/LICENSE) |
 
 FSL-1.1-ALv2 (Functional Source License) lets you use, modify and self-host Reapr for any purpose except
