@@ -1,6 +1,6 @@
 [package]
 name = "rpr"
-description = "Reapr: mutation testing scoped to your diff."
+description = "Reapr: mutation testing for your AI agents. Kill the mutants your tests miss."
 license = "FSL-1.1-ALv2"
 version.workspace = true
 edition.workspace = true

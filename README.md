@@ -3,13 +3,14 @@
 [![CI](https://github.com/reapr-corp/reapr/actions/workflows/ci.yml/badge.svg)](https://github.com/reapr-corp/reapr/actions/workflows/ci.yml)
 [![License: FSL-1.1-ALv2 / MIT](https://img.shields.io/badge/license-FSL--1.1--ALv2%20%2F%20MIT-blue)](#licensing)
 
-Mutation testing scoped to your diff.
+**Mutation testing for your AI agents.** Kill the mutants your tests miss.
 
-Teams now ship large amounts of AI-generated code. How do you know it does not add bugs or regressions?
-Coverage measures which lines ran, not whether any test would notice if they changed. Agents write tests that
-pass but do not protect behavior. The mutation score measures exactly that: it changes your code on purpose and
-checks that a test fails. Reapr runs your existing mutation engine on the lines your branch changed, with your
-own config, and gives you a score and a list of surviving mutants that a person or an agent can act on.
+AI agents write tests that pass but do not protect behavior. Coverage cannot tell: it measures which lines ran,
+not whether any test would notice if they changed. The mutation score measures exactly that: it changes your code
+on purpose and checks that a test fails. Reapr runs your existing mutation engine on the lines your branch
+changed (or on the whole project), with your own config, and gives you a score and a list of surviving mutants
+that an agent, or a person, can act on: one focused test per survivor. It works the same on pull requests written
+by people.
 
 What keeps teams from running mutation testing on every pull request is time, not the lack of tools. A signal
 that takes 40 to 90 minutes ends up in a nightly job. Making it fast is the goal Reapr is working toward.

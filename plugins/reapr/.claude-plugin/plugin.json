@@ -1,7 +1,7 @@
 {
   "name": "reapr",
   "version": "0.2.0",
-  "description": "Set up Reapr (rpr) and improve tests with mutation testing as evidence: kill surviving mutants with focused tests, flag weak tests, audit edge cases. Uses Reapr (rpr).",
+  "description": "Mutation testing for your AI agents: kill the mutants your tests miss. Sets up Reapr (rpr), then writes one focused test per surviving mutant, flags weak tests and audits edge cases.",
   "author": { "name": "reapr-corp", "url": "https://github.com/reapr-corp" },
   "homepage": "https://github.com/reapr-corp/reapr",
   "repository": "https://github.com/reapr-corp/reapr",

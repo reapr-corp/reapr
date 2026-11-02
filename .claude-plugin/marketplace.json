@@ -1,12 +1,12 @@
 {
   "name": "reapr",
   "owner": { "name": "reapr-corp", "url": "https://github.com/reapr-corp" },
-  "description": "Agent skills for Reapr, mutation testing scoped to your diff.",
+  "description": "Agent skills for Reapr: mutation testing for your AI agents.",
   "plugins": [
     {
       "name": "reapr",
       "source": "./plugins/reapr",
-      "description": "Set up Reapr (rpr) and improve tests with mutation testing as evidence: kill surviving mutants with focused tests, flag weak tests, audit edge cases. Uses Reapr (rpr).",
+      "description": "Mutation testing for your AI agents: kill the mutants your tests miss. Sets up Reapr (rpr), then writes one focused test per surviving mutant, flags weak tests and audits edge cases.",
       "version": "0.2.0",
       "category": "testing"
     }
