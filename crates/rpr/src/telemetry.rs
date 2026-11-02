@@ -320,6 +320,23 @@ fn agent(env: Env) -> Option<&'static str> {
     .map(|(_, agent)| agent)
 }
 
+/// `RPR_INVOKED_BY`: which tool ran `rpr`. Only allow-listed names are sent, anything else is `other`.
+fn invoked_by(env: Env) -> Option<&'static str> {
+    match env("RPR_INVOKED_BY")?.as_str() {
+        "" => None,
+        "mutation-audit" => Some("mutation-audit"),
+        _ => Some("other"),
+    }
+}
+
+/// `RPR_SESSION_ID`, the random id a tool (the agent skill) gives the runs of one session; sent only if
+/// it is a UUID v4 (any case, sent lowercase), so it can carry nothing else.
+fn session_id(env: Env) -> Option<String> {
+    let id = env("RPR_SESSION_ID")?.to_ascii_lowercase();
+    (is_uuid(&id) && &id[14..15] == "4" && matches!(&id[19..20], "8" | "9" | "a" | "b"))
+        .then_some(id)
+}
+
 /// Mixed into [`project_id`] so the hash is specific to Reapr telemetry. Never change it: every project
 /// would get a new id.
 const PROJECT_SALT: &str = "reapr-telemetry-v1:";
@@ -397,6 +414,8 @@ pub struct Properties {
     trigger: Option<&'static str>,
     via_action: bool,
     agent: Option<&'static str>,
+    invoked_by: Option<&'static str>,
+    session_id: Option<String>,
     first_run: Option<bool>,
     build: &'static str,
     project_id: Option<String>,
@@ -447,6 +466,8 @@ impl Properties {
             trigger: trigger(env, ci_provider),
             via_action: env("RPR_VIA_ACTION").as_deref() == Some("1"),
             agent: agent(env),
+            invoked_by: invoked_by(env),
+            session_id: session_id(env),
             // Set by `prepare`, which knows whether the state file was created and the run is sent.
             first_run: None,
             build: if cfg!(debug_assertions) {
@@ -1142,6 +1163,8 @@ mod tests {
             ("GITHUB_EVENT_NAME", "pull_request"),
             ("RPR_VIA_ACTION", "1"),
             ("CLAUDECODE", "1"),
+            ("RPR_INVOKED_BY", "mutation-audit"),
+            ("RPR_SESSION_ID", "D211DD4C-B6F3-4622-B367-F3643505ABC0"),
             ("HOME", "/home/me"),
         ]);
         let s = realistic_summary(false, Some(50.0));
@@ -1205,6 +1228,9 @@ mod tests {
                 "trigger": "pull_request",
                 "via_action": true,
                 "agent": "claude_code",
+                "invoked_by": "mutation-audit",
+                // A random UUID the skill generates per session, not derived from anything.
+                "session_id": "d211dd4c-b6f3-4622-b367-f3643505abc0",
                 "first_run": null,
                 "build": "debug",
                 "project_id": null,
@@ -1430,5 +1456,29 @@ mod tests {
             &["clone", "-q", "--depth", "1", &url, "shallow"],
         );
         assert_eq!(project_id(&tmp.path().join("shallow")), None);
+    }
+
+    #[test]
+    fn skill_session_tags() {
+        let i = |v: &str| invoked_by(&env_of(&[("RPR_INVOKED_BY", v)]));
+        assert_eq!(invoked_by(&env_of(&[])), None);
+        assert_eq!(i(""), None);
+        assert_eq!(i("mutation-audit"), Some("mutation-audit"));
+        assert_eq!(i("my-script /home/me"), Some("other"));
+        let s = |v: &str| session_id(&env_of(&[("RPR_SESSION_ID", v)]));
+        let id = new_uuid();
+        assert_eq!(s(&id), Some(id.clone()));
+        assert_eq!(s(&id.to_ascii_uppercase()), Some(id));
+        assert_eq!(session_id(&env_of(&[])), None);
+        // Not v4, not a UUID, or a UUID-shaped carrier of something else.
+        for bad in [
+            "d211dd4c-b6f3-1622-b367-f3643505abc0",
+            "d211dd4c-b6f3-4622-c367-f3643505abc0",
+            "me@example.com",
+            "d211dd4cb6f34622b367f3643505abc0",
+            "",
+        ] {
+            assert_eq!(s(bad), None, "{bad}");
+        }
     }
 }

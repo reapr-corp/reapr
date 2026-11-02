@@ -1,6 +1,6 @@
 ---
 name: mutation-audit
-description: Find and fix weak tests with mutation testing as objective evidence, using Reapr (`rpr`). Runs `rpr run --diff` against the base branch, writes one focused test per surviving mutant and re-runs until it is killed, flags tests that cover code but kill nothing, then audits the diff for edge cases mutation operators miss. Use it whenever the user asks if their tests are good enough, wants to strengthen, harden or review the tests of a branch or pull request (including AI-written tests), or mentions mutation testing, mutation score, surviving mutants, Stryker or rpr, even if they never say "mutation testing".
+description: Find and fix weak tests with mutation testing as objective evidence, using Reapr (`rpr`). Runs `rpr run --diff` against the base branch, writes one focused test per surviving mutant and re-runs until it is killed, flags tests that cover code but kill nothing, then audits the diff for edge cases mutation operators miss. Use it whenever the user asks if their tests are good enough, wants to strengthen, harden or review the tests of a branch or pull request (including AI-written tests), or mentions mutation testing, mutation score, surviving mutants, Stryker, cargo-mutants or rpr, even if they never say "mutation testing".
 license: MIT
 ---
 
@@ -31,7 +31,7 @@ belongs to the human.
   style, how `describe`/`it` names read.
 - **Stay inside the diff scope** unless the human asks for more.
 - **Assert intended behavior, not current behavior.** See "When intent is unclear" below.
-- No disable comments (`// Stryker disable ...`) without the human's approval.
+- No disable comments (`// Stryker disable ...`, `#[mutants::skip]`) without the human's approval.
 
 ## Step 0: Preconditions
 
@@ -42,11 +42,12 @@ When available, run `rpr doctor` first. (It does not exist yet; until it does, c
    curl -LsSf https://github.com/reapr-corp/reapr/releases/latest/download/rpr-installer.sh | sh
    ```
    Reapr runs on Linux (x86_64, aarch64) only for now.
-2. An engine config exists. For StrykerJS: `stryker.conf.*`, `stryker.config.*` (or the same with a leading
-   dot), or a named config such as `stryker.unit.config.mjs` passed with `--config`. If there is none,
-   **stop** and tell the human to create one (`npx stryker init`). Do not write one yourself, not even a
-   minimal one: the config decides the test runner, what is mutated and the thresholds, and those are the
-   team's choices.
+2. The engine is set up. StrykerJS (JavaScript, TypeScript) needs a config: `stryker.conf.*`,
+   `stryker.config.*` (or the same with a leading dot), or a named config such as `stryker.unit.config.mjs`
+   passed with `--config`. If there is none, **stop** and tell the human to create one (`npx stryker init`).
+   Do not write one yourself, not even a minimal one: the config decides the test runner, what is mutated and
+   the thresholds, and those are the team's choices. cargo-mutants (Rust) needs `cargo mutants --version` to
+   work; its `.cargo/mutants.toml` is optional, so do not create one either.
 3. Reapr mutates committed changes only (`<base>...HEAD`). If `git status` shows uncommitted changes to
    source files, tell the human: those lines are not in scope. New test files you write do not need to be
    committed; the engine runs the tests in the work tree.
@@ -54,11 +55,21 @@ When available, run `rpr doctor` first. (It does not exist yet; until it does, c
    configs whose package directory contains them, and plan one run per config with
    `--project <package dir> --config <config path>`. A run that reports nothing to mutate is fine.
 
+5. Generate one session id for this whole audit, a UUID v4 (`uuidgen`, or
+   `node -e 'console.log(crypto.randomUUID())'`), and run every `rpr` command of the session with
+   `RPR_INVOKED_BY=mutation-audit RPR_SESSION_ID=<uuid>` in front. This only tags Reapr's anonymous
+   telemetry (to measure the score change per session) and changes nothing when `DO_NOT_TRACK` is set.
+   The commands below leave the prefix out for brevity.
+
 ## Step 1: Evidence
 
 ```sh
-rpr run --diff <base> --json
+RPR_INVOKED_BY=mutation-audit RPR_SESSION_ID=<uuid> rpr run --diff <base> --json
 ```
+
+In a Rust project add `--engine cargo-mutants` (required when the repo also has a JavaScript engine config).
+cargo-mutants has no thresholds of its own, so only `--min-score` gates it; that gate is the human's choice,
+not a way to change the result.
 
 `<base>` defaults to `origin/main`. If the repo has no `origin/main`, or the branch clearly targets another
 branch, ask. stdout holds one JSON document; stderr has engine output and notices, ignore it unless the run
@@ -83,7 +94,8 @@ Work through `survivors` one at a time. For each:
 5. Write ONE focused test that asserts the intended behavior at the point the mutant changes. Name it after
    the behavior, not the mutant.
 6. Run the project's own test command for that file (from `package.json` scripts, for example
-   `npx vitest run src/price.test.ts`). It must pass against the real code.
+   `npx vitest run src/price.test.ts`; in Rust, `cargo test` with the test's name). It must pass against
+   the real code.
 7. Re-run `rpr run --diff <base> --json` and confirm the mutant is now Killed. Match mutants across runs by
    file, line, column, mutator and replacement (ids can change). A test that kills nothing is not done:
    rethink it or treat the mutant as equivalent.
@@ -125,7 +137,8 @@ node ${CLAUDE_SKILL_DIR}/scripts/test-kills.mjs <run_dir>
 ```
 
 It lists, for in-scope mutants, how many each test covers and kills, and the tests that cover mutants but
-kill none. Use the run from Step 1 (before your new tests), so the result reflects the original suite.
+kill none. It reads Stryker's report; cargo-mutants records no per-test kills, so for Rust skip it and rely on
+reading the tests below. Use the run from Step 1 (before your new tests), so the result reflects the original suite.
 Caveat: with bail on (Stryker's default), `killedBy` holds only the first test that failed, so "kills none"
 is a lead, not proof. Confirm by reading the test.
 

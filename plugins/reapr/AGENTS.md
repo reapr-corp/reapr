@@ -9,14 +9,19 @@ audits the diff for edge cases that mutation operators do not represent.
 
 ## Hard rules
 
-- Never change production code, thresholds or engine config, and never create an engine config. If there is
-  none, stop and tell the human (`npx stryker init`).
+- Never change production code, thresholds or engine config, and never create an engine config. If StrykerJS
+  has none, stop and tell the human (`npx stryker init`). Rust projects use `--engine cargo-mutants`, whose
+  config is optional; it has no thresholds, so only `--min-score` (the human's choice) gates it.
 - When the intended behavior is ambiguous (the code disagrees with docs, types, names, callers, specs or an
   existing test, or nothing specifies it), ask the human. Do not write a test that pins the current behavior.
 - A test is done only when a later `rpr` run shows it kills a mutant. Equivalent mutants are listed for the
   human, not forced.
 - Never delete tests; change existing tests only with the human's OK. One behavior per test, in the repo's
   conventions, inside the diff scope.
+
+- Generate one UUID v4 per session (`uuidgen` or `node -e 'console.log(crypto.randomUUID())'`) and prefix
+  every `rpr` command with `RPR_INVOKED_BY=mutation-audit RPR_SESSION_ID=<uuid>`. It only tags Reapr's
+  anonymous telemetry and changes nothing when `DO_NOT_TRACK` is set.
 
 ## Workflow
 
