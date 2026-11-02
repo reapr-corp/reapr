@@ -58,7 +58,13 @@ Per repo, the last N (N = 10 for the suite, 3 for the pilot) merged PRs into the
 
 1. touch at least one file selected by the config's `mutate` patterns at the PR head, and
 2. have a Stryker config and `@stryker-mutator/core` at the PR head (brazilian-utils #498 has neither: Stryker
-   came later).
+   came later), install, and leave rpr at least one changed file that the config's `mutate` selects.
+
+Survivors: parity only means something if some in-diff mutants survive. The suite's scan job runs C once per
+candidate PR, newest first, and stops when it has N valid PRs and at least 3 of them (or of older ones) have
+in-diff survivors. If fewer than 3 of the last N have survivors, the newest older PRs with survivors are added
+(marked "older PR added for in-diff survivors"). The scan uses C only to choose PRs; its runs are not results,
+and A's verdicts are what parity is checked against.
 
 Base and head come from the merge commit: base is `merge^1` (the integration branch just before the merge), head is
 `merge^2` (the PR's last commit), or the merge commit itself for a squash merge. `rpr run --diff <base>` from
@@ -149,6 +155,23 @@ figures are guesses, to be replaced by the one-off measurement:
 Standard GitHub-hosted runners are free for public repos, and public repos get the 4-vCPU `ubuntu-latest`, so
 the suite should run from a public repo. The jobs are independent, so the wall time is about the total
 divided by the number of concurrent jobs the account allows. B's head runs are assumed at 40% of A; without B the total drops by about a third.
+
+## Running the suite
+
+`.github/workflows/oss-benchmark.yml` (workflow_dispatch only) runs `suite.py` on GitHub-hosted `ubuntu-latest`:
+
+```sh
+gh workflow run oss-benchmark.yml --ref feat/oss-benchmark \
+  -f repos=all -f prs=10 -f reps=3 -f scenarios=A,B,C -f min_survivor_prs=3 -f rpr_version=0.3.0
+```
+
+Jobs: `scan` (one per repo, picks the PRs), `plan` (builds the matrices), then one job per (repo, PR, scenario,
+rep): `A`, `C`, `seed` (A on the PR base with the B flags, kept for its incremental file) and `B` (A on the head
+with the seed's incremental file). `aggregate` writes the markdown table to the job summary and uploads
+`summary.json`, `summary.md` and the run's job list (for runner minutes). Each job installs cold (no cache
+restored), times install apart from the measured command, and uploads one small result JSON. CI commits nothing.
+Node is pinned per repo in `repos.json` (the version each repo's own CI uses). `python3 bench/oss/suite.py
+selftest` checks the diff parser, the plan and the aggregate on synthetic data.
 
 ## Pilot harness
 
