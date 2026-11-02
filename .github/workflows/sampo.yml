@@ -32,7 +32,7 @@ jobs:
       # Sampo regenerates Cargo.lock with cargo; install the toolchain pinned in rust-toolchain.toml.
       - run: rustup toolchain install
       - id: sampo
-        uses: bruits/sampo/crates/sampo-github-action@cargo-sampo-github-action-v0.22.0
+        uses: bruits/sampo/crates/sampo-github-action@cargo-sampo-github-action-v0.21.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Start the dist release
