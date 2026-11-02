@@ -1,0 +1,58 @@
+/* Shared tokens for the social templates. Values come from brand/BRAND.md. */
+@font-face {
+  font-family: "Instrument Sans";
+  src: url("fonts/InstrumentSans.ttf") format("truetype");
+  font-weight: 400 700;
+  font-stretch: 75% 100%;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("fonts/JetBrainsMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("fonts/JetBrainsMono-Medium.woff2") format("woff2");
+  font-weight: 500;
+}
+
+:root {
+  --bg: #0B0D0C;
+  --surface: #141715;
+  --border: #262B27;
+  --border-strong: #626962;
+  --muted: #8B918A;
+  --text: #E8EAE6;
+  --killed: #B6F23A;   /* status only */
+  --survived: #F2A93A; /* status only */
+  --sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--bg); color: var(--text); }
+body {
+  font-family: var(--sans);
+  font-stretch: 100%;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  position: relative;
+}
+
+/* The brand SVGs are currentColor; a mask paints them bone without copying their paths. */
+.lockup, .mark {
+  background: var(--text);
+  -webkit-mask: var(--src) center / contain no-repeat;
+  mask: var(--src) center / contain no-repeat;
+}
+.lockup { --src: url("../../lockup.svg"); aspect-ratio: 189.66 / 66; }
+.mark { --src: url("../../mark.svg"); aspect-ratio: 1; }
+
+.h { font-weight: 600; letter-spacing: -0.01em; line-height: 1.04; }
+/* No ligatures: >= must read as the two characters a mutant changes. */
+.mono { font-family: var(--mono); font-weight: 400; letter-spacing: 0; font-variant-ligatures: none; font-feature-settings: "calt" 0, "liga" 0; }
+.pre { white-space: pre; }
+.muted { color: var(--muted); }
+.survived { color: var(--survived); }
+.killed { color: var(--killed); }
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }

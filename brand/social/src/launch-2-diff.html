@@ -1,0 +1,17 @@
+<!doctype html>
+<html data-size="1600x900"><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+  .copy { position: absolute; left: 120px; top: 104px; font-size: 116px; }
+  .diff { position: absolute; left: 120px; right: 120px; top: 404px; padding: 36px 56px; font-size: 46px; line-height: 1.45; white-space: pre; }
+  .diff .file { font-size: 30px; margin-bottom: 12px; }
+  .add { color: var(--killed); }
+  .note { position: absolute; left: 120px; bottom: 100px; font-size: 46px; }
+  .lockup { position: absolute; right: 120px; bottom: 104px; height: 52px; }
+</style></head>
+<body style="width:1600px;height:900px">
+  <div class="copy h">One ignore pattern.<br>3× faster.</div>
+<div class="diff panel mono"><div class="file muted">stryker.config.mjs</div><span class="muted">  ignorePatterns: [</span>
+<span class="add">+</span>   ".turbo",</div>
+  <div class="note"><span class="mono pre">38.4 s → 12.5 s</span><span class="muted pre">   Same results.</span></div>
+  <div class="lockup"></div>
+</body></html>

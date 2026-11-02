@@ -1,0 +1,22 @@
+<!doctype html>
+<html data-size="1600x900"><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+  .copy { position: absolute; left: 120px; top: 104px; font-size: 96px; }
+  .steps { position: absolute; left: 120px; right: 120px; top: 344px; }
+  .step { display: grid; grid-template-columns: 280px 1fr; align-items: baseline; padding: 24px 0; }
+  .step + .step { border-top: 1px solid var(--border); }
+  .label { font-size: 44px; font-weight: 500; }
+  .code { font-size: 50px; }
+  .foot { position: absolute; left: 120px; bottom: 96px; font-size: 40px; }
+  .lockup { position: absolute; right: 120px; bottom: 96px; height: 52px; }
+</style></head>
+<body style="width:1600px;height:900px">
+  <div class="copy h">One survivor, one test,<br>one rerun.</div>
+  <div class="steps">
+    <div class="step"><div class="label survived">Survived</div><div class="code mono pre">total &gt;= 100  →  total &gt; 100</div></div>
+    <div class="step"><div class="label">Test</div><div class="code mono">assert.equal(price(100), 90)</div></div>
+    <div class="step"><div class="label killed">Killed</div><div class="code mono">score 100.00%</div></div>
+  </div>
+  <div class="foot mono muted">/reapr:mutation-audit</div>
+  <div class="lockup"></div>
+</body></html>
