@@ -183,7 +183,7 @@ its own git dir, so worktrees never share runs.
 ### Run record (`run.json`, pending owner review)
 
 Raw facts only, never derived judgments; metrics are computed later from these. Stays local in
-`<git dir>/reapr/runs/<id>/`; nothing is sent anywhere in Phase 1. Written by the CLI after the run, also when
+`<git dir>/reapr/runs/<id>/`; never sent (telemetry is a separate event). Written by the CLI after the run, also when
 there is nothing to mutate; not on errors. Gathering facts never fails the run: a git command that fails
 becomes a warning and leaves its fact empty (`null` / `[]`). Facts come from `reapr_core::record`
 (`git_facts`, `Environment::detect`, `rfc3339`); the engine version from the adapter (Stryker:
@@ -274,6 +274,7 @@ running them; these arrive with the Node-side bridge.
 
 ```
 rpr run --diff <base> [--json] [--min-score <N>] [--config <path>] [--project <dir>]
+rpr telemetry [status|enable|disable]
 ```
 
 - `--project` defaults to cwd and is canonicalized once (`dunce::canonicalize`: real path, no Windows `\\?\`
@@ -295,6 +296,31 @@ rpr run --diff <base> [--json] [--min-score <N>] [--config <path>] [--project <d
   argument errors caught by clap), stdout holds `{"error": "<message>"}` instead; `--help` and `--version`
   print normally and exit 0.
 - Exit codes: 0 pass; 1 score < `--min-score` or `engine_gate_failed`; 2 any error. No valid mutants → pass.
+
+## Telemetry
+
+Anonymous, opt-out usage telemetry in `rpr` (`crates/rpr/src/telemetry.rs`); the user-facing contract, with
+every property, is [TELEMETRY.md](../../TELEMETRY.md).
+
+- One PostHog event, `run_completed`, per `rpr run`, also on errors after argument parsing. Built and sent after
+  the output is printed: nothing runs while the engine does, stdout is untouched, the notice and the debug
+  payload go to stderr.
+- Transport: spawn `curl -sS -m 1 -X POST -H 'Content-Type: application/json' --data-binary @- <capture URL>`,
+  write the JSON to its stdin, `tokio::time::timeout` 1.5 s on the child, then kill. No HTTP client dependency;
+  no curl → nothing sent; every failure is silent.
+- Properties are numbers, bools, fixed enums and buckets only: no free text. Errors map to an `error_kind`
+  enum by downcasting the `anyhow` chain (`CliError`, `AdapterError`, `DiffError`, `io::Error`) in one
+  function; warnings map to a `warning_kinds` enum by their adapter text; versions pass only if they are
+  `[0-9A-Za-z.+-]`. A unit test serializes events built from runs full of paths, emails and shas and rejects
+  any string with `/`, `\`, `@` or a 40-hex sha.
+- Opt-out precedence: `DO_NOT_TRACK` (non-empty, not `0`) > `RPR_TELEMETRY` (`0/false/off/no` vs
+  `1/true/on/yes`) > the saved setting (`rpr telemetry enable|disable`) > on.
+- State: `${XDG_CONFIG_HOME:-$HOME/.config}/reapr/telemetry.json` = `install_id` (UUID v4 from `/dev/urandom`),
+  `enabled` (`null` until set), `notice_shown`. Unreadable or unwritable → defaults, never an error. In CI
+  (a well-known CI variable is set) nothing is persisted: a fresh id and the notice on every run.
+- `POSTHOG_PROJECT_KEY` is one constant; while it is empty telemetry is a no-op (no notice, no state, no send),
+  except that `RPR_TELEMETRY_DEBUG=1` still prints the payload. Tests pass a key to the internal `prepare`
+  function; there is no runtime override.
 
 ## Distribution
 

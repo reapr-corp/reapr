@@ -28,6 +28,7 @@ verdict, and raw timing data for every run) that the speed work will be measured
 - [How it works](#how-it-works)
 - [Measurements](#measurements)
 - [Known limitations](#known-limitations)
+- [Telemetry](#telemetry)
 - [Engines](#engines)
 - [Roadmap](#roadmap)
 - [Licensing](#licensing)
@@ -37,10 +38,11 @@ verdict, and raw timing data for every run) that the speed work will be measured
 Phase 1, pre-release. There is no published release yet. Releases and the [changelog](crates/rpr/CHANGELOG.md)
 come from changesets: see [CONTRIBUTING.md](CONTRIBUTING.md#changesets).
 
-- A local CLI, `rpr`, with one command: `rpr run`.
+- A local CLI, `rpr`: `rpr run`, plus `rpr telemetry` to see or change [telemetry](#telemetry).
 - One engine: StrykerJS (JavaScript and TypeScript).
 - Linux only (x86_64 and aarch64), tested on Ubuntu. macOS and Windows are not supported yet: see the
-  [roadmap](#roadmap). Nothing runs in the cloud and nothing is sent anywhere.
+  [roadmap](#roadmap). Nothing runs in the cloud. The only thing sent anywhere is anonymous usage
+  [telemetry](#telemetry), which you can turn off.
 
 The agreed design for this phase is in [docs/design/phase-1.md](docs/design/phase-1.md).
 
@@ -346,6 +348,14 @@ against 87.8 with bail off). This last one is why Reapr warns about bail, and wh
 - Line breaks: git splits lines on `\n` only, while Babel (Stryker's parser) also treats U+2028, U+2029 and a
   lone CR as line breaks. In files that contain them, Stryker's line numbers drift from git's and the diff
   ranges can point at the wrong lines.
+
+## Telemetry
+
+`rpr run` sends one anonymous usage event (outcome, counts, durations, bucketed diff size, platform, CI kind,
+flag names) to PostHog after the output is printed. It never sends code, paths, names, shas, emails or messages.
+It is on by default with a one-time notice on stderr; turn it off with `DO_NOT_TRACK=1`, `RPR_TELEMETRY=0` or
+`rpr telemetry disable`, and see the exact payload with `RPR_TELEMETRY_DEBUG=1`. Every property is listed in
+[TELEMETRY.md](TELEMETRY.md).
 
 ## Engines
 

@@ -3,6 +3,8 @@ use std::process::{Command, Output};
 fn rpr(args: &[&str]) -> Output {
     Command::new(env!("CARGO_BIN_EXE_rpr"))
         .args(args)
+        // Test runs never send telemetry.
+        .env("DO_NOT_TRACK", "1")
         .output()
         .unwrap()
 }
@@ -195,4 +197,107 @@ fn base_starting_with_dash_is_rejected() {
     let msg = json_error(&out);
     assert!(msg.contains("must not start with '-'"), "{msg}");
     assert_eq!(std::fs::read_dir(out_dir.path()).unwrap().count(), 0);
+}
+
+/// `rpr` with a private telemetry state dir and no inherited opt-out or CI variables.
+fn rpr_with_telemetry(args: &[&str], config_home: &std::path::Path, debug: bool) -> Output {
+    let mut cmd = Command::new(env!("CARGO_BIN_EXE_rpr"));
+    cmd.args(args).env("XDG_CONFIG_HOME", config_home);
+    for k in [
+        "DO_NOT_TRACK",
+        "RPR_TELEMETRY",
+        "RPR_TELEMETRY_DEBUG",
+        "GITHUB_ACTIONS",
+        "GITLAB_CI",
+        "CIRCLECI",
+        "BUILDKITE",
+        "JENKINS_URL",
+        "CI",
+    ] {
+        cmd.env_remove(k);
+    }
+    if debug {
+        cmd.env("RPR_TELEMETRY_DEBUG", "1");
+    }
+    cmd.output().unwrap()
+}
+
+#[test]
+fn telemetry_debug_prints_the_payload_on_stderr_only() {
+    let tmp = tempfile::tempdir().unwrap();
+    let root = dunce::canonicalize(tmp.path()).unwrap().join("repo");
+    std::fs::create_dir(&root).unwrap();
+    let config_home = tmp.path().join("config");
+    std::fs::write(root.join("stryker.config.json"), "{}").unwrap();
+    git(&root, &["init", "-q"]);
+    git(&root, &["add", "-A"]);
+    git(&root, &["commit", "-q", "-m", "one"]);
+    let project = root.to_str().unwrap();
+
+    let args = ["run", "--diff", "HEAD", "--project", project, "--json"];
+    let out = rpr_with_telemetry(&args, &config_home, true);
+    assert_eq!(out.status.code(), Some(0));
+    let stderr = String::from_utf8_lossy(&out.stderr);
+    let json = stderr
+        .lines()
+        .find(|l| l.starts_with('{'))
+        .unwrap_or_else(|| panic!("no payload in {stderr}"));
+    let p: serde_json::Value = serde_json::from_str(json).unwrap();
+    assert_eq!(p["event"], "run_completed");
+    let props = &p["properties"];
+    assert_eq!(props["outcome"], "nothing_to_mutate");
+    assert_eq!(props["flags"], serde_json::json!(["json", "project"]));
+    assert_eq!(props["engine"], "stryker");
+    assert_eq!(props["ranges_bucket"], "0");
+    assert_eq!(props["$process_person_profile"], false);
+    assert!(!json.contains(project) && !json.contains("repo"), "{json}");
+    // Without a project key nothing is persisted, even in debug mode.
+    if p["api_key"] == "" {
+        assert!(!config_home.exists());
+    }
+
+    // stdout is the same single --json document as without telemetry.
+    let v: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap();
+    assert!(v["run_id"].is_string() && v["score"].is_null());
+    let plain = rpr_with_telemetry(&args, &config_home, false);
+    let w: serde_json::Value = serde_json::from_slice(&plain.stdout).unwrap();
+    let keys = |v: &serde_json::Value| v.as_object().unwrap().keys().cloned().collect::<Vec<_>>();
+    assert_eq!(keys(&v), keys(&w));
+    assert!(!String::from_utf8_lossy(&plain.stderr).contains("run_completed"));
+
+    // Errors after argument parsing send an error kind, never the message.
+    let args = ["run", "--diff", "HEAD", "--project", "/no/such/dir"];
+    let out = rpr_with_telemetry(&args, &config_home, true);
+    assert_eq!(out.status.code(), Some(2));
+    let stderr = String::from_utf8_lossy(&out.stderr);
+    let json = stderr.lines().find(|l| l.starts_with('{')).unwrap();
+    let p: serde_json::Value = serde_json::from_str(json).unwrap();
+    assert_eq!(p["properties"]["outcome"], "error");
+    assert_eq!(p["properties"]["error_kind"], "args");
+    assert!(!json.contains("/no/such"), "{json}");
+}
+
+#[test]
+fn telemetry_command_saves_the_setting() {
+    let tmp = tempfile::tempdir().unwrap();
+    let out = rpr_with_telemetry(&["telemetry"], tmp.path(), false);
+    assert!(out.status.success());
+    let text = String::from_utf8_lossy(&out.stdout);
+    assert!(text.starts_with("telemetry: enabled (default)\n"), "{text}");
+
+    let out = rpr_with_telemetry(&["telemetry", "disable"], tmp.path(), false);
+    assert!(out.status.success());
+    let text = String::from_utf8_lossy(&out.stdout);
+    assert!(
+        text.starts_with("telemetry: disabled (setting)\n"),
+        "{text}"
+    );
+    let state = tmp.path().join("reapr/telemetry.json");
+    let s: serde_json::Value =
+        serde_json::from_str(&std::fs::read_to_string(&state).unwrap()).unwrap();
+    assert_eq!(s["enabled"], false);
+    assert_eq!(s["install_id"].as_str().unwrap().len(), 36);
+
+    let out = rpr_with_telemetry(&["telemetry", "enable"], tmp.path(), false);
+    assert!(String::from_utf8_lossy(&out.stdout).starts_with("telemetry: enabled (setting)\n"));
 }

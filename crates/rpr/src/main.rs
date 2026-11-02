@@ -1,12 +1,13 @@
 //! `rpr`: mutation testing scoped to your diff.
 
 mod output;
+mod telemetry;
 
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
-use std::time::SystemTime;
+use std::time::{Instant, SystemTime};
 
-use anyhow::{Context, Result, bail};
+use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 use reapr_core::{
     AdapterError, Detection, MutationEngineAdapter, MutationScope, RunContext, RunOutcome, Shard,
@@ -27,6 +28,11 @@ struct Cli {
 enum Command {
     /// Mutate the lines changed since <base> with the project's own engine config.
     Run(RunArgs),
+    /// Show or change anonymous usage telemetry (see TELEMETRY.md).
+    Telemetry {
+        #[command(subcommand)]
+        action: Option<telemetry::Action>,
+    },
 }
 
 #[derive(clap::Args)]
@@ -43,9 +49,37 @@ struct RunArgs {
     /// Engine config file; skips config detection.
     #[arg(long, value_name = "PATH")]
     config: Option<PathBuf>,
-    /// Project directory (engine cwd).
-    #[arg(long, value_name = "DIR", default_value = ".")]
-    project: PathBuf,
+    /// Project directory (engine cwd). Default: the current directory.
+    #[arg(long, value_name = "DIR")]
+    project: Option<PathBuf>,
+}
+
+impl RunArgs {
+    /// The names of the optional flags given, for telemetry (names only, never values).
+    fn flag_names(&self) -> Vec<&'static str> {
+        [
+            ("json", self.json),
+            ("min_score", self.min_score.is_some()),
+            ("config", self.config.is_some()),
+            ("project", self.project.is_some()),
+        ]
+        .into_iter()
+        .filter_map(|(name, used)| used.then_some(name))
+        .collect()
+    }
+}
+
+/// The CLI's own errors, typed so telemetry can tell their kind without reading the message.
+#[derive(thiserror::Error, Debug)]
+pub enum CliError {
+    #[error("invalid project dir {}", .0.display())]
+    Project(PathBuf, #[source] std::io::Error),
+    #[error("invalid config path {}", .0.display())]
+    ConfigPath(PathBuf, #[source] std::io::Error),
+    #[error("config file not found: {}", .0.display())]
+    ConfigNotFound(PathBuf),
+    #[error("no supported mutation engine detected in {}", .0.display())]
+    NoEngine(PathBuf),
 }
 
 /// Git would read a leading `-` as an option (`--output=<path>` writes a file).
@@ -103,15 +137,21 @@ impl Engine {
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> ExitCode {
+    let started = Instant::now();
     let args = match Cli::try_parse() {
         Ok(Cli {
             command: Command::Run(args),
         }) => args,
+        Ok(Cli {
+            command: Command::Telemetry { action },
+        }) => return telemetry::command(action.unwrap_or(telemetry::Action::Status)),
         Err(e) => return clap_exit(&e),
     };
     let json = args.json;
-    match run(args).await {
-        Ok(summary) => {
+    let flags = args.flag_names();
+    let result = run(args).await;
+    let code = match &result {
+        Ok((summary, _)) => {
             for w in &summary.warnings {
                 eprintln!("warning: {w}");
             }
@@ -136,7 +176,12 @@ async fn main() -> ExitCode {
             }
             ExitCode::from(2)
         }
-    }
+    };
+    // After the output is printed: telemetry never delays or changes it.
+    let run = result.as_ref().map(|(s, v)| (s, v.as_deref()));
+    let props = telemetry::Properties::new(&telemetry::os_env, flags, run, started.elapsed());
+    telemetry::report(&props).await;
+    code
 }
 
 /// clap's own rendering and exit code (0 for help and version, 2 for errors), plus the JSON error
@@ -154,19 +199,21 @@ fn clap_exit(e: &clap::Error) -> ExitCode {
     ExitCode::from(u8::try_from(e.exit_code()).unwrap_or(2))
 }
 
-async fn run(args: RunArgs) -> Result<Summary> {
+/// The summary and the engine version.
+async fn run(args: RunArgs) -> Result<(Summary, Option<String>)> {
     let started_at = record::rfc3339(SystemTime::now());
     // The real path, as the engine sees its cwd: Stryker reports `projectRoot: process.cwd()`, so a
     // `..` or a symlink here would put every mutant outside the scope. `dunce` avoids Windows' `\\?\`.
-    let project_dir = dunce::canonicalize(&args.project)
-        .with_context(|| format!("invalid project dir {}", args.project.display()))?;
+    let project = args.project.unwrap_or_else(|| PathBuf::from("."));
+    let project_dir =
+        dunce::canonicalize(&project).map_err(|e| CliError::Project(project.clone(), e))?;
 
     let (engine, config) = match args.config {
         Some(path) => {
-            let path = std::path::absolute(&path)
-                .with_context(|| format!("invalid config path {}", path.display()))?;
+            let path =
+                std::path::absolute(&path).map_err(|e| CliError::ConfigPath(path.clone(), e))?;
             if !path.is_file() {
-                bail!("config file not found: {}", path.display());
+                return Err(CliError::ConfigNotFound(path).into());
             }
             (Engine::Stryker(StrykerAdapter::new()), Some(path))
         }
@@ -242,7 +289,7 @@ async fn run(args: RunArgs) -> Result<Summary> {
             summary.run_dir.display()
         )
     })?;
-    Ok(summary)
+    Ok((summary, engine_version))
 }
 
 async fn detect(project_dir: &Path) -> Result<(Engine, Option<PathBuf>)> {
@@ -255,8 +302,5 @@ async fn detect(project_dir: &Path) -> Result<(Engine, Option<PathBuf>)> {
             return Ok((engine, d.config));
         }
     }
-    bail!(
-        "no supported mutation engine detected in {}",
-        project_dir.display()
-    )
+    Err(CliError::NoEngine(project_dir.to_owned()).into())
 }
