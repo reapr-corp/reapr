@@ -36,10 +36,13 @@ verdict, and raw timing data for every run) that the speed work will be measured
 
 ## Status
 
-Phase 1, pre-release. There is no published release yet. Releases and the [changelog](crates/rpr/CHANGELOG.md)
-come from changesets: see [CONTRIBUTING.md](CONTRIBUTING.md#changesets).
+Phase 1, released: see the [latest release](https://github.com/reapr-corp/reapr/releases/latest) and the
+[changelog](crates/rpr/CHANGELOG.md). Releases come from changesets: see
+[CONTRIBUTING.md](CONTRIBUTING.md#changesets). Website: [reapr.dev](https://reapr.dev).
 
-- A local CLI, `rpr`: `rpr run`, plus `rpr telemetry` to see or change [telemetry](#telemetry).
+- A CLI, `rpr`: `rpr run`, plus `rpr telemetry` to see or change [telemetry](#telemetry).
+- A GitHub Action, [`reapr-corp/run@v1`](https://github.com/marketplace/actions/reapr-mutation-testing).
+- An agent skill for Claude Code (and AGENTS.md for other agents): [Agent skill](#agent-skill).
 - Two engines: StrykerJS (JavaScript and TypeScript) and cargo-mutants (Rust).
 - Linux only (x86_64 and aarch64), tested on Ubuntu. macOS and Windows are not supported yet: see the
   [roadmap](#roadmap). Nothing runs in the cloud. The only thing sent anywhere is anonymous usage
