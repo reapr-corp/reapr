@@ -20,3 +20,9 @@ install-updater = false
 # Release runs are started by workflow_dispatch (from .github/workflows/sampo.yml) instead of a tag push:
 # a tag pushed with GITHUB_TOKEN does not trigger workflows.
 dispatch-releases = true
+
+# Build on Blacksmith: native x86_64 and ARM runners (no cross-compilation); plan/host/announce on 2 vCPU.
+[dist.github-custom-runners]
+x86_64-unknown-linux-gnu = "blacksmith-4vcpu-ubuntu-2404"
+aarch64-unknown-linux-gnu = "blacksmith-4vcpu-ubuntu-2404-arm"
+global = "blacksmith-2vcpu-ubuntu-2404"
