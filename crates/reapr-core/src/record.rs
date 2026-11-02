@@ -161,6 +161,13 @@ mod tests {
     }
 
     #[test]
+    fn rfc3339_march_first_of_a_common_year_before_2000() {
+        // 1999 is not a leap year, so the day after Feb 28 is March 1, not Feb 29.
+        let at = |s| rfc3339(UNIX_EPOCH + Duration::from_secs(s));
+        assert_eq!(at(920_246_400), "1999-03-01T00:00:00Z");
+    }
+
+    #[test]
     fn parses_log_with_trailers() {
         let out = "7ae48700c070e1eeaa460868d5e063fe77160a01\x1fc@d\x1f\0\
                    b84248f3709e21292e7b9c21319976e906aea48\x1fa@b\x1f\
@@ -185,6 +192,36 @@ mod tests {
             ]
         );
         assert_eq!(parse_log(""), vec![]);
+    }
+
+    /// Runs in a child copy of this test binary with the CI variables set, since the environment is
+    /// process-global; the child prints what it detected.
+    #[test]
+    fn environment_from_github_actions_runner_variables() {
+        const NAME: &str = "record::tests::environment_from_github_actions_runner_variables";
+        if std::env::var_os("REAPR_TEST_ENV_CHILD").is_some() {
+            let e = Environment::detect();
+            println!(
+                "detected={}|{:?}|{}|{}",
+                e.kind, e.runner_name, e.os, e.arch
+            );
+            return;
+        }
+        let out = std::process::Command::new(std::env::current_exe().unwrap())
+            .args([NAME, "--exact", "--nocapture", "--test-threads=1"])
+            .env("REAPR_TEST_ENV_CHILD", "1")
+            .env("GITHUB_ACTIONS", "true")
+            .env("RUNNER_NAME", "runner-7")
+            .env("RUNNER_OS", "TestOS")
+            .env("RUNNER_ARCH", "TestArch")
+            .output()
+            .unwrap();
+        let stdout = String::from_utf8_lossy(&out.stdout);
+        assert!(out.status.success(), "{stdout}");
+        assert!(
+            stdout.contains(r#"detected=github-actions|Some("runner-7")|TestOS|TestArch"#),
+            "{stdout}"
+        );
     }
 
     fn git_cmd(dir: &Path, args: &[&str]) {
