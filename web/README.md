@@ -43,7 +43,7 @@ from `../brand` at runtime.
   taken from BRAND.md's "Design tokens". The `theme-color` tags in `src/layouts/Base.astro` repeat the two
   background colors.
 - Lockup in the top bar: `src/assets/lockup.svg`, inlined so it takes the text color (bone on dark, ink on
-  light). `src/assets/mark.svg` is there for the same use.
+  light).
 - Icons: `public/favicon.ico`, `public/icon.svg` (from `icon-small.svg`), `public/apple-touch-icon.png` (180 px,
   from `export/icon-512.png`), `public/og-image.png` (from `export/og-image-1200x630.png`).
 - Fonts: `public/fonts/`, self-hosted WOFF2 with each family's `OFL.txt`. Instrument Sans is the upstream
