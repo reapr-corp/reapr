@@ -11,10 +11,16 @@ use serde::Serialize;
 use crate::MutationReport;
 use crate::diff::{DiffError, git};
 
-/// `git rev-parse --absolute-git-dir`, run from `project_dir`.
+/// `git rev-parse --absolute-git-dir`, run from `project_dir`, canonicalized so it compares equal to other
+/// canonical paths (git prints `C:/...` on Windows and does not resolve symlinks).
 pub async fn git_dir(project_dir: &Path) -> Result<PathBuf, DiffError> {
-    let out = git(project_dir, &["rev-parse", "--absolute-git-dir"]).await?;
-    Ok(PathBuf::from(out.trim_end_matches(['\r', '\n'])))
+    let args = ["rev-parse", "--absolute-git-dir"];
+    let out = git(project_dir, &args).await?;
+    let raw = PathBuf::from(out.trim_end_matches(['\r', '\n']));
+    dunce::canonicalize(&raw).map_err(|source| DiffError::Io {
+        command: format!("canonicalize {}", raw.display()),
+        source,
+    })
 }
 
 /// Creates `<git_dir>/reapr/runs/<unix seconds>-<pid>/` and returns `(run_id, run_dir)`.
@@ -82,7 +88,7 @@ mod tests {
     #[tokio::test]
     async fn run_store_lands_in_the_git_dir_of_each_worktree() {
         let tmp = tempfile::tempdir().unwrap();
-        let root = tmp.path().canonicalize().unwrap();
+        let root = dunce::canonicalize(tmp.path()).unwrap();
         let sub = root.join("main/packages/app");
         fs::create_dir_all(&sub).unwrap();
         git_cmd(&root.join("main"), &["init", "-q"]);

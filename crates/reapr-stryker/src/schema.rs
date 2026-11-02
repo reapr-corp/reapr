@@ -397,7 +397,7 @@ mod tests {
     #[test]
     fn project_root_real_path_matches_project_dir_through_dotdot_or_symlink() {
         let tmp = tempfile::tempdir().unwrap();
-        let real = tmp.path().canonicalize().unwrap().join("pkg");
+        let real = dunce::canonicalize(tmp.path()).unwrap().join("pkg");
         std::fs::create_dir_all(real.join("src")).unwrap();
         let abs_key = serde_json::to_string(&real.join("src/b.ts")).unwrap();
         let abs_key = abs_key.trim_matches('"');

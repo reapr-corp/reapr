@@ -98,7 +98,7 @@ fn git(dir: &std::path::Path, args: &[&str]) {
 #[test]
 fn nothing_to_mutate_writes_run_record_in_the_git_dir() {
     let tmp = tempfile::tempdir().unwrap();
-    let root = tmp.path().canonicalize().unwrap();
+    let root = dunce::canonicalize(tmp.path()).unwrap();
     std::fs::write(root.join("stryker.config.json"), "{}").unwrap();
     git(&root, &["init", "-q"]);
     git(&root, &["add", "-A"]);
