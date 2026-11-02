@@ -1,13 +1,13 @@
 name: Bug report
 description: Reapr did something wrong or failed.
-labels: [bug]
+labels: [bug, needs-triage]
 body:
   - type: input
     id: reapr-version
     attributes:
       label: Reapr version
       description: Output of `rpr --version`, or the commit you built from.
-      placeholder: rpr 0.1.0
+      placeholder: rpr 0.2.0
     validations:
       required: true
   - type: input

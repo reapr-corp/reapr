@@ -1,6 +1,6 @@
 name: Engine request
 description: Ask for support for another mutation testing engine.
-labels: [engine]
+labels: [engine, needs-triage]
 body:
   - type: input
     id: engine

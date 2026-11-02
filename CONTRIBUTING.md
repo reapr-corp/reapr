@@ -3,6 +3,28 @@
 Thanks for helping. Read [docs/design/phase-1.md](docs/design/phase-1.md) first: it is the agreed design, and
 changes are reviewed against it.
 
+## Issues and discussions
+
+Start in [Discussions](https://github.com/reapr-corp/reapr/discussions); open an issue when there is
+concrete work to do.
+
+| You have | Where it goes | What happens next |
+| --- | --- | --- |
+| A question ("how do I...") | Discussions → Q&A | Answered there; the answer is marked |
+| An idea or feature request | Discussions → Ideas | If accepted, a maintainer turns it into an issue labelled `accepted` |
+| A reproducible bug | Issue, bug report form | Starts as `needs-triage` |
+| A request for another engine | Issue, engine request form | Labelled `engine`; prioritised by demand (👍 on the issue) |
+| A security problem | [Private advisory](https://github.com/reapr-corp/reapr/security/advisories/new) | Never in public |
+
+Triage moves each new issue out of `needs-triage` to `confirmed`, `needs-repro`, `duplicate` or `wontfix`
+(with the reason), and adds one area label: `area:core`, `area:stryker`, `area:cargo-mutants`, `area:cli`,
+`area:action` or `area:skill`. Small, well-scoped issues get `good first issue`.
+
+To resolve an issue: branch, open a pull request that says `Fixes #<number>`, add a changeset if it touches
+`crates/`, get CI green, squash-merge. The next release ships it and closes the issue.
+
+Questions and issues about the GitHub Action (`reapr-corp/run`) live here too.
+
 ## Development setup
 
 Develop on Linux (CI runs on Ubuntu). macOS and Windows are not supported yet.
