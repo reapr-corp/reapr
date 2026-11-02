@@ -1,0 +1,19 @@
+// Static site for reapr.dev, served by Workers static assets. No Worker script.
+{
+  "$schema": "https://unpkg.com/wrangler/config-schema.json",
+  "name": "reapr-web",
+  "account_id": "3838652891727c2e11102b2d38139466",
+  "compatibility_date": "2026-11-02",
+  "assets": {
+    "directory": "./public",
+    "not_found_handling": "404-page"
+  },
+  // Preview only for now: the site is served at https://reapr-web.<subdomain>.workers.dev.
+  // To go live on reapr.dev after the brand is approved, add:
+  //   "routes": [
+  //     { "pattern": "reapr.dev", "custom_domain": true },
+  //     { "pattern": "www.reapr.dev", "custom_domain": true }
+  //   ],
+  // and run `npx wrangler@latest deploy` again (see README.md).
+  "workers_dev": true
+}
