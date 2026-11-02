@@ -21,6 +21,6 @@ show_acknowledgments = false
 automatic_entries = "collapse"
 
 [packages]
-# One product version: the three crates are bumped together. Nothing is published to crates.io
+# One product version: every crate is bumped together. Nothing is published to crates.io
 # (`publish = false` on every crate), so `sampo publish` only tags `rpr`.
-fixed = [["cargo/reapr-core", "cargo/reapr-stryker", "cargo/rpr"]]
+fixed = [["cargo/reapr-core", "cargo/reapr-stryker", "cargo/reapr-cargo-mutants", "cargo/rpr"]]

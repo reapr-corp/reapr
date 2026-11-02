@@ -1,0 +1,22 @@
+[package]
+name = "reapr-cargo-mutants"
+description = "cargo-mutants adapter for Reapr."
+license = "MIT"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+# Not published to crates.io in Phase 1.
+publish = false
+
+[dependencies]
+dunce.workspace = true
+reapr-core.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio = { workspace = true, features = ["process", "fs"] }
+
+[dev-dependencies]
+reapr-core = { workspace = true, features = ["testkit"] }
+tempfile.workspace = true
+tokio = { workspace = true, features = ["rt", "macros", "process", "fs"] }

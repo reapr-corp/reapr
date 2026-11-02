@@ -1,0 +1,1122 @@
+{
+  "outcomes": [
+    {
+      "scenario": "Baseline",
+      "summary": "Success",
+      "log_path": "log/baseline.log",
+      "diff_path": null,
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.505453143,
+          "process_status": "Success",
+          "argv": [
+            "cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.152955209,
+          "process_status": "Success",
+          "argv": [
+            "cargo",
+            "test",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/lib.rs:7:5: replace is_even -> bool with true",
+          "package": "cm-fixture",
+          "file": "src/lib.rs",
+          "function": {
+            "function_name": "is_even",
+            "return_type": "-> bool",
+            "span": {
+              "start": {
+                "line": 5,
+                "column": 1
+              },
+              "end": {
+                "line": 8,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 7,
+              "column": 5
+            },
+            "end": {
+              "line": 7,
+              "column": 15
+            }
+          },
+          "replacement": "true",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/src__lib.rs_line_7_col_5.log",
+      "diff_path": "diff/src__lib.rs_line_7_col_5.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.302949999,
+          "process_status": "Success",
+          "argv": [
+            "cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.102411865,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "cargo",
+            "test",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/lib.rs:7:5: replace is_even -> bool with false",
+          "package": "cm-fixture",
+          "file": "src/lib.rs",
+          "function": {
+            "function_name": "is_even",
+            "return_type": "-> bool",
+            "span": {
+              "start": {
+                "line": 5,
+                "column": 1
+              },
+              "end": {
+                "line": 8,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 7,
+              "column": 5
+            },
+            "end": {
+              "line": 7,
+              "column": 15
+            }
+          },
+          "replacement": "false",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/src__lib.rs_line_7_col_5_001.log",
+      "diff_path": "diff/src__lib.rs_line_7_col_5_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.35256587,
+          "process_status": "Success",
+          "argv": [
+            "cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.053267783,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "cargo",
+            "test",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/lib.rs:7:11: replace == with != in is_even",
+          "package": "cm-fixture",
+          "file": "src/lib.rs",
+          "function": {
+            "function_name": "is_even",
+            "return_type": "-> bool",
+            "span": {
+              "start": {
+                "line": 5,
+                "column": 1
+              },
+              "end": {
+                "line": 8,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 7,
+              "column": 11
+            },
+            "end": {
+              "line": 7,
+              "column": 13
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/src__lib.rs_line_7_col_11.log",
+      "diff_path": "diff/src__lib.rs_line_7_col_11.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.353766757,
+          "process_status": "Success",
+          "argv": [
+            "cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.051917206,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "cargo",
+            "test",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/lib.rs:7:7: replace % with / in is_even",
+          "package": "cm-fixture",
+          "file": "src/lib.rs",
+          "function": {
+            "function_name": "is_even",
+            "return_type": "-> bool",
+            "span": {
+              "start": {
+                "line": 5,
+                "column": 1
+              },
+              "end": {
+                "line": 8,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 7,
+              "column": 7
+            },
+            "end": {
+              "line": 7,
+              "column": 8
+            }
+          },
+          "replacement": "/",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/src__lib.rs_line_7_col_7.log",
+      "diff_path": "diff/src__lib.rs_line_7_col_7.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.30498347,
+          "process_status": "Success",
+          "argv": [
+            "cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.103493698,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "cargo",
+            "test",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/lib.rs:7:7: replace % with + in is_even",
+          "package": "cm-fixture",
+          "file": "src/lib.rs",
+          "function": {
+            "function_name": "is_even",
+            "return_type": "-> bool",
+            "span": {
+              "start": {
+                "line": 5,
+                "column": 1
+              },
+              "end": {
+                "line": 8,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 7,
+              "column": 7
+            },
+            "end": {
+              "line": 7,
+              "column": 8
+            }
+          },
+          "replacement": "+",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/src__lib.rs_line_7_col_7_001.log",
+      "diff_path": "diff/src__lib.rs_line_7_col_7_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.303652627,
+          "process_status": "Success",
+          "argv": [
+            "cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.052635877,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "cargo",
+            "test",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/lib.rs:12:5: replace double -> u32 with 0",
+          "package": "cm-fixture",
+          "file": "src/lib.rs",
+          "function": {
+            "function_name": "double",
+            "return_type": "-> u32",
+            "span": {
+              "start": {
+                "line": 10,
+                "column": 1
+              },
+              "end": {
+                "line": 13,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 12,
+              "column": 5
+            },
+            "end": {
+              "line": 12,
+              "column": 10
+            }
+          },
+          "replacement": "0",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/src__lib.rs_line_12_col_5.log",
+      "diff_path": "diff/src__lib.rs_line_12_col_5.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.35326491,
+          "process_status": "Success",
+          "argv": [
+            "cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.152661726,
+          "process_status": "Success",
+          "argv": [
+            "cargo",
+            "test",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/lib.rs:12:5: replace double -> u32 with 1",
+          "package": "cm-fixture",
+          "file": "src/lib.rs",
+          "function": {
+            "function_name": "double",
+            "return_type": "-> u32",
+            "span": {
+              "start": {
+                "line": 10,
+                "column": 1
+              },
+              "end": {
+                "line": 13,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 12,
+              "column": 5
+            },
+            "end": {
+              "line": 12,
+              "column": 10
+            }
+          },
+          "replacement": "1",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/src__lib.rs_line_12_col_5_001.log",
+      "diff_path": "diff/src__lib.rs_line_12_col_5_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.303296222,
+          "process_status": "Success",
+          "argv": [
+            "cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.102314071,
+          "process_status": "Success",
+          "argv": [
+            "cargo",
+            "test",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/lib.rs:12:7: replace * with + in double",
+          "package": "cm-fixture",
+          "file": "src/lib.rs",
+          "function": {
+            "function_name": "double",
+            "return_type": "-> u32",
+            "span": {
+              "start": {
+                "line": 10,
+                "column": 1
+              },
+              "end": {
+                "line": 13,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 12,
+              "column": 7
+            },
+            "end": {
+              "line": 12,
+              "column": 8
+            }
+          },
+          "replacement": "+",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/src__lib.rs_line_12_col_7.log",
+      "diff_path": "diff/src__lib.rs_line_12_col_7.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.352853042,
+          "process_status": "Success",
+          "argv": [
+            "cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.155706193,
+          "process_status": "Success",
+          "argv": [
+            "cargo",
+            "test",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/lib.rs:12:7: replace * with / in double",
+          "package": "cm-fixture",
+          "file": "src/lib.rs",
+          "function": {
+            "function_name": "double",
+            "return_type": "-> u32",
+            "span": {
+              "start": {
+                "line": 10,
+                "column": 1
+              },
+              "end": {
+                "line": 13,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 12,
+              "column": 7
+            },
+            "end": {
+              "line": 12,
+              "column": 8
+            }
+          },
+          "replacement": "/",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/src__lib.rs_line_12_col_7_001.log",
+      "diff_path": "diff/src__lib.rs_line_12_col_7_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.30312608,
+          "process_status": "Success",
+          "argv": [
+            "cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.10259908,
+          "process_status": "Success",
+          "argv": [
+            "cargo",
+            "test",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/lib.rs:17:5: replace countdown -> u32 with 0",
+          "package": "cm-fixture",
+          "file": "src/lib.rs",
+          "function": {
+            "function_name": "countdown",
+            "return_type": "-> u32",
+            "span": {
+              "start": {
+                "line": 15,
+                "column": 1
+              },
+              "end": {
+                "line": 22,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 17,
+              "column": 5
+            },
+            "end": {
+              "line": 21,
+              "column": 10
+            }
+          },
+          "replacement": "0",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/src__lib.rs_line_17_col_5.log",
+      "diff_path": "diff/src__lib.rs_line_17_col_5.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.252454648,
+          "process_status": "Success",
+          "argv": [
+            "cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.052132362,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "cargo",
+            "test",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/lib.rs:17:5: replace countdown -> u32 with 1",
+          "package": "cm-fixture",
+          "file": "src/lib.rs",
+          "function": {
+            "function_name": "countdown",
+            "return_type": "-> u32",
+            "span": {
+              "start": {
+                "line": 15,
+                "column": 1
+              },
+              "end": {
+                "line": 22,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 17,
+              "column": 5
+            },
+            "end": {
+              "line": 21,
+              "column": 10
+            }
+          },
+          "replacement": "1",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/src__lib.rs_line_17_col_5_001.log",
+      "diff_path": "diff/src__lib.rs_line_17_col_5_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.252292875,
+          "process_status": "Success",
+          "argv": [
+            "cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.052603261,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "cargo",
+            "test",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/lib.rs:18:13: replace > with == in countdown",
+          "package": "cm-fixture",
+          "file": "src/lib.rs",
+          "function": {
+            "function_name": "countdown",
+            "return_type": "-> u32",
+            "span": {
+              "start": {
+                "line": 15,
+                "column": 1
+              },
+              "end": {
+                "line": 22,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 18,
+              "column": 13
+            },
+            "end": {
+              "line": 18,
+              "column": 14
+            }
+          },
+          "replacement": "==",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/src__lib.rs_line_18_col_13.log",
+      "diff_path": "diff/src__lib.rs_line_18_col_13.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.252369911,
+          "process_status": "Success",
+          "argv": [
+            "cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.102390975,
+          "process_status": "Success",
+          "argv": [
+            "cargo",
+            "test",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/lib.rs:18:13: replace > with < in countdown",
+          "package": "cm-fixture",
+          "file": "src/lib.rs",
+          "function": {
+            "function_name": "countdown",
+            "return_type": "-> u32",
+            "span": {
+              "start": {
+                "line": 15,
+                "column": 1
+              },
+              "end": {
+                "line": 22,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 18,
+              "column": 13
+            },
+            "end": {
+              "line": 18,
+              "column": 14
+            }
+          },
+          "replacement": "<",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/src__lib.rs_line_18_col_13_001.log",
+      "diff_path": "diff/src__lib.rs_line_18_col_13_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.252461857,
+          "process_status": "Success",
+          "argv": [
+            "cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.102330523,
+          "process_status": "Success",
+          "argv": [
+            "cargo",
+            "test",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/lib.rs:18:13: replace > with >= in countdown",
+          "package": "cm-fixture",
+          "file": "src/lib.rs",
+          "function": {
+            "function_name": "countdown",
+            "return_type": "-> u32",
+            "span": {
+              "start": {
+                "line": 15,
+                "column": 1
+              },
+              "end": {
+                "line": 22,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 18,
+              "column": 13
+            },
+            "end": {
+              "line": 18,
+              "column": 14
+            }
+          },
+          "replacement": ">=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/src__lib.rs_line_18_col_13_002.log",
+      "diff_path": "diff/src__lib.rs_line_18_col_13_002.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.252550291,
+          "process_status": "Success",
+          "argv": [
+            "cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.051972958,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "cargo",
+            "test",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/lib.rs:19:11: replace -= with += in countdown",
+          "package": "cm-fixture",
+          "file": "src/lib.rs",
+          "function": {
+            "function_name": "countdown",
+            "return_type": "-> u32",
+            "span": {
+              "start": {
+                "line": 15,
+                "column": 1
+              },
+              "end": {
+                "line": 22,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 19,
+              "column": 11
+            },
+            "end": {
+              "line": 19,
+              "column": 13
+            }
+          },
+          "replacement": "+=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "Timeout",
+      "log_path": "log/src__lib.rs_line_19_col_11.log",
+      "diff_path": "diff/src__lib.rs_line_19_col_11.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.252286122,
+          "process_status": "Success",
+          "argv": [
+            "cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 2.008026135,
+          "process_status": "Timeout",
+          "argv": [
+            "cargo",
+            "test",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/lib.rs:19:11: replace -= with /= in countdown",
+          "package": "cm-fixture",
+          "file": "src/lib.rs",
+          "function": {
+            "function_name": "countdown",
+            "return_type": "-> u32",
+            "span": {
+              "start": {
+                "line": 15,
+                "column": 1
+              },
+              "end": {
+                "line": 22,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 19,
+              "column": 11
+            },
+            "end": {
+              "line": 19,
+              "column": 13
+            }
+          },
+          "replacement": "/=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "Timeout",
+      "log_path": "log/src__lib.rs_line_19_col_11_001.log",
+      "diff_path": "diff/src__lib.rs_line_19_col_11_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.252341687,
+          "process_status": "Success",
+          "argv": [
+            "cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 2.007512927,
+          "process_status": "Timeout",
+          "argv": [
+            "cargo",
+            "test",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/lib.rs:28:5: replace meters -> Meters with Default::default()",
+          "package": "cm-fixture",
+          "file": "src/lib.rs",
+          "function": {
+            "function_name": "meters",
+            "return_type": "-> Meters",
+            "span": {
+              "start": {
+                "line": 26,
+                "column": 1
+              },
+              "end": {
+                "line": 29,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 28,
+              "column": 5
+            },
+            "end": {
+              "line": 28,
+              "column": 14
+            }
+          },
+          "replacement": "Default::default()",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/src__lib.rs_line_28_col_5.log",
+      "diff_path": "diff/src__lib.rs_line_28_col_5.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.15222079,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=cm-fixture@0.1.0"
+          ]
+        }
+      ]
+    }
+  ],
+  "total_mutants": 17,
+  "missed": 6,
+  "caught": 8,
+  "timeout": 2,
+  "unviable": 1,
+  "success": 0,
+  "start_time": "2026-11-02T21:39:48.813452894Z",
+  "end_time": "2026-11-02T21:39:59.611377765Z",
+  "cargo_mutants_version": "27.1.0"
+}

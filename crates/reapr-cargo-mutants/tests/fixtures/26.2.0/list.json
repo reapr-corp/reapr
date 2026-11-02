@@ -1,0 +1,386 @@
+[
+  {
+    "diff": "--- src/lib.rs\n+++ replace is_even -> bool with true\n@@ -1,15 +1,15 @@\n pub fn add(a: u32, b: u32) -> u32 {\n     a + b\n }\n \n /// Caught: tested below.\n pub fn is_even(n: u32) -> bool {\n-    n % 2 == 0\n+    true /* ~ changed by cargo-mutants ~ */\n }\n \n /// Missed: no test checks the value.\n pub fn double(n: u32) -> u32 {\n     n * 2\n }\n \n /// Timeout: `n /= 1` never ends the loop.\n",
+    "file": "src/lib.rs",
+    "function": {
+      "function_name": "is_even",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 8
+        },
+        "start": {
+          "column": 1,
+          "line": 5
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/lib.rs:7:5: replace is_even -> bool with true",
+    "package": "cm-fixture",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 7
+      },
+      "start": {
+        "column": 5,
+        "line": 7
+      }
+    }
+  },
+  {
+    "diff": "--- src/lib.rs\n+++ replace is_even -> bool with false\n@@ -1,15 +1,15 @@\n pub fn add(a: u32, b: u32) -> u32 {\n     a + b\n }\n \n /// Caught: tested below.\n pub fn is_even(n: u32) -> bool {\n-    n % 2 == 0\n+    false /* ~ changed by cargo-mutants ~ */\n }\n \n /// Missed: no test checks the value.\n pub fn double(n: u32) -> u32 {\n     n * 2\n }\n \n /// Timeout: `n /= 1` never ends the loop.\n",
+    "file": "src/lib.rs",
+    "function": {
+      "function_name": "is_even",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 8
+        },
+        "start": {
+          "column": 1,
+          "line": 5
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/lib.rs:7:5: replace is_even -> bool with false",
+    "package": "cm-fixture",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 7
+      },
+      "start": {
+        "column": 5,
+        "line": 7
+      }
+    }
+  },
+  {
+    "diff": "--- src/lib.rs\n+++ replace == with != in is_even\n@@ -1,15 +1,15 @@\n pub fn add(a: u32, b: u32) -> u32 {\n     a + b\n }\n \n /// Caught: tested below.\n pub fn is_even(n: u32) -> bool {\n-    n % 2 == 0\n+    n % 2 != /* ~ changed by cargo-mutants ~ */ 0\n }\n \n /// Missed: no test checks the value.\n pub fn double(n: u32) -> u32 {\n     n * 2\n }\n \n /// Timeout: `n /= 1` never ends the loop.\n",
+    "file": "src/lib.rs",
+    "function": {
+      "function_name": "is_even",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 8
+        },
+        "start": {
+          "column": 1,
+          "line": 5
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lib.rs:7:11: replace == with != in is_even",
+    "package": "cm-fixture",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 13,
+        "line": 7
+      },
+      "start": {
+        "column": 11,
+        "line": 7
+      }
+    }
+  },
+  {
+    "diff": "--- src/lib.rs\n+++ replace % with / in is_even\n@@ -1,15 +1,15 @@\n pub fn add(a: u32, b: u32) -> u32 {\n     a + b\n }\n \n /// Caught: tested below.\n pub fn is_even(n: u32) -> bool {\n-    n % 2 == 0\n+    n / /* ~ changed by cargo-mutants ~ */ 2 == 0\n }\n \n /// Missed: no test checks the value.\n pub fn double(n: u32) -> u32 {\n     n * 2\n }\n \n /// Timeout: `n /= 1` never ends the loop.\n",
+    "file": "src/lib.rs",
+    "function": {
+      "function_name": "is_even",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 8
+        },
+        "start": {
+          "column": 1,
+          "line": 5
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lib.rs:7:7: replace % with / in is_even",
+    "package": "cm-fixture",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 8,
+        "line": 7
+      },
+      "start": {
+        "column": 7,
+        "line": 7
+      }
+    }
+  },
+  {
+    "diff": "--- src/lib.rs\n+++ replace % with + in is_even\n@@ -1,15 +1,15 @@\n pub fn add(a: u32, b: u32) -> u32 {\n     a + b\n }\n \n /// Caught: tested below.\n pub fn is_even(n: u32) -> bool {\n-    n % 2 == 0\n+    n + /* ~ changed by cargo-mutants ~ */ 2 == 0\n }\n \n /// Missed: no test checks the value.\n pub fn double(n: u32) -> u32 {\n     n * 2\n }\n \n /// Timeout: `n /= 1` never ends the loop.\n",
+    "file": "src/lib.rs",
+    "function": {
+      "function_name": "is_even",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 8
+        },
+        "start": {
+          "column": 1,
+          "line": 5
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lib.rs:7:7: replace % with + in is_even",
+    "package": "cm-fixture",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 8,
+        "line": 7
+      },
+      "start": {
+        "column": 7,
+        "line": 7
+      }
+    }
+  },
+  {
+    "diff": "--- src/lib.rs\n+++ replace countdown -> u32 with 0\n@@ -9,21 +9,17 @@\n \n /// Missed: no test checks the value.\n pub fn double(n: u32) -> u32 {\n     n * 2\n }\n \n /// Timeout: `n /= 1` never ends the loop.\n pub fn countdown(mut n: u32) -> u32 {\n-    let start = n;\n-    while n > 0 {\n-        n -= 1;\n-    }\n-    start\n+    0 /* ~ changed by cargo-mutants ~ */\n }\n \n pub struct Meters(pub u32);\n \n /// Unviable: `Meters` has no `Default`.\n pub fn meters(n: u32) -> Meters {\n     Meters(n)\n }\n",
+    "file": "src/lib.rs",
+    "function": {
+      "function_name": "countdown",
+      "return_type": "-> u32",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 22
+        },
+        "start": {
+          "column": 1,
+          "line": 15
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/lib.rs:17:5: replace countdown -> u32 with 0",
+    "package": "cm-fixture",
+    "replacement": "0",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 21
+      },
+      "start": {
+        "column": 5,
+        "line": 17
+      }
+    }
+  },
+  {
+    "diff": "--- src/lib.rs\n+++ replace countdown -> u32 with 1\n@@ -9,21 +9,17 @@\n \n /// Missed: no test checks the value.\n pub fn double(n: u32) -> u32 {\n     n * 2\n }\n \n /// Timeout: `n /= 1` never ends the loop.\n pub fn countdown(mut n: u32) -> u32 {\n-    let start = n;\n-    while n > 0 {\n-        n -= 1;\n-    }\n-    start\n+    1 /* ~ changed by cargo-mutants ~ */\n }\n \n pub struct Meters(pub u32);\n \n /// Unviable: `Meters` has no `Default`.\n pub fn meters(n: u32) -> Meters {\n     Meters(n)\n }\n",
+    "file": "src/lib.rs",
+    "function": {
+      "function_name": "countdown",
+      "return_type": "-> u32",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 22
+        },
+        "start": {
+          "column": 1,
+          "line": 15
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/lib.rs:17:5: replace countdown -> u32 with 1",
+    "package": "cm-fixture",
+    "replacement": "1",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 21
+      },
+      "start": {
+        "column": 5,
+        "line": 17
+      }
+    }
+  },
+  {
+    "diff": "--- src/lib.rs\n+++ replace > with == in countdown\n@@ -10,17 +10,17 @@\n /// Missed: no test checks the value.\n pub fn double(n: u32) -> u32 {\n     n * 2\n }\n \n /// Timeout: `n /= 1` never ends the loop.\n pub fn countdown(mut n: u32) -> u32 {\n     let start = n;\n-    while n > 0 {\n+    while n == /* ~ changed by cargo-mutants ~ */ 0 {\n         n -= 1;\n     }\n     start\n }\n \n pub struct Meters(pub u32);\n \n /// Unviable: `Meters` has no `Default`.\n",
+    "file": "src/lib.rs",
+    "function": {
+      "function_name": "countdown",
+      "return_type": "-> u32",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 22
+        },
+        "start": {
+          "column": 1,
+          "line": 15
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lib.rs:18:13: replace > with == in countdown",
+    "package": "cm-fixture",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 14,
+        "line": 18
+      },
+      "start": {
+        "column": 13,
+        "line": 18
+      }
+    }
+  },
+  {
+    "diff": "--- src/lib.rs\n+++ replace > with < in countdown\n@@ -10,17 +10,17 @@\n /// Missed: no test checks the value.\n pub fn double(n: u32) -> u32 {\n     n * 2\n }\n \n /// Timeout: `n /= 1` never ends the loop.\n pub fn countdown(mut n: u32) -> u32 {\n     let start = n;\n-    while n > 0 {\n+    while n < /* ~ changed by cargo-mutants ~ */ 0 {\n         n -= 1;\n     }\n     start\n }\n \n pub struct Meters(pub u32);\n \n /// Unviable: `Meters` has no `Default`.\n",
+    "file": "src/lib.rs",
+    "function": {
+      "function_name": "countdown",
+      "return_type": "-> u32",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 22
+        },
+        "start": {
+          "column": 1,
+          "line": 15
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lib.rs:18:13: replace > with < in countdown",
+    "package": "cm-fixture",
+    "replacement": "<",
+    "span": {
+      "end": {
+        "column": 14,
+        "line": 18
+      },
+      "start": {
+        "column": 13,
+        "line": 18
+      }
+    }
+  },
+  {
+    "diff": "--- src/lib.rs\n+++ replace > with >= in countdown\n@@ -10,17 +10,17 @@\n /// Missed: no test checks the value.\n pub fn double(n: u32) -> u32 {\n     n * 2\n }\n \n /// Timeout: `n /= 1` never ends the loop.\n pub fn countdown(mut n: u32) -> u32 {\n     let start = n;\n-    while n > 0 {\n+    while n >= /* ~ changed by cargo-mutants ~ */ 0 {\n         n -= 1;\n     }\n     start\n }\n \n pub struct Meters(pub u32);\n \n /// Unviable: `Meters` has no `Default`.\n",
+    "file": "src/lib.rs",
+    "function": {
+      "function_name": "countdown",
+      "return_type": "-> u32",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 22
+        },
+        "start": {
+          "column": 1,
+          "line": 15
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lib.rs:18:13: replace > with >= in countdown",
+    "package": "cm-fixture",
+    "replacement": ">=",
+    "span": {
+      "end": {
+        "column": 14,
+        "line": 18
+      },
+      "start": {
+        "column": 13,
+        "line": 18
+      }
+    }
+  },
+  {
+    "diff": "--- src/lib.rs\n+++ replace -= with += in countdown\n@@ -11,17 +11,17 @@\n pub fn double(n: u32) -> u32 {\n     n * 2\n }\n \n /// Timeout: `n /= 1` never ends the loop.\n pub fn countdown(mut n: u32) -> u32 {\n     let start = n;\n     while n > 0 {\n-        n -= 1;\n+        n += /* ~ changed by cargo-mutants ~ */ 1;\n     }\n     start\n }\n \n pub struct Meters(pub u32);\n \n /// Unviable: `Meters` has no `Default`.\n pub fn meters(n: u32) -> Meters {\n",
+    "file": "src/lib.rs",
+    "function": {
+      "function_name": "countdown",
+      "return_type": "-> u32",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 22
+        },
+        "start": {
+          "column": 1,
+          "line": 15
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lib.rs:19:11: replace -= with += in countdown",
+    "package": "cm-fixture",
+    "replacement": "+=",
+    "span": {
+      "end": {
+        "column": 13,
+        "line": 19
+      },
+      "start": {
+        "column": 11,
+        "line": 19
+      }
+    }
+  },
+  {
+    "diff": "--- src/lib.rs\n+++ replace -= with /= in countdown\n@@ -11,17 +11,17 @@\n pub fn double(n: u32) -> u32 {\n     n * 2\n }\n \n /// Timeout: `n /= 1` never ends the loop.\n pub fn countdown(mut n: u32) -> u32 {\n     let start = n;\n     while n > 0 {\n-        n -= 1;\n+        n /= /* ~ changed by cargo-mutants ~ */ 1;\n     }\n     start\n }\n \n pub struct Meters(pub u32);\n \n /// Unviable: `Meters` has no `Default`.\n pub fn meters(n: u32) -> Meters {\n",
+    "file": "src/lib.rs",
+    "function": {
+      "function_name": "countdown",
+      "return_type": "-> u32",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 22
+        },
+        "start": {
+          "column": 1,
+          "line": 15
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lib.rs:19:11: replace -= with /= in countdown",
+    "package": "cm-fixture",
+    "replacement": "/=",
+    "span": {
+      "end": {
+        "column": 13,
+        "line": 19
+      },
+      "start": {
+        "column": 11,
+        "line": 19
+      }
+    }
+  }
+]
