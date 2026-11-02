@@ -1,0 +1,20 @@
+{
+  "name": "reapr-web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "check": "astro build && html-validate 'dist/**/*.html'",
+    "preview": "astro build && wrangler dev",
+    "deploy": "astro build && wrangler deploy"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "3.7.4",
+    "astro": "7.4.5"
+  },
+  "devDependencies": {
+    "html-validate": "11.18.0",
+    "wrangler": "4.156.2"
+  }
+}

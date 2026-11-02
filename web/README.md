@@ -1,54 +1,58 @@
 # reapr.dev
 
-The public website: plain HTML and CSS, a few lines of JavaScript for the copy buttons, no build step, no
-external fonts, scripts or trackers, no cookies. It is served by Cloudflare Workers static assets.
+The public website, built with [Astro](https://astro.build) as a static site and served by Cloudflare Workers
+static assets. No external fonts, scripts or trackers, no cookies. The only JavaScript is the copy-button
+script in `src/layouts/Base.astro`, which Astro inlines (about 650 bytes); the pages work without it.
 
-| Path | Page |
-|---|---|
-| `public/index.html` | `/` |
-| `public/telemetry.html` | `/telemetry` |
-| `public/404.html` | Every path that does not match a file (served with status 404) |
-| `public/style.css` | All styles. Brand tokens (colors, fonts, radius) are in the `:root` block at the top. |
-| `public/mark.svg` | The placeholder mark, used in the top bar and as the favicon. Replace this one file to change the logo. |
-| `public/_headers` | Response headers (CSP, `noindex` on `workers.dev`). Not served as a file. |
-| `public/copy.js` | Copy buttons. The page works without it. |
-
-## Preview
+Needs Node.js 22.12 or later (Astro 7).
 
 ```sh
 cd web
-npx wrangler@latest dev
+npm ci
+npm run dev       # http://localhost:4321, live reload
+npm run build     # static output in dist/
+npm run check     # build, then validate every page with html-validate
+npm run preview   # build, then serve dist/ with wrangler, exactly as Cloudflare routes it
+npm run deploy    # build, then deploy dist/ with wrangler
 ```
 
-This serves `public/` at http://localhost:8787 with the same routing as production (`/telemetry` without
-`.html`, the 404 page with status 404, the `_headers` rules). Any static file server works for a quick look,
-but only `wrangler dev` reproduces the routing.
+`npm run preview` is the one to use before deploying: it serves `/telemetry` without `.html`, the 404 page with
+status 404 and the `_headers` rules, as production does. `npm run dev` does not apply `_headers`.
 
-Check the HTML:
+## Layout
 
-```sh
-npx html-validate web/public/*.html
-```
+| Path | What |
+|---|---|
+| `src/pages/index.astro` | `/`: one component per section, in page order |
+| `src/pages/telemetry.astro` | `/telemetry`: renders the repo's [`TELEMETRY.md`](../TELEMETRY.md) at build time, so it never drifts |
+| `src/pages/404.astro` | Served with status 404 for every path that matches no file |
+| `src/layouts/Base.astro` | `<head>`, top bar, footer, copy-button script |
+| `src/components/` | `Hero`, `Measurement`, `Why`, `HowItWorks`, `Output`, `Action`, `Principles`, `Engines`, `OpenCore`, `FinalCta`, plus `Header`, `Footer`, `CopyButton` |
+| `src/styles/global.css` | All styles |
+| `public/mark.svg` | The placeholder mark: top bar and favicon |
+| `public/_headers` | Response headers for Workers static assets (`frame-ancestors`, `noindex` on `workers.dev`) |
+| `public/robots.txt` | Points at the sitemap, which `@astrojs/sitemap` writes at build time |
+
+## Brand
+
+The brand is not decided yet. To change it:
+
+- Colors, fonts and radius: the `:root` block at the top of `src/styles/global.css`. Nothing else in the CSS
+  holds a color value except the white hover of the primary button. The `theme-color` meta tag in
+  `src/layouts/Base.astro` repeats the background color.
+- Logo and favicon: replace `public/mark.svg`.
+- Wordmark: the text `reapr` in `src/components/Header.astro`.
+
+## Security headers
+
+Astro writes a Content-Security-Policy `<meta>` tag on every page (`security.csp` in `astro.config.mjs`), with a
+hash of the inline script, so no `unsafe-inline` is needed. `frame-ancestors` cannot be set from a `<meta>` tag,
+so `public/_headers` sends it as a header.
 
 ## Deploy
 
-```sh
-cd web
-npx wrangler@latest deploy
-```
-
-`wrangler.jsonc` holds the account, the assets directory and `not_found_handling: "404-page"`. Today it deploys
-to the `workers.dev` URL only, as a preview. To serve reapr.dev and www.reapr.dev, add the `routes` block that
-is commented in `wrangler.jsonc` and deploy again. Wrangler then creates the custom domains, their DNS records
-and certificates. Neither hostname may already have a CNAME record. The API token needs Workers write access on
-the account and access to the `reapr.dev` zone.
-
-## Keeping the telemetry page in sync
-
-`/telemetry` renders [`TELEMETRY.md`](../TELEMETRY.md), which is the source of truth. When that file changes,
-regenerate the body of `public/telemetry.html` (everything between the page's intro paragraph and
-`</article>`) from it:
-
-```sh
-npx marked --gfm TELEMETRY.md | sed '1d'   # drops the H1, which the page has already
-```
+`wrangler.jsonc` points `assets.directory` at `./dist` with `not_found_handling: "404-page"`. Today it deploys
+to the `workers.dev` URL only, as a preview. To serve reapr.dev and www.reapr.dev, add the `routes` block that is
+commented in `wrangler.jsonc` and run `npm run deploy` again. Wrangler creates the custom domains, their DNS
+records and certificates. Neither hostname may already have a CNAME record. The API token needs Workers write
+access on the account and access to the `reapr.dev` zone.

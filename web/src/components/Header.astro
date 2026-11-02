@@ -1,0 +1,23 @@
+---
+interface Props { current?: string }
+const { current } = Astro.props;
+const links = [
+  { href: "/#how", label: "How it works" },
+  { href: "/#output", label: "Output" },
+  { href: "/#action", label: "GitHub Action" },
+  { href: "/telemetry", label: "Telemetry" },
+  { href: "https://github.com/reapr-corp/reapr", label: "GitHub" },
+];
+---
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="/"><img src="/mark.svg" alt="" width="22" height="22">reapr</a>
+    <nav aria-label="Main">
+      <ul>
+        {links.map(({ href, label }) => (
+          <li><a href={href} aria-current={current === href ? "page" : undefined}>{label}</a></li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+</header>

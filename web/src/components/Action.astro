@@ -1,0 +1,50 @@
+---
+import CopyButton from "./CopyButton.astro";
+---
+<section class="wrap" id="action" aria-labelledby="action-title">
+  <p class="eyebrow">/ GitHub Action</p>
+  <h2 id="action-title">Run it on every pull request.</h2>
+  <p class="lead"><code>reapr-corp/run@v1</code> writes a job summary with the score, counts, survivors and warnings, and exits with Reapr's exit code. Linux runners. No token needed.</p>
+  <div class="stack">
+    <figure class="code">
+      <figcaption>.github/workflows/rpr.yml</figcaption>
+      <div class="box">
+        <pre id="yml-action"><code>on: pull_request
+
+jobs:
+  rpr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # full history, so origin/&lt;base&gt;...HEAD has a merge base
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci # rpr runs your engine (StrykerJS) with your installed deps
+      - name: rpr
+        uses: reapr-corp/run@v1
+        id: rpr
+        with:
+          min-score: 80</code></pre>
+        <CopyButton target="yml-action" label="the workflow" />
+      </div>
+    </figure>
+    <figure class="code">
+      <figcaption>Monorepo: one config per package. Every config runs; the summary combines them.</figcaption>
+      <div class="box">
+        <pre id="yml-configs"><code>      - name: rpr
+        uses: reapr-corp/run@v1
+        id: rpr
+        with:
+          configs: |
+            # one per package; blank lines and # comments are ignored
+            stryker.api.config.mjs
+            stryker.web.config.mjs
+            stryker.worker.config.mjs</code></pre>
+        <CopyButton target="yml-configs" label="the monorepo step" />
+      </div>
+    </figure>
+  </div>
+</section>

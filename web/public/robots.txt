@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://reapr.dev/sitemap.xml
+Sitemap: https://reapr.dev/sitemap-index.xml

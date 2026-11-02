@@ -1,0 +1,7 @@
+---
+// A copy button for the element with id `target`. Hidden until the inline script in Base.astro enables it,
+// so the page shows no dead button without JavaScript.
+interface Props { target: string; label: string }
+const { target, label } = Astro.props;
+---
+<button class="copy" type="button" data-copy={target} hidden>Copy<span class="visually-hidden"> {label}</span></button>

@@ -1,0 +1,22 @@
+<section class="wrap" id="how" aria-labelledby="how-title">
+  <p class="eyebrow">/ How it works</p>
+  <h2 id="how-title">Your engine, your config, only your diff.</h2>
+  <ol class="steps">
+    <li>
+      <h3>Read the diff</h3>
+      <p><code>git diff &lt;base&gt;...HEAD</code> gives the changed line ranges.</p>
+      <p class="data">src/a.ts:8-12<br>src/b.ts:5-6<br>docs/usage.md:3-4</p>
+    </li>
+    <li>
+      <h3>Run Stryker on it</h3>
+      <p>Your config's <code>mutate</code> globs pick the files. A wrapper imports your config and sets only <code>mutate</code> and a <code>json</code> reporter.</p>
+      <p class="data">src/a.ts:8-12<br>src/b.ts:5-6<br><del>docs/usage.md:3-4</del></p>
+    </li>
+    <li>
+      <h3>Score the diff</h3>
+      <p>Reapr keeps the mutants inside the changed ranges, computes the score and writes the run record.</p>
+      <p class="data">score 80.00%<br><span class="bad">2 survived</span></p>
+    </li>
+  </ol>
+  <p class="note">File names are an example. Your test runner, thresholds, timeouts, checkers and plugins stay as you wrote them. <a href="https://github.com/reapr-corp/reapr#what-reapr-changes-in-your-config">What Reapr changes in your config</a>.</p>
+</section>

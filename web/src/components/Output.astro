@@ -1,0 +1,32 @@
+---
+// Braces would be Astro expressions, so the JSON sample is a string.
+const survivors = `"survivors": [
+  { "file": "src/a.ts", "line": 10, "column": 3,
+    "mutator": "ConditionalExpression",
+    "replacement": "false", "status": "Survived" },
+  { "file": "src/b.ts", "line": 6, "column": 2,
+    "mutator": "ConditionalExpression",
+    "replacement": "false", "status": "Survived" }
+]`;
+---
+<section class="wrap" id="output" aria-labelledby="output-title">
+  <p class="eyebrow">/ Output</p>
+  <h2 id="output-title">A summary for people. JSON for agents.</h2>
+  <p class="lead">Each survivor has the file, line, column, mutator and replacement: enough for an agent to write the missing test and run Reapr again. Reapr reports. It does not write tests.</p>
+  <div class="pair">
+    <figure class="code">
+      <figcaption><code>rpr run --diff origin/main</code></figcaption>
+      <pre><code>rpr · stryker · diff vs origin/main · 3 ranges in 2 files
+score 80.00%  (<span class="ok">8 killed</span>, 0 timeout, <span class="bad">2 survived</span>, 0 no coverage)  1m 23s
+survivors:
+  <span class="bad">src/a.ts:10:3  ConditionalExpression  → false</span>
+  <span class="bad">src/b.ts:6:2  ConditionalExpression  → false</span>
+run: /home/me/repo/.git/reapr/runs/1793640000-4242</code></pre>
+    </figure>
+    <figure class="code">
+      <figcaption><code>rpr run --diff origin/main --json</code> (survivors)</figcaption>
+      <pre><code>{survivors}</code></pre>
+    </figure>
+  </div>
+  <p class="note">Samples from the <a href="https://github.com/reapr-corp/reapr#output">README</a>. Exit codes: 0 passed, 1 below <code>--min-score</code> or the engine's threshold failed, 2 error.</p>
+</section>

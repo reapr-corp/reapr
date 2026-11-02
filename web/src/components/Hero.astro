@@ -1,0 +1,32 @@
+---
+import CopyButton from "./CopyButton.astro";
+---
+<section class="hero wrap" aria-labelledby="title">
+  <h1 id="title">Mutation testing for the code your PR changed.</h1>
+  <p class="sub">Reapr runs your own Stryker config on the lines your branch changed and shows which changes no test would catch.</p>
+
+  <figure class="diff">
+    <figcaption>One line in your pull request workflow</figcaption>
+    <pre><code><span class="del">-  - run: npx stryker run</span>
+<span class="add">+  - uses: reapr-corp/run@v1</span><span class="cursor" aria-hidden="true"></span></code></pre>
+  </figure>
+
+  <div class="actions">
+    <a class="button" href="https://github.com/reapr-corp/reapr#quick-start">Get started</a>
+    <a class="button outline" href="https://github.com/reapr-corp/reapr">View on GitHub</a>
+  </div>
+
+  <div class="install">
+    <div class="commands">
+      <div class="cmd">
+        <pre id="cmd-install"><code>curl -LsSf https://github.com/reapr-corp/reapr/releases/latest/download/rpr-installer.sh | sh</code></pre>
+        <CopyButton target="cmd-install" label="the install command" />
+      </div>
+      <div class="cmd">
+        <pre id="cmd-run"><code>rpr run --diff origin/main</code></pre>
+        <CopyButton target="cmd-run" label="the run command" />
+      </div>
+    </div>
+    <p>rpr 0.2.0 for Linux (x86_64, aarch64). Needs git, Node.js 20.10 or later, and StrykerJS with a config file. macOS and Windows are planned.</p>
+  </div>
+</section>

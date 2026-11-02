@@ -1,0 +1,21 @@
+---
+import Base from "../layouts/Base.astro";
+// The repo's TELEMETRY.md is the source of truth; it is rendered at build time so this page cannot drift.
+import { compiledContent } from "../../../TELEMETRY.md";
+
+// The page sets its own <h1>, so drop the file's.
+const body = (await compiledContent()).replace(/^\s*<h1[^>]*>.*?<\/h1>/s, "");
+---
+<Base
+  title="Telemetry: what rpr sends and how to turn it off | Reapr"
+  description="rpr sends one anonymous usage event per run: outcome, counts, durations, bucketed diff size and platform. Never code, paths or names. Every property, and how to turn it off."
+  path="/telemetry"
+  ogType="article"
+  current="/telemetry"
+>
+  <article class="prose wrap">
+    <h1>Telemetry</h1>
+    <p class="origin">This page is built from <a href="https://github.com/reapr-corp/reapr/blob/main/TELEMETRY.md">TELEMETRY.md</a> in the Reapr repository, which is the source of truth.</p>
+    <Fragment set:html={body} />
+  </article>
+</Base>

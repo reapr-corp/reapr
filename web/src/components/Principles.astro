@@ -1,0 +1,22 @@
+<section class="wrap" id="principles" aria-labelledby="principles-title">
+  <p class="eyebrow">/ Principles</p>
+  <h2 id="principles-title">What Reapr does and does not do.</h2>
+  <dl class="principles">
+    <div>
+      <dt>We invent nothing</dt>
+      <dd>Reapr runs your engine config as written and adds only the diff scope and a JSON reporter. It forces no flags. When a setting can miscount results, it warns and changes nothing.</dd>
+    </div>
+    <div>
+      <dt>Agents are first-class users</dt>
+      <dd><code>--json</code> prints one document with every surviving mutant. An MCP server is planned.</dd>
+    </div>
+    <div>
+      <dt>Every run leaves raw data</dt>
+      <dd>Run facts, both reports and the wrapper config go to <code>.git/reapr/runs/&lt;run_id&gt;/</code> on your machine. Reapr never uploads or deletes them.</dd>
+    </div>
+    <div>
+      <dt>Anonymous, opt-out telemetry</dt>
+      <dd>One event per run: outcome, counts, durations, bucketed diff size. Never code, paths or names. <code>DO_NOT_TRACK=1</code> turns it off. <a href="/telemetry">Every property</a>.</dd>
+    </div>
+  </dl>
+</section>

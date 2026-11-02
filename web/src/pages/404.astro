@@ -1,0 +1,19 @@
+---
+import Base from "../layouts/Base.astro";
+---
+<Base title="Page not found | Reapr">
+<article class="prose wrap lost">
+  <p class="eyebrow">/ 404</p>
+  <h1>There is no page at this address.</h1>
+  <figure class="diff">
+    <figcaption>What happened</figcaption>
+    <pre><code><span class="del">- 200 OK</span>
+<span class="add">+ 404 Not Found</span><span class="cursor" aria-hidden="true"></span></code></pre>
+  </figure>
+  <p>This site has two pages: the <a href="/">home page</a> and <a href="/telemetry">telemetry</a>. The documentation is in the <a href="https://github.com/reapr-corp/reapr#readme">README on GitHub</a>.</p>
+  <div class="actions">
+    <a class="button" href="/">Go to the home page</a>
+    <a class="button outline" href="https://github.com/reapr-corp/reapr">View on GitHub</a>
+  </div>
+</article>
+</Base>

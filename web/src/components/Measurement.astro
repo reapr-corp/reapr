@@ -1,0 +1,19 @@
+<section class="wrap" id="measurement" aria-labelledby="measurement-title">
+  <p class="eyebrow">/ Reference measurement</p>
+  <h2 id="measurement-title" class="visually-hidden">Reference measurement</h2>
+  <dl class="stats">
+    <div>
+      <dt>faster Stryker run after one ignore pattern: <b>38.4 s → 12.5 s</b>, same results</dt>
+      <dd>3x</dd>
+    </div>
+    <div>
+      <dt>of a small diff run happens before the first test runs</dt>
+      <dd>85%</dd>
+    </div>
+    <div>
+      <dt>score of the diff, against <b>87.0%</b> package-wide in Stryker's own report</dt>
+      <dd>100%</dd>
+    </div>
+  </dl>
+  <p class="source">Measured on one package of a pnpm + Turborepo monorepo (~55k files incl. build caches), StrykerJS 9.6.1 and Vitest 4, medians of 5 runs on a loaded 22-thread Linux machine. The 3x comes from adding <code>.turbo</code> to Stryker's <code>ignorePatterns</code> (Turborepo's cache was 97% of the files Stryker copied into its sandbox), not from Reapr. The 87.0% includes results that <code>incremental: true</code> carried over from outside the diff; the diff's own 3 mutants were all killed. <a href="https://github.com/reapr-corp/reapr/blob/main/bench/results/2026-11-02-turborepo-monorepo.md">Full report</a>.</p>
+</section>
