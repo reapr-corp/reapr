@@ -3,7 +3,10 @@
 
 pub mod diff;
 pub mod record;
+pub mod resources;
 pub mod store;
+#[cfg(feature = "testkit")]
+pub mod testkit;
 
 use std::collections::BTreeMap;
 use std::future::Future;
