@@ -5,6 +5,8 @@ changes are reviewed against it.
 
 ## Development setup
 
+Develop on Linux (CI runs on Ubuntu). macOS and Windows are not supported yet.
+
 - **Rust 1.97.** `rust-toolchain.toml` pins it, with `rustfmt` and `clippy`; rustup picks it up in this
   directory (run `rustup toolchain install` if it does not install by itself).
 - **Node.js 20.10 or later** for the StrykerJS adapter tests. They run `plan.mjs` and the generated wrapper in
@@ -16,7 +18,7 @@ changes are reviewed against it.
 
 ## Checks
 
-All four must pass; CI runs them on Linux, macOS and Windows.
+All four must pass; CI runs them on Ubuntu.
 
 ```sh
 cargo build --workspace --all-targets

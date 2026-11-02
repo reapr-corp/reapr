@@ -39,8 +39,8 @@ come from changesets: see [CONTRIBUTING.md](CONTRIBUTING.md#changesets).
 
 - A local CLI, `rpr`, with one command: `rpr run`.
 - One engine: StrykerJS (JavaScript and TypeScript).
-- Built for Linux, macOS and Windows; tested on Linux only so far (CI covers the macOS and Windows unit tests
-  once it runs). Nothing runs in the cloud and nothing is sent anywhere.
+- Linux only (x86_64 and aarch64), tested on Ubuntu. macOS and Windows are not supported yet: see the
+  [roadmap](#roadmap). Nothing runs in the cloud and nothing is sent anywhere.
 
 The agreed design for this phase is in [docs/design/phase-1.md](docs/design/phase-1.md).
 
@@ -48,6 +48,7 @@ The agreed design for this phase is in [docs/design/phase-1.md](docs/design/phas
 
 Requirements on the machine that runs Reapr:
 
+- Linux, x86_64 or aarch64 (tested on Ubuntu). macOS and Windows are not supported yet.
 - `git`.
 - Node.js 20.10 or later (StrykerJS 9 needs Node 20; Reapr's plan step and wrapper use import attributes).
 - StrykerJS installed in the project (`npx --no-install stryker` must work), and a Stryker config file.
@@ -70,20 +71,14 @@ cargo build --release   # binary: target/release/rpr
 
 ### Prebuilt binaries (from v0.1.0)
 
-Not available until v0.1.0 is released. Releases will ship binaries for x86_64 and aarch64 Linux, x86_64 and
-aarch64 macOS, and x86_64 Windows, with these installers:
+Not available until v0.1.0 is released. Releases will ship binaries for x86_64 and aarch64 Linux (glibc), with a
+shell installer:
 
 ```sh
-# Linux and macOS
 curl --proto '=https' --tlsv1.2 -LsSf https://github.com/reapr-corp/reapr/releases/latest/download/rpr-installer.sh | sh
 ```
 
-```powershell
-# Windows
-powershell -ExecutionPolicy Bypass -c "irm https://github.com/reapr-corp/reapr/releases/latest/download/rpr-installer.ps1 | iex"
-```
-
-The installers put `rpr` in `$CARGO_HOME/bin` (`~/.cargo/bin` by default).
+The installer puts `rpr` in `$CARGO_HOME/bin` (`~/.cargo/bin` by default).
 
 ## Quick start
 
@@ -231,7 +226,7 @@ With `--json`, stdout holds one JSON document and nothing else.
 | `passed` | boolean | `false` when the score is below `--min-score` or the engine's own gate failed. |
 | `engine_gate_failed` | boolean | The engine's own threshold failed: Stryker exited 1 and your config has a numeric `thresholds.break`. Any other non-zero exit is an error (exit code 2). |
 | `warnings` | array of strings | The same warnings printed to stderr. |
-| `resources` | object or null | `cpu_user_ms`, `cpu_sys_ms` and `max_rss_kb` of the engine's process tree. `null` on Windows and when the engine did not run. |
+| `resources` | object or null | `cpu_user_ms`, `cpu_sys_ms` and `max_rss_kb` of the engine's process tree. `null` when the engine did not run. |
 
 On an error (exit code 2) with `--json`, stdout holds `{ "error": "<message>" }`. This includes invalid arguments.
 
@@ -269,7 +264,7 @@ so worktrees never share runs. Reapr never sends this data anywhere and never de
 | `duration_ms` | Engine wall time, the same window as `resources`. |
 | `environment` | `kind` (`local` or `github-actions`), `runner_name`, `os`, `arch`, `cpu_count`. |
 | `ranges`, `counts`, `score`, `min_score`, `passed`, `engine_gate_failed`, `warnings` | As in the JSON output. |
-| `resources` | CPU time and peak RSS of the engine's process tree (Unix only; `null` on Windows). |
+| `resources` | CPU time and peak RSS of the engine's process tree. |
 
 If a git command fails while collecting these facts, the fact is left empty (`null` or `[]`) and a warning is
 added. It never fails the run.
@@ -302,8 +297,13 @@ jobs:
           min-score: 80
 ```
 
-Inputs: `base` (default: the pull request base), `min-score`, `config`, `working-directory`, `version`.
-Outputs: `score`, `passed`, `run-id`. See the [action's README](https://github.com/reapr-corp/run) for details.
+Linux runners only (`ubuntu-latest`, or Blacksmith Ubuntu labels such as `blacksmith-2vcpu-ubuntu-2404`; x86_64
+and aarch64). No token is needed: the action installs from the public `reapr-corp/reapr` releases.
+
+Inputs: `base` (default: the pull request base), `min-score`, `config`, `configs` (one config path per line, for
+monorepos with one config per package; not with `config`), `working-directory`, `version`, and `github-token`
+(only for a private fork or mirror of the releases). Outputs: `score`, `passed`, `run-id`, and `results` (path to
+a JSON file with one entry per config). See the [action's README](https://github.com/reapr-corp/run) for details.
 
 ## How it works
 
@@ -373,6 +373,7 @@ Planned, not built:
   profiling that shows the time is there.
 - **Content cache** of mutant results, so unchanged mutants are not run again.
 - **MCP server** (`rpr mcp`) so agents can call Reapr as a tool.
+- **macOS and Windows** support (binaries, installers and CI). Phase 1 is Linux only.
 - **More engines**: PIT, Infection, cargo-mutants, mutmut, Stryker.NET.
 - **Hosted compute** (warm workers, parallel shards), a **global cache**, and **history and metrics** across
   runs. This is the planned paid layer. The CLI and the engine adapters stay open source and work without it.
