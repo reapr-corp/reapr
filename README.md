@@ -25,7 +25,7 @@ verdict, and raw timing data for every run) that the speed work will be measured
 - [Output](#output)
 - [Run record](#run-record)
 - [GitHub Action](#github-action)
-- [Agent skill](#agent-skill)
+- [Agent skills](#agent-skills)
 - [How it works](#how-it-works)
 - [Measurements](#measurements)
 - [Known limitations](#known-limitations)
@@ -42,7 +42,7 @@ Phase 1, released: see the [latest release](https://github.com/reapr-corp/reapr/
 
 - A CLI, `rpr`: `rpr run`, plus `rpr telemetry` to see or change [telemetry](#telemetry).
 - A GitHub Action, [`reapr-corp/run@v1`](https://github.com/marketplace/actions/reapr-mutation-testing).
-- An agent skill for Claude Code (and AGENTS.md for other agents): [Agent skill](#agent-skill).
+- Agent skills for Claude Code (and AGENTS.md for other agents): [Agent skills](#agent-skills).
 - Two engines: StrykerJS (JavaScript and TypeScript) and cargo-mutants (Rust).
 - Linux only (x86_64 and aarch64), tested on Ubuntu. macOS and Windows are not supported yet: see the
   [roadmap](#roadmap). Nothing runs in the cloud. The only thing sent anywhere is anonymous usage
@@ -354,10 +354,15 @@ monorepos with one config per package; not with `config`), `working-directory`, 
 (only for a private fork or mirror of the releases). Outputs: `score`, `passed`, `run-id`, and `results` (path to
 a JSON file with one entry per config). See the [action's README](https://github.com/reapr-corp/run) for details.
 
-## Agent skill
+## Agent skills
+
+The `reapr` plugin has two skills. `setup` (`/reapr:setup`) onboards a repo: it checks that `rpr` and the engine
+are installed, finds the engine config (it never writes one; for StrykerJS it asks you to run `npx stryker init`),
+runs a whole-project baseline with `rpr run --all`, and offers a pull-request gate with the GitHub Action and an
+agent rule, asking before each change.
 
 The `mutation-audit` skill lets a coding agent improve tests with Reapr's results as evidence. It runs
-`rpr run --diff <base> --json`, writes one focused test per surviving mutant and runs Reapr again to confirm
+`rpr run --diff <base> --json` (or `rpr run --all --json` for a whole-codebase audit), writes one focused test per surviving mutant and runs Reapr again to confirm
 the mutant is killed, lists tests that cover the diff but kill no mutant, and then checks the diff for edge
 cases that mutation operators do not represent (boundaries, empty input, error paths, time zones, numeric
 precision). It never changes production code or your engine config, and it asks you when the intended
@@ -376,10 +381,14 @@ On Claude Code 2.1.275 or later, one step does both:
 /plugin install reapr --marketplace reapr-corp/reapr
 ```
 
-Then ask Claude to check the tests on your branch, or run `/reapr:mutation-audit`.
+Then, in three steps:
+
+1. Install the plugin (above).
+2. Run `/reapr:setup`: installs what is missing (with your consent) and measures a baseline.
+3. Run `/reapr:mutation-audit`, or ask Claude to check the tests on your branch.
 
 Other agents (Cursor, Codex and others): point them at [plugins/reapr/AGENTS.md](plugins/reapr/AGENTS.md). It
-has the hard rules and links the full workflow in the skill's `SKILL.md`.
+has the hard rules, a short setup section, and links the full workflow in the skills' `SKILL.md` files.
 
 ## How it works
 

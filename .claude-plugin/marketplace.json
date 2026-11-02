@@ -6,8 +6,8 @@
     {
       "name": "reapr",
       "source": "./plugins/reapr",
-      "description": "Improve tests with mutation testing as evidence: kill surviving mutants with focused tests, flag weak tests, audit edge cases. Uses Reapr (rpr).",
-      "version": "0.1.0",
+      "description": "Set up Reapr (rpr) and improve tests with mutation testing as evidence: kill surviving mutants with focused tests, flag weak tests, audit edge cases. Uses Reapr (rpr).",
+      "version": "0.2.0",
       "category": "testing"
     }
   ]
