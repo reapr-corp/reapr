@@ -417,6 +417,7 @@ flag names) to PostHog after the output is printed. It never sends code, paths, 
 It is on by default with a one-time notice on stderr; turn it off with `DO_NOT_TRACK=1`, `RPR_TELEMETRY=0` or
 `rpr telemetry disable`, and see the exact payload with `RPR_TELEMETRY_DEBUG=1`. Every property is listed in
 [TELEMETRY.md](TELEMETRY.md).
+Projects are counted by `project_id`, a salted hash of the repository's root commit, never its name or URL.
 
 ## Engines
 

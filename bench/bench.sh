@@ -11,6 +11,8 @@
 #   QUIET_WAIT=1      before each run, poll the 1-min loadavg every 30 s until it is <= 4; the total
 #                     wait budget is 20 min, after which the script stops (results stay "measured under load")
 set -euo pipefail
+# Benchmark runs never send telemetry.
+export DO_NOT_TRACK=1
 HERE=$(cd "$(dirname "$0")" && pwd)
 FIRST=${1:-1}
 LAST=${2:-5}

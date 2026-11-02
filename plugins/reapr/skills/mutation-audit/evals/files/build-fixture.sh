@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Build one eval fixture: a small TypeScript + Vitest + StrykerJS git repo with branch main (base) and
-# branch feat/shipping (one commit to audit). Run rpr in it with `rpr run --diff main --json`.
+# branch feat/shipping (one commit to audit). Run rpr in it with `rpr run --diff main --json`, and run the
+# agent with DO_NOT_TRACK=1 in its environment so eval runs never send telemetry.
 #
 # Usage: build-fixture.sh <variant> <dest>
 #   variants: weak-boundary | no-config | ambiguous-spec | pinned-bug

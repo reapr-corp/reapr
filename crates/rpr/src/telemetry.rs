@@ -5,11 +5,12 @@ use std::collections::BTreeSet;
 use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::process::{ExitCode, Stdio};
-use std::time::{Duration, SystemTime};
+use std::time::{Duration, Instant, SystemTime};
 
 use reapr_core::diff::DiffError;
 use reapr_core::{AdapterError, StatusCounts, record};
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use tokio::io::AsyncWriteExt;
 
 use crate::CliError;
@@ -270,6 +271,110 @@ fn ci_provider(env: Env) -> Option<&'static str> {
     .map(|(_, provider)| provider)
 }
 
+/// How the run was started: `local` outside CI; GitHub's `GITHUB_EVENT_NAME` (an allow-listed value, else
+/// `other`); GitLab's `CI_PIPELINE_SOURCE`, mapped to the same names; `None` on other CI providers.
+fn trigger(env: Env, ci_provider: Option<&str>) -> Option<&'static str> {
+    const GITHUB: [&str; 6] = [
+        "pull_request",
+        "pull_request_target",
+        "push",
+        "schedule",
+        "workflow_dispatch",
+        "merge_group",
+    ];
+    match ci_provider {
+        None => Some("local"),
+        Some("github_actions") => {
+            let event = env("GITHUB_EVENT_NAME");
+            Some(
+                GITHUB
+                    .into_iter()
+                    .find(|e| event.as_deref() == Some(e))
+                    .unwrap_or("other"),
+            )
+        }
+        Some("gitlab") => Some(match env("CI_PIPELINE_SOURCE").as_deref() {
+            Some("merge_request_event") => "pull_request",
+            Some("push") => "push",
+            Some("schedule") => "schedule",
+            Some("web") => "manual",
+            _ => "other",
+        }),
+        Some(_) => None,
+    }
+}
+
+/// The coding agent running `rpr`, from which variables are set (never their values). Each marker is
+/// one the agent documents (or sets in its official source) for the commands it spawns; see TELEMETRY.md.
+fn agent(env: Env) -> Option<&'static str> {
+    [
+        ("CLAUDECODE", "claude_code"),
+        ("CURSOR_AGENT", "cursor"),
+        ("CODEX_THREAD_ID", "codex"),
+        ("CODEX_SANDBOX", "codex"),
+        ("CODEX_SANDBOX_NETWORK_DISABLED", "codex"),
+        ("GEMINI_CLI", "gemini_cli"),
+    ]
+    .into_iter()
+    .find(|(k, _)| env(k).is_some_and(|v| !v.is_empty()))
+    .map(|(_, agent)| agent)
+}
+
+/// Mixed into [`project_id`] so the hash is specific to Reapr telemetry. Never change it: every project
+/// would get a new id.
+const PROJECT_SALT: &str = "reapr-telemetry-v1:";
+/// `git rev-list` walks the whole history; on a very large repo it is cut off and the id is `null`.
+const GIT_TIMEOUT: Duration = Duration::from_secs(1);
+
+/// The fingerprint of `git rev-list --max-parents=0 HEAD` output: hex SHA-256 of the salt plus the
+/// root commit shas, sorted and joined with `,`, truncated to 32 hex chars.
+fn fingerprint(roots: &str) -> Option<String> {
+    let mut shas: Vec<&str> = roots.split_whitespace().collect();
+    if shas.is_empty() {
+        return None;
+    }
+    shas.sort_unstable();
+    let digest = Sha256::digest(format!("{PROJECT_SALT}{}", shas.join(",")));
+    Some(digest.iter().take(16).map(|b| format!("{b:02x}")).collect())
+}
+
+/// `git <args>` in `dir`: its stdout, or `None` on any failure or after [`GIT_TIMEOUT`].
+fn git_stdout(dir: &Path, args: &[&str]) -> Option<String> {
+    let mut child = std::process::Command::new("git")
+        .args(args)
+        .current_dir(dir)
+        .stdin(Stdio::null())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::null())
+        .spawn()
+        .ok()?;
+    let deadline = Instant::now() + GIT_TIMEOUT;
+    // ponytail: polls; output past the pipe buffer (~1500 root commits) blocks git until the timeout.
+    loop {
+        match child.try_wait() {
+            Ok(Some(status)) if status.success() => break,
+            Ok(None) if Instant::now() < deadline => std::thread::sleep(Duration::from_millis(5)),
+            _ => {
+                let _ = child.kill();
+                let _ = child.wait();
+                return None;
+            }
+        }
+    }
+    let mut out = String::new();
+    child.stdout?.read_to_string(&mut out).ok()?;
+    Some(out)
+}
+
+/// Anonymous project fingerprint (see [`fingerprint`]); `None` outside a git repo, in a shallow clone
+/// (its root is the shallow boundary, a different commit on every run) or when git fails.
+pub fn project_id(dir: &Path) -> Option<String> {
+    if git_stdout(dir, &["rev-parse", "--is-shallow-repository"])?.trim() != "false" {
+        return None;
+    }
+    fingerprint(&git_stdout(dir, &["rev-list", "--max-parents=0", "HEAD"])?)
+}
+
 /// Versions are free text in a package.json: anything but `[0-9A-Za-z.+-]` drops them.
 fn safe_version(v: &str) -> Option<String> {
     (!v.is_empty()
@@ -280,7 +385,7 @@ fn safe_version(v: &str) -> Option<String> {
 }
 
 /// The event's properties. Every value is a number, a bool, a fixed enum or a bucket, except the two
-/// versions (filtered by [`safe_version`]).
+/// versions (filtered by [`safe_version`]) and `project_id` (a truncated hash, [`project_id`]).
 #[derive(Serialize, Debug, Clone)]
 pub struct Properties {
     rpr_version: &'static str,
@@ -289,6 +394,12 @@ pub struct Properties {
     ci: bool,
     ci_provider: Option<&'static str>,
     runner: Option<&'static str>,
+    trigger: Option<&'static str>,
+    via_action: bool,
+    agent: Option<&'static str>,
+    first_run: Option<bool>,
+    build: &'static str,
+    project_id: Option<String>,
     cpu_count: Option<usize>,
     flags: Vec<&'static str>,
     engine: Option<String>,
@@ -333,6 +444,17 @@ impl Properties {
             ci: ci_provider.is_some(),
             ci_provider,
             runner,
+            trigger: trigger(env, ci_provider),
+            via_action: env("RPR_VIA_ACTION").as_deref() == Some("1"),
+            agent: agent(env),
+            // Set by `prepare`, which knows whether the state file was created and the run is sent.
+            first_run: None,
+            build: if cfg!(debug_assertions) {
+                "debug"
+            } else {
+                "release"
+            },
+            project_id: None,
             cpu_count: std::thread::available_parallelism().ok().map(|n| n.get()),
             flags,
             engine: None,
@@ -413,8 +535,14 @@ struct Prepared {
     send: Option<String>,
 }
 
-/// Decides, updates the state file, and builds the payload. Spawns nothing.
-fn prepare(key: &str, env: Env, props: &Properties) -> Prepared {
+/// Decides, updates the state file, and builds the payload. Spawns nothing but `project_id`, called only
+/// when the event is built.
+fn prepare(
+    key: &str,
+    env: Env,
+    props: &Properties,
+    project_id: impl FnOnce() -> Option<String>,
+) -> Prepared {
     let debug = env("RPR_TELEMETRY_DEBUG").as_deref() == Some("1");
     if key.is_empty() && !debug {
         return Prepared::default();
@@ -433,12 +561,16 @@ fn prepare(key: &str, env: Env, props: &Properties) -> Prepared {
     }
     let notice = !key.is_empty() && !state.notice_shown;
     state.notice_shown = true;
-    if let Some(path) = &path
-        && stored.as_ref() != Some(&state)
-    {
-        // Unwritable: the next run shows the notice again, nothing else changes.
-        let _ = save(path, &state);
-    }
+    // Unwritable: the next run shows the notice again (and `first_run` is false), nothing else changes.
+    let saved = match &path {
+        Some(path) if stored.as_ref() != Some(&state) => save(path, &state).is_ok(),
+        _ => false,
+    };
+    let props = &Properties {
+        first_run: path.is_some().then_some(stored.is_none() && saved),
+        project_id: project_id(),
+        ..props.clone()
+    };
     let payload = serde_json::to_string(&Payload {
         api_key: key,
         event: "run_completed",
@@ -460,8 +592,9 @@ fn prepare(key: &str, env: Env, props: &Properties) -> Prepared {
 }
 
 /// Shows the notice if due, then prints (debug) or sends the event. Silent on every failure.
-pub async fn report(props: &Properties) {
-    let p = prepare(POSTHOG_PROJECT_KEY, &os_env, props);
+/// `project`: the `--project` dir, for [`project_id`].
+pub async fn report(props: &Properties, project: &Path) {
+    let p = prepare(POSTHOG_PROJECT_KEY, &os_env, props, || project_id(project));
     if p.notice {
         eprintln!("{NOTICE}");
     }
@@ -638,6 +771,11 @@ mod tests {
         Properties::new(&env_of(vars), vec![], Err(&e), Duration::ZERO)
     }
 
+    /// `prepare` with no project id.
+    fn prep(key: &str, env: Env, props: &Properties) -> Prepared {
+        prepare(key, env, props, || None)
+    }
+
     fn payload(json: &str) -> serde_json::Value {
         serde_json::from_str(json).unwrap()
     }
@@ -649,7 +787,7 @@ mod tests {
         let env = env_of(&[("XDG_CONFIG_HOME", xdg)]);
         let file = tmp.path().join("reapr/telemetry.json");
 
-        let first = prepare(KEY, &env, &props(false));
+        let first = prep(KEY, &env, &props(false));
         assert!(first.notice);
         assert_eq!(first.print, None);
         let p1 = payload(first.send.as_deref().unwrap());
@@ -661,19 +799,19 @@ mod tests {
         assert_eq!(p1["api_key"], KEY);
         assert_eq!(p1["event"], "run_completed");
         assert_eq!(p1["properties"]["$process_person_profile"], false);
+        assert_eq!(p1["properties"]["first_run"], true);
 
-        let second = prepare(KEY, &env, &props(false));
+        let second = prep(KEY, &env, &props(false));
         assert!(!second.notice);
-        assert_eq!(
-            payload(&second.send.unwrap())["distinct_id"],
-            p1["distinct_id"]
-        );
+        let p2 = payload(&second.send.unwrap());
+        assert_eq!(p2["distinct_id"], p1["distinct_id"]);
+        assert_eq!(p2["properties"]["first_run"], false);
 
         // A hand-edited id is never sent.
         let mut edited = state.clone();
         edited.install_id = "me@example.com".into();
         save(&file, &edited).unwrap();
-        let third = prepare(KEY, &env, &props(false));
+        let third = prep(KEY, &env, &props(false));
         let id = payload(&third.send.unwrap())["distinct_id"].clone();
         assert!(is_uuid(id.as_str().unwrap()), "{id}");
 
@@ -686,16 +824,20 @@ mod tests {
             },
         )
         .unwrap();
-        assert_eq!(prepare(KEY, &env, &props(false)), Prepared::default());
+        assert_eq!(prep(KEY, &env, &props(false)), Prepared::default());
     }
 
     #[test]
     fn ci_runs_persist_nothing_and_show_the_notice_every_run() {
         let tmp = tempfile::tempdir().unwrap();
         let env = env_of(&[("XDG_CONFIG_HOME", tmp.path().to_str().unwrap())]);
-        let a = prepare(KEY, &env, &props(true));
-        let b = prepare(KEY, &env, &props(true));
+        let a = prep(KEY, &env, &props(true));
+        let b = prep(KEY, &env, &props(true));
         assert!(a.notice && b.notice);
+        assert_eq!(
+            payload(a.send.as_deref().unwrap())["properties"]["first_run"],
+            serde_json::Value::Null
+        );
         assert_ne!(
             payload(&a.send.unwrap())["distinct_id"],
             payload(&b.send.unwrap())["distinct_id"]
@@ -709,10 +851,11 @@ mod tests {
         let blocker = tmp.path().join("file");
         std::fs::write(&blocker, "").unwrap();
         let env = env_of(&[("XDG_CONFIG_HOME", blocker.to_str().unwrap())]);
-        let p = prepare(KEY, &env, &props(false));
-        assert!(p.notice && p.send.is_some());
+        let p = prep(KEY, &env, &props(false));
+        assert!(p.notice);
+        assert_eq!(payload(&p.send.unwrap())["properties"]["first_run"], false);
         let env = env_of(&[]);
-        assert!(prepare(KEY, &env, &props(false)).send.is_some());
+        assert!(prep(KEY, &env, &props(false)).send.is_some());
     }
 
     #[test]
@@ -725,7 +868,11 @@ mod tests {
                 (k, v),
                 ("RPR_TELEMETRY_DEBUG", "1"),
             ]);
-            assert_eq!(prepare(KEY, &env, &props(false)), Prepared::default());
+            let never = || -> Option<String> { panic!("git must not run when opted out") };
+            assert_eq!(
+                prepare(KEY, &env, &props(false), never),
+                Prepared::default()
+            );
         }
         assert_eq!(std::fs::read_dir(tmp.path()).unwrap().count(), 0);
     }
@@ -737,7 +884,7 @@ mod tests {
             ("XDG_CONFIG_HOME", tmp.path().to_str().unwrap()),
             ("RPR_TELEMETRY_DEBUG", "1"),
         ]);
-        let p = prepare(KEY, &env, &props(false));
+        let p = prep(KEY, &env, &props(false));
         assert_eq!(p.send, None, "only `send` spawns curl");
         assert_eq!(payload(&p.print.unwrap())["event"], "run_completed");
     }
@@ -747,10 +894,10 @@ mod tests {
         let tmp = tempfile::tempdir().unwrap();
         let xdg = tmp.path().to_str().unwrap();
         let env = env_of(&[("XDG_CONFIG_HOME", xdg)]);
-        assert_eq!(prepare("", &env, &props(false)), Prepared::default());
+        assert_eq!(prep("", &env, &props(false)), Prepared::default());
         // Debug still shows what would be sent; no notice, no state file.
         let env = env_of(&[("XDG_CONFIG_HOME", xdg), ("RPR_TELEMETRY_DEBUG", "1")]);
-        let p = prepare("", &env, &props(false));
+        let p = prep("", &env, &props(false));
         assert!(!p.notice && p.send.is_none());
         assert_eq!(payload(&p.print.unwrap())["api_key"], "");
         assert_eq!(std::fs::read_dir(tmp.path()).unwrap().count(), 0);
@@ -976,9 +1123,10 @@ mod tests {
         }
     }
 
+    /// 32 hex chars or more: a sha, or a truncated hash of one.
     fn has_sha(s: &str) -> bool {
         s.as_bytes()
-            .windows(40)
+            .windows(32)
             .any(|w| w.iter().all(u8::is_ascii_hexdigit))
     }
 
@@ -991,6 +1139,9 @@ mod tests {
             ("RUNNER_ENVIRONMENT", "github-hosted"),
             ("RUNNER_NAME", "me@runner-host"),
             ("GITHUB_REPOSITORY", "me/secret-repo"),
+            ("GITHUB_EVENT_NAME", "pull_request"),
+            ("RPR_VIA_ACTION", "1"),
+            ("CLAUDECODE", "1"),
             ("HOME", "/home/me"),
         ]);
         let s = realistic_summary(false, Some(50.0));
@@ -1011,8 +1162,20 @@ mod tests {
         runs.extend(errors.iter().map(Err));
         for run in runs {
             let props = Properties::new(&env, flags.clone(), run, Duration::from_millis(90_123));
-            let json = prepare(KEY, &env, &props).send.unwrap();
-            let v = payload(&json);
+            let id = || fingerprint("7ae48700c070e1eeaa460868d5e063fe77160a01");
+            let json = prepare(KEY, &env, &props, id).send.unwrap();
+            let mut v = payload(&json);
+            // The one exception: `project_id` is a hex hash by design (salted SHA-256 of the root
+            // commits, truncated; TELEMETRY.md). It must be exactly that, and nothing else may be.
+            let project_id = v["properties"]["project_id"].take();
+            let project_id = project_id.as_str().unwrap();
+            assert!(
+                project_id.len() == 32
+                    && project_id
+                        .bytes()
+                        .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b)),
+                "{project_id}"
+            );
             let mut all = vec![];
             strings(&v, &mut all);
             for s in &all {
@@ -1039,6 +1202,12 @@ mod tests {
                 "ci": true,
                 "ci_provider": "github_actions",
                 "runner": "github_hosted",
+                "trigger": "pull_request",
+                "via_action": true,
+                "agent": "claude_code",
+                "first_run": null,
+                "build": "debug",
+                "project_id": null,
                 "cpu_count": std::thread::available_parallelism().ok().map(|n| n.get()),
                 "flags": ["json", "min_score", "config", "project"],
                 "engine": "stryker",
@@ -1162,5 +1331,104 @@ mod tests {
         assert_ne!(a, new_uuid());
         assert!(!is_uuid("7AE48700-C070-41EE-AA46-0868D5E063FE"));
         assert!(!is_uuid("not-a-uuid"));
+    }
+
+    #[test]
+    fn triggers() {
+        let t = |vars: &[(&str, &str)]| {
+            let env = env_of(vars);
+            trigger(&env, ci_provider(&env))
+        };
+        assert_eq!(t(&[]), Some("local"));
+        let gha = |event: &str| t(&[("GITHUB_ACTIONS", "true"), ("GITHUB_EVENT_NAME", event)]);
+        for e in [
+            "pull_request",
+            "pull_request_target",
+            "push",
+            "schedule",
+            "workflow_dispatch",
+            "merge_group",
+        ] {
+            assert_eq!(gha(e), Some(e));
+        }
+        assert_eq!(gha("issue_comment"), Some("other"));
+        assert_eq!(t(&[("GITHUB_ACTIONS", "true")]), Some("other"));
+        let gitlab = |source: &str| t(&[("GITLAB_CI", "true"), ("CI_PIPELINE_SOURCE", source)]);
+        assert_eq!(gitlab("merge_request_event"), Some("pull_request"));
+        assert_eq!(gitlab("push"), Some("push"));
+        assert_eq!(gitlab("schedule"), Some("schedule"));
+        assert_eq!(gitlab("web"), Some("manual"));
+        assert_eq!(gitlab("api"), Some("other"));
+        assert_eq!(
+            t(&[("CIRCLECI", "true"), ("GITHUB_EVENT_NAME", "push")]),
+            None
+        );
+    }
+
+    #[test]
+    fn agents_from_presence_only() {
+        let a = |vars: &[(&str, &str)]| agent(&env_of(vars));
+        assert_eq!(a(&[]), None);
+        assert_eq!(a(&[("CLAUDECODE", "1")]), Some("claude_code"));
+        assert_eq!(a(&[("CURSOR_AGENT", "1")]), Some("cursor"));
+        assert_eq!(a(&[("CODEX_THREAD_ID", "t")]), Some("codex"));
+        assert_eq!(a(&[("CODEX_SANDBOX", "seatbelt")]), Some("codex"));
+        assert_eq!(a(&[("CODEX_SANDBOX_NETWORK_DISABLED", "1")]), Some("codex"));
+        assert_eq!(a(&[("GEMINI_CLI", "1")]), Some("gemini_cli"));
+        // Not markers: a user's own config dir, an empty value.
+        assert_eq!(
+            a(&[("CODEX_HOME", "/home/me/.codex"), ("CLAUDECODE", "")]),
+            None
+        );
+    }
+
+    #[test]
+    fn project_id_recipe() {
+        // printf 'reapr-telemetry-v1:aaa,bbb' | sha256sum | cut -c1-32
+        let expected = "d0a7e0b2f7b6dcd3b223cb4eee2ee90e";
+        assert_eq!(fingerprint("bbb\naaa\n").as_deref(), Some(expected));
+        assert_eq!(fingerprint("aaa\nbbb").as_deref(), Some(expected));
+        assert_eq!(fingerprint("\n"), None);
+
+        let tmp = tempfile::tempdir().unwrap();
+        assert_eq!(project_id(tmp.path()), None, "not a git repo");
+        assert_eq!(project_id(&tmp.path().join("missing")), None);
+        let repo = tmp.path().join("repo");
+        let git = |dir: &Path, args: &[&str]| {
+            let out = std::process::Command::new("git")
+                .args([
+                    "-c",
+                    "user.name=t",
+                    "-c",
+                    "user.email=t@example.com",
+                    "-c",
+                    "commit.gpgsign=false",
+                ])
+                .args(args)
+                .current_dir(dir)
+                .output()
+                .unwrap();
+            assert!(
+                out.status.success(),
+                "{args:?}: {}",
+                String::from_utf8_lossy(&out.stderr)
+            );
+            String::from_utf8(out.stdout).unwrap()
+        };
+        std::fs::create_dir(&repo).unwrap();
+        git(&repo, &["init", "-q"]);
+        assert_eq!(project_id(&repo), None, "no commit yet");
+        git(&repo, &["commit", "-q", "--allow-empty", "-m", "one"]);
+        let root = git(&repo, &["rev-parse", "HEAD"]);
+        git(&repo, &["commit", "-q", "--allow-empty", "-m", "two"]);
+        let id = project_id(&repo).unwrap();
+        assert_eq!(Some(id.clone()), fingerprint(&root));
+        // A shallow clone's root is its boundary commit, not the project's: no id.
+        let url = format!("file://{}", repo.display());
+        git(
+            tmp.path(),
+            &["clone", "-q", "--depth", "1", &url, "shallow"],
+        );
+        assert_eq!(project_id(&tmp.path().join("shallow")), None);
     }
 }
