@@ -12,15 +12,15 @@ const survivors = `"survivors": [
 <section class="wrap" id="output" aria-labelledby="output-title">
   <p class="eyebrow">/ Output</p>
   <h2 id="output-title">A summary for people. JSON for agents.</h2>
-  <p class="lead">Each survivor has the file, line, column, mutator and replacement: enough for an agent to write the missing test and run Reapr again. Reapr reports. It does not write tests.</p>
+  <p class="lead">Each survivor has the file, line, column, mutator and replacement: enough for an agent to write the missing test and run Reapr again. Reapr reports; your agent writes the missing test. An agent skill for this is coming.</p>
   <div class="pair">
     <figure class="code">
       <figcaption><code>rpr run --diff origin/main</code></figcaption>
       <pre><code>rpr · stryker · diff vs origin/main · 3 ranges in 2 files
 score 80.00%  (<span class="ok">8 killed</span>, 0 timeout, <span class="bad">2 survived</span>, 0 no coverage)  1m 23s
 survivors:
-  <span class="bad">src/a.ts:10:3  ConditionalExpression  → false</span>
-  <span class="bad">src/b.ts:6:2  ConditionalExpression  → false</span>
+  <span class="bad">src/a.ts:10:3</span>  ConditionalExpression  → false
+  <span class="bad">src/b.ts:6:2</span>  ConditionalExpression  → false
 run: /home/me/repo/.git/reapr/runs/1793640000-4242</code></pre>
     </figure>
     <figure class="code">

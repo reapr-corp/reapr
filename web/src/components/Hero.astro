@@ -2,18 +2,32 @@
 import CopyButton from "./CopyButton.astro";
 ---
 <section class="hero wrap" aria-labelledby="title">
-  <h1 id="title">Mutation testing for the code your PR changed.</h1>
-  <p class="sub">Reapr runs your own Stryker config on the lines your branch changed and shows which changes no test would catch.</p>
+  <div class="hero-grid">
+    <div>
+      <h1 id="title">Kill the mutants your tests miss.</h1>
+      <p class="sub">Reapr runs mutation testing on every pull request, with your own Stryker config, on the lines your branch changed.</p>
 
-  <figure class="diff">
-    <figcaption>One line in your pull request workflow</figcaption>
-    <pre><code><span class="del">-  - run: npx stryker run</span>
+      <figure class="diff">
+        <figcaption>One line in your pull request workflow</figcaption>
+        <pre><code><span class="del">-  - run: npx stryker run</span>
 <span class="add">+  - uses: reapr-corp/run@v1</span><span class="cursor" aria-hidden="true"></span></code></pre>
-  </figure>
+      </figure>
 
-  <div class="actions">
-    <a class="button" href="https://github.com/reapr-corp/reapr#quick-start">Get started</a>
-    <a class="button outline" href="https://github.com/reapr-corp/reapr">View on GitHub</a>
+      <div class="actions">
+        <a class="button" href="https://github.com/reapr-corp/reapr#quick-start">Get started</a>
+        <a class="button outline" href="https://github.com/reapr-corp/reapr">View on GitHub</a>
+      </div>
+    </div>
+
+    <figure class="terminal" aria-hidden="true">
+      <figcaption><span>$</span> rpr run --diff origin/main</figcaption>
+      <pre><code>rpr · stryker · diff vs origin/main · 3 ranges in 2 files
+score 80.00%  (<span class="ok">8 killed</span>, 0 timeout, <span class="bad">2 survived</span>, 0 no coverage)  1m 23s
+survivors:
+  <span class="bad">src/a.ts:10:3</span>  ConditionalExpression  → false
+  <span class="bad">src/b.ts:6:2</span>  ConditionalExpression  → false
+run: /home/me/repo/.git/reapr/runs/1793640000-4242</code></pre>
+    </figure>
   </div>
 
   <div class="install">

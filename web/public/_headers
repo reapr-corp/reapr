@@ -4,5 +4,3 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
 
-https://:worker.:subdomain.workers.dev/*
-  X-Robots-Tag: noindex
