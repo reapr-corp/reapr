@@ -165,6 +165,7 @@ pub enum Outcome {
 pub enum ErrorKind {
     ConfigMissing,
     NoEngine,
+    AmbiguousEngine,
     Git,
     EngineProcess,
     Parse,
@@ -181,6 +182,7 @@ pub fn error_kind(e: &anyhow::Error) -> ErrorKind {
                 CliError::Project(..) | CliError::ConfigPath(..) => ErrorKind::Args,
                 CliError::ConfigNotFound(_) => ErrorKind::ConfigMissing,
                 CliError::NoEngine(_) => ErrorKind::NoEngine,
+                CliError::AmbiguousEngine(..) => ErrorKind::AmbiguousEngine,
             };
         }
         if let Some(a) = cause.downcast_ref::<AdapterError>() {
@@ -208,6 +210,7 @@ pub enum WarningKind {
     VitestBail,
     IncrementalCarriedOver,
     GitMetadata,
+    EngineVersionUnsupported,
     Other,
 }
 
@@ -221,6 +224,8 @@ fn warning_kind(w: &str) -> WarningKind {
         WarningKind::IncrementalCarriedOver
     } else if w.starts_with("git metadata:") {
         WarningKind::GitMetadata
+    } else if w.contains(" is outside the supported range ") {
+        WarningKind::EngineVersionUnsupported
     } else {
         WarningKind::Other
     }
@@ -787,6 +792,10 @@ mod tests {
             ),
             (CliError::NoEngine("/p".into()).into(), ErrorKind::NoEngine),
             (
+                CliError::AmbiguousEngine("/p".into(), "stryker, cargo-mutants".into()).into(),
+                ErrorKind::AmbiguousEngine,
+            ),
+            (
                 AdapterError::ConfigMissing {
                     engine: "stryker",
                     hint: "h".into(),
@@ -874,6 +883,7 @@ mod tests {
             "vitest >= 4 with bail can report killed mutants as survived (observed: 98.0 vs 87.8 on the same code); consider disableBail: true".to_owned(),
             "stryker report carried 7 results from outside the diff scope (incremental); excluded from the diff score".to_owned(),
             "git metadata: `git rev-parse HEAD` failed (exit code Some(128)): fatal".to_owned(),
+            "cargo-mutants 28.0.0 is outside the supported range >=26.2.0, <28.0.0; its results may be misread".to_owned(),
             "something new at /home/me/repo".to_owned(),
         ];
         let kinds: Vec<_> = w.iter().map(|w| warning_kind(w)).collect();
@@ -883,6 +893,7 @@ mod tests {
                 WarningKind::VitestBail,
                 WarningKind::IncrementalCarriedOver,
                 WarningKind::GitMetadata,
+                WarningKind::EngineVersionUnsupported,
                 WarningKind::Other
             ]
         );

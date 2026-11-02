@@ -9,6 +9,7 @@ use std::time::{Instant, SystemTime};
 
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
+use reapr_cargo_mutants::CargoMutantsAdapter;
 use reapr_core::{
     AdapterError, Detection, MutationEngineAdapter, MutationScope, RunContext, RunOutcome, Shard,
     diff, record, store,
@@ -46,9 +47,13 @@ struct RunArgs {
     /// Fail (exit 1) when the mutation score is below this percentage.
     #[arg(long, value_name = "N", value_parser = parse_min_score)]
     min_score: Option<f64>,
-    /// Engine config file; skips config detection.
+    /// Engine config file; skips config detection. Its file name picks the engine when it is one the
+    /// engine itself looks for (stryker.config.mjs, mutants.toml, ...).
     #[arg(long, value_name = "PATH")]
     config: Option<PathBuf>,
+    /// Mutation engine; needed when several are detected in the project.
+    #[arg(long, value_enum, value_name = "ENGINE")]
+    engine: Option<EngineId>,
     /// Project directory (engine cwd). Default: the current directory.
     #[arg(long, value_name = "DIR")]
     project: Option<PathBuf>,
@@ -61,6 +66,7 @@ impl RunArgs {
             ("json", self.json),
             ("min_score", self.min_score.is_some()),
             ("config", self.config.is_some()),
+            ("engine", self.engine.is_some()),
             ("project", self.project.is_some()),
         ]
         .into_iter()
@@ -80,6 +86,8 @@ pub enum CliError {
     ConfigNotFound(PathBuf),
     #[error("no supported mutation engine detected in {}", .0.display())]
     NoEngine(PathBuf),
+    #[error("several mutation engines detected in {}: {}; choose one with --engine <stryker|cargo-mutants>", .0.display(), .1)]
+    AmbiguousEngine(PathBuf, String),
 }
 
 /// Git would read a leading `-` as an option (`--output=<path>` writes a file).
@@ -100,37 +108,75 @@ fn parse_min_score(s: &str) -> Result<f64, String> {
     }
 }
 
-/// Static dispatch over the supported engines (the adapter trait is not dyn-compatible).
+/// `--engine` values.
+#[derive(clap::ValueEnum, Clone, Copy, Debug, PartialEq, Eq)]
+enum EngineId {
+    Stryker,
+    CargoMutants,
+}
+
+/// Static dispatch over the supported engines (the adapter trait is not dyn-compatible, ADR 0001).
 enum Engine {
     Stryker(StrykerAdapter),
+    CargoMutants(CargoMutantsAdapter),
 }
 
 impl Engine {
-    fn all() -> [Engine; 1] {
-        [Engine::Stryker(StrykerAdapter::new())]
+    /// Every engine, in detection order.
+    fn all() -> [Engine; 2] {
+        [EngineId::Stryker, EngineId::CargoMutants].map(Engine::of)
+    }
+
+    fn of(id: EngineId) -> Engine {
+        match id {
+            EngineId::Stryker => Engine::Stryker(StrykerAdapter::new()),
+            EngineId::CargoMutants => Engine::CargoMutants(CargoMutantsAdapter::new()),
+        }
+    }
+
+    /// The engine whose own config file name `config` has, if exactly one has it.
+    fn for_config(config: &Path) -> Option<Engine> {
+        let name = config.file_name()?.to_str()?;
+        let mut owners = [
+            (EngineId::Stryker, StrykerAdapter::owns_config(name)),
+            (
+                EngineId::CargoMutants,
+                CargoMutantsAdapter::owns_config(name),
+            ),
+        ]
+        .into_iter()
+        .filter_map(|(id, owns)| owns.then_some(id));
+        match (owners.next(), owners.next()) {
+            (Some(id), None) => Some(Engine::of(id)),
+            _ => None,
+        }
     }
 
     fn id(&self) -> &'static str {
         match self {
             Engine::Stryker(a) => a.id(),
+            Engine::CargoMutants(a) => a.id(),
         }
     }
 
     async fn detect(&self, project_dir: &Path) -> Result<Option<Detection>, AdapterError> {
         match self {
             Engine::Stryker(a) => a.detect(project_dir).await,
+            Engine::CargoMutants(a) => a.detect(project_dir).await,
         }
     }
 
     async fn run(&self, ctx: &RunContext, shard: &Shard) -> Result<RunOutcome, AdapterError> {
         match self {
             Engine::Stryker(a) => a.run(ctx, shard).await,
+            Engine::CargoMutants(a) => a.run(ctx, shard).await,
         }
     }
 
     async fn version(&self, project_dir: &Path) -> Option<String> {
         match self {
             Engine::Stryker(a) => a.engine_version(project_dir).await,
+            Engine::CargoMutants(a) => a.engine_version(project_dir).await,
         }
     }
 }
@@ -208,17 +254,18 @@ async fn run(args: RunArgs) -> Result<(Summary, Option<String>)> {
     let project_dir =
         dunce::canonicalize(&project).map_err(|e| CliError::Project(project.clone(), e))?;
 
-    let (engine, config) = match args.config {
+    let config = match args.config {
         Some(path) => {
             let path =
                 std::path::absolute(&path).map_err(|e| CliError::ConfigPath(path.clone(), e))?;
             if !path.is_file() {
                 return Err(CliError::ConfigNotFound(path).into());
             }
-            (Engine::Stryker(StrykerAdapter::new()), Some(path))
+            Some(path)
         }
-        None => detect(&project_dir).await?,
+        None => None,
     };
+    let (engine, config) = select_engine(&project_dir, args.engine, config).await?;
 
     let ranges = diff::changed_ranges(&project_dir, &args.base)
         .await
@@ -292,15 +339,46 @@ async fn run(args: RunArgs) -> Result<(Summary, Option<String>)> {
     Ok((summary, engine_version))
 }
 
-async fn detect(project_dir: &Path) -> Result<(Engine, Option<PathBuf>)> {
+/// The engine and its config: `--engine`, else the engine `--config`'s file name belongs to, else the
+/// one engine detected in the project. An explicit `--config` always wins over a detected one.
+async fn select_engine(
+    project_dir: &Path,
+    id: Option<EngineId>,
+    config: Option<PathBuf>,
+) -> Result<(Engine, Option<PathBuf>)> {
+    let engine = id
+        .map(Engine::of)
+        .or_else(|| config.as_deref().and_then(Engine::for_config));
+    if let Some(engine) = engine {
+        if config.is_some() {
+            return Ok((engine, config));
+        }
+        let found = detection(&engine, project_dir).await?;
+        return Ok((engine, found.and_then(|d| d.config)));
+    }
+    let mut found = Vec::new();
     for engine in Engine::all() {
-        let found = engine
-            .detect(project_dir)
-            .await
-            .with_context(|| format!("{} detection failed", engine.id()))?;
-        if let Some(d) = found {
-            return Ok((engine, d.config));
+        if let Some(d) = detection(&engine, project_dir).await? {
+            found.push((engine, d));
         }
     }
-    Err(CliError::NoEngine(project_dir.to_owned()).into())
+    if found.len() > 1 {
+        let list = found
+            .iter()
+            .map(|(e, d)| format!("{} ({})", e.id(), d.reason))
+            .collect::<Vec<_>>()
+            .join(", ");
+        return Err(CliError::AmbiguousEngine(project_dir.to_owned(), list).into());
+    }
+    match found.pop() {
+        Some((engine, d)) => Ok((engine, config.or(d.config))),
+        None => Err(CliError::NoEngine(project_dir.to_owned()).into()),
+    }
+}
+
+async fn detection(engine: &Engine, project_dir: &Path) -> Result<Option<Detection>> {
+    engine
+        .detect(project_dir)
+        .await
+        .with_context(|| format!("{} detection failed", engine.id()))
 }

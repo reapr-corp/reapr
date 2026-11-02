@@ -21,6 +21,7 @@ path = "src/main.rs"
 anyhow.workspace = true
 clap.workspace = true
 dunce.workspace = true
+reapr-cargo-mutants = { path = "../reapr-cargo-mutants" }
 reapr-core.workspace = true
 reapr-stryker = { path = "../reapr-stryker" }
 serde.workspace = true

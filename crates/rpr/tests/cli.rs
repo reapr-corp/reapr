@@ -18,7 +18,15 @@ fn help_and_version() {
     let out = rpr(&["run", "--help"]);
     assert!(out.status.success());
     let help = String::from_utf8_lossy(&out.stdout);
-    for flag in ["--diff", "--json", "--min-score", "--config", "--project"] {
+    for flag in [
+        "--diff",
+        "--json",
+        "--min-score",
+        "--config",
+        "--project",
+        "--engine",
+        "cargo-mutants",
+    ] {
         assert!(help.contains(flag), "{flag} missing from:\n{help}");
     }
 
@@ -161,6 +169,95 @@ fn nothing_to_mutate_writes_run_record_in_the_git_dir() {
 }
 
 /// Exactly one JSON document on stdout, on every path.
+/// A git repo with one commit holding `files`.
+fn repo(files: &[&str]) -> (tempfile::TempDir, std::path::PathBuf) {
+    let tmp = tempfile::tempdir().unwrap();
+    let root = dunce::canonicalize(tmp.path()).unwrap();
+    for f in files {
+        std::fs::write(root.join(f), "{}").unwrap();
+    }
+    git(&root, &["init", "-q"]);
+    git(&root, &["add", "-A"]);
+    git(&root, &["commit", "-q", "-m", "one"]);
+    (tmp, root)
+}
+
+#[test]
+fn several_engines_need_engine_flag() {
+    let (_tmp, root) = repo(&["Cargo.toml", "stryker.config.json"]);
+    let project = root.to_str().unwrap();
+    let out = rpr(&["run", "--diff", "HEAD", "--project", project, "--json"]);
+    assert_eq!(out.status.code(), Some(2));
+    let msg = json_error(&out);
+    assert!(msg.contains("several mutation engines detected"), "{msg}");
+    assert!(msg.contains("stryker (found stryker.config.json)"), "{msg}");
+    assert!(msg.contains("cargo-mutants (found Cargo.toml"), "{msg}");
+    assert!(msg.contains("--engine <stryker|cargo-mutants>"), "{msg}");
+
+    // `--engine`, or a config file name that belongs to one engine, settles it.
+    let config = root.join("stryker.config.json");
+    let mutants_toml = root.join("mutants.toml");
+    std::fs::write(&mutants_toml, "").unwrap();
+    for (args, engine) in [
+        (vec!["--engine", "cargo-mutants"], "cargo-mutants"),
+        (vec!["--engine", "stryker"], "stryker"),
+        (vec!["--config", config.to_str().unwrap()], "stryker"),
+        (
+            vec!["--config", mutants_toml.to_str().unwrap()],
+            "cargo-mutants",
+        ),
+    ] {
+        let mut all = vec!["run", "--diff", "HEAD", "--project", project, "--json"];
+        all.extend(&args);
+        let out = rpr(&all);
+        assert_eq!(
+            out.status.code(),
+            Some(0),
+            "{args:?}: {}",
+            String::from_utf8_lossy(&out.stderr)
+        );
+        let v: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap();
+        assert_eq!(v["engine"], engine, "{args:?}");
+    }
+
+    // A config name no engine owns falls back to detection, which is ambiguous here.
+    let custom = root.join("custom.json");
+    std::fs::write(&custom, "{}").unwrap();
+    let out = rpr(&[
+        "run",
+        "--diff",
+        "HEAD",
+        "--project",
+        project,
+        "--config",
+        custom.to_str().unwrap(),
+    ]);
+    assert_eq!(out.status.code(), Some(2));
+    assert!(String::from_utf8_lossy(&out.stderr).contains("--engine"));
+}
+
+#[test]
+fn cargo_project_detects_cargo_mutants() {
+    let (_tmp, root) = repo(&["Cargo.toml"]);
+    let out = rpr(&[
+        "run",
+        "--diff",
+        "HEAD",
+        "--project",
+        root.to_str().unwrap(),
+        "--json",
+    ]);
+    assert_eq!(
+        out.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let v: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap();
+    assert_eq!(v["engine"], "cargo-mutants");
+    assert_eq!(v["score"], serde_json::Value::Null);
+}
+
 fn json_error(out: &Output) -> String {
     let stdout = String::from_utf8_lossy(&out.stdout);
     let v: serde_json::Value =
