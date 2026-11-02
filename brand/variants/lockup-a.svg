@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-6 -8 180 54">
+  <title>Reapr</title>
+  <g transform="translate(-10.5 -13.5) scale(1.75)">
+  <g fill="currentColor">
+    <path d="M6 26 V11 A5.5 5.5 0 0 1 11.5 5.5 A23.5 23.5 0 0 1 27.5 11.79 A40.55 40.55 0 0 0 11.5 8.5 A2.5 2.5 0 0 0 9 11 V26 Z"/>
+  </g>
+  </g>
+  <g transform="translate(49.7 0)" fill="none" stroke="currentColor" stroke-width="3.2">
+    <path d="M1.6 32 V8 M1.6 19.6 A10 10 0 0 1 13.34 9.75"/>
+    <path d="M18.6 20 H39.4 A10.4 10.4 0 1 0 36.97 26.69"/>
+    <circle cx="57.2" cy="20" r="10.4"/><path d="M67.6 8 V32"/>
+    <circle cx="86.4" cy="20" r="10.4"/><path d="M76 8 V42"/>
+    <path d="M104.4 32 V8 M104.4 19.6 A10 10 0 0 1 116.14 9.75"/>
+  </g>
+</svg>
