@@ -1,0 +1,77 @@
+{
+ "cmd": [
+  "taskset",
+  "-c",
+  "0-3",
+  "rpr",
+  "run",
+  "--diff",
+  "e9a4e317541ce548dbc27cc33b6e50b07b87c1e3",
+  "--json"
+ ],
+ "loadavg_before": [
+  38.3974609375,
+  36.73583984375,
+  26.6484375
+ ],
+ "start": "2026-11-02T22:03:48Z",
+ "wall_ms": 30014,
+ "exit": 0,
+ "timed_out": false,
+ "cpu_user_ms": 22103,
+ "cpu_sys_ms": 2794,
+ "max_rss_kb": 654916,
+ "loadavg_after": [
+  32.80078125,
+  35.53369140625,
+  26.568359375
+ ],
+ "rpr": {
+  "run_id": "1793657028-2219708",
+  "run_dir": "<repo>/.git/reapr/runs/1793657028-2219708",
+  "engine": "stryker",
+  "base": "e9a4e317541ce548dbc27cc33b6e50b07b87c1e3",
+  "ranges": [
+   {
+    "path": "src/Settings/Settings.spec.ts",
+    "start": 861,
+    "end": 951
+   },
+   {
+    "path": "src/Shared/Settings.types.ts",
+    "start": 232,
+    "end": 259
+   },
+   {
+    "path": "src/Shared/Settings.types.ts",
+    "start": 281,
+    "end": 300
+   }
+  ],
+  "score": null,
+  "counts": {
+   "killed": 0,
+   "survived": 0,
+   "no_coverage": 0,
+   "timeout": 0,
+   "compile_error": 0,
+   "runtime_error": 0,
+   "ignored": 0,
+   "pending": 0
+  },
+  "survivors": [],
+  "duration_ms": 29289,
+  "min_score": null,
+  "passed": true,
+  "engine_gate_failed": false,
+  "warnings": [],
+  "resources": {
+   "cpu_user_ms": 22002,
+   "cpu_sys_ms": 2748,
+   "max_rss_kb": 654916
+  }
+ },
+ "mutants": 0,
+ "score": null,
+ "engine_ms": 29289
+}

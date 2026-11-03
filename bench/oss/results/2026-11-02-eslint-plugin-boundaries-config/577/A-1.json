@@ -1,0 +1,32 @@
+{
+ "cmd": [
+  "taskset",
+  "-c",
+  "0-3",
+  "npx",
+  "--no-install",
+  "stryker",
+  "run",
+  "--reporters",
+  "html,clear-text,progress,dashboard,json"
+ ],
+ "loadavg_before": [
+  13.64794921875,
+  19.13037109375,
+  22.923828125
+ ],
+ "start": "2026-11-02T22:18:33Z",
+ "wall_ms": 642254,
+ "exit": 0,
+ "timed_out": false,
+ "cpu_user_ms": 2221265,
+ "cpu_sys_ms": 178448,
+ "max_rss_kb": 3513044,
+ "loadavg_after": [
+  43.27392578125,
+  35.203125,
+  28.78173828125
+ ],
+ "mutants": 1693,
+ "score": 99.23
+}

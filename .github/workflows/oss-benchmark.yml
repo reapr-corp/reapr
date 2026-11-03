@@ -93,7 +93,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: scan-${{ matrix.repo.id }}
-          path: out/scan-*.json
+          path: |
+            out/scan-*.json
+            out/scan-*-logs/*.stderr
           if-no-files-found: error
 
   plan:

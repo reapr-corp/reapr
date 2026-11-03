@@ -1,0 +1,86 @@
+[
+  {
+    "id": "brazilian-utils",
+    "gh": "brazilian-utils/javascript",
+    "branch": "main",
+    "project": ".",
+    "config": "stryker.config.json",
+    "node": "24.22.1",
+    "install": "npm ci --no-audit --no-fund",
+    "mutate_re": "^src/.*\\.ts$",
+    "exclude_re": "(\\.test\\.ts$|^src/_internals/test/|/constants\\.ts$|^src/_internals/constants/|^src/index\\.ts$)",
+    "a_args": "",
+    "b": {
+      "args": "--incremental",
+      "file": "reports/stryker-incremental.json"
+    }
+  },
+  {
+    "id": "boundaries-elements",
+    "gh": "javierbrea/eslint-plugin-boundaries",
+    "branch": "release",
+    "project": "packages/elements",
+    "config": "stryker.config.mjs",
+    "node": "24.22.1",
+    "install": "corepack enable && pnpm install --frozen-lockfile",
+    "mutate_re": "^packages/elements/src/.*\\.ts$",
+    "exclude_re": "\\.spec\\.ts$",
+    "a_args": "--reporters html,clear-text,progress,dashboard,json",
+    "b": null
+  },
+  {
+    "id": "boundaries-config",
+    "gh": "javierbrea/eslint-plugin-boundaries",
+    "branch": "release",
+    "project": "packages/config",
+    "config": "stryker.config.mjs",
+    "node": "24.22.1",
+    "install": "corepack enable && pnpm install --frozen-lockfile && pnpm nx build elements",
+    "mutate_re": "^packages/config/src/.*\\.ts$",
+    "exclude_re": "\\.spec\\.ts$",
+    "a_args": "--reporters html,clear-text,progress,dashboard,json",
+    "b": null
+  },
+  {
+    "id": "npkill",
+    "gh": "voidcosmos/npkill",
+    "branch": "main",
+    "project": ".",
+    "config": "stryker.conf.js",
+    "node": "24.22.1",
+    "install": "npm ci --ignore-scripts --no-audit --no-fund",
+    "mutate_re": "^(src|lib)/.*\\.(ts|js|mjs|cjs|tsx|jsx)$",
+    "exclude_re": "(\\.(spec|test)\\.|__tests__/|\\.d\\.ts$)",
+    "a_args": "--reporters html,clear-text,progress,json",
+    "b": null
+  },
+  {
+    "id": "inversify-core",
+    "gh": "inversify/monorepo",
+    "branch": "main",
+    "project": "packages/container/libraries/core",
+    "config": "stryker.config.mjs",
+    "node": "26.13.0",
+    "install": "npm install -g \"$(node -p \"require('./package.json').packageManager.replace(/\\\\+.*/, '')\")\" && pnpm install && pnpm exec turbo run build --filter=@inversifyjs/core^...",
+    "mutate_re": "^packages/container/libraries/core/src/.*\\.ts$",
+    "exclude_re": "(\\.spec\\.ts$|(Fixtures|Mocks)\\.ts$)",
+    "a_args": "--reporters clear-text,progress,html,json",
+    "b": null
+  },
+  {
+    "id": "trading-signals",
+    "gh": "bennycode/trading-signals",
+    "branch": "main",
+    "project": "packages/exchange",
+    "config": "stryker.config.json",
+    "node": "24.22.1",
+    "install": "npm ci --no-audit --no-fund",
+    "mutate_re": "^packages/exchange/src/.*\\.ts$",
+    "exclude_re": "(\\.test\\.ts$|/demo/)",
+    "a_args": "--reporters clear-text,html,progress,json",
+    "b": {
+      "args": "",
+      "file": "reports/stryker-incremental.json"
+    }
+  }
+]

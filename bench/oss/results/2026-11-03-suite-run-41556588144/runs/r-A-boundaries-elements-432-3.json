@@ -1,0 +1,54 @@
+{
+ "repo": "boundaries-elements",
+ "pr": 432,
+ "scenario": "A",
+ "rep": 3,
+ "base": "71e242d3627c5280e916c9d210b794b0f9bf8e7c",
+ "head": "44a8ab3a4098570b81240eccd590bb8c909f2a98",
+ "node": "v24.22.1",
+ "runner": {
+  "RUNNER_NAME": "GitHub Actions 1000000507",
+  "ImageOS": "ubuntu24",
+  "ImageVersion": "20261026.354.1",
+  "RUNNER_ARCH": "X64"
+ },
+ "cpu_count": 4,
+ "ok": true,
+ "install_ms": 10404,
+ "stryker": "9.6.0",
+ "cmd": [
+  "npx",
+  "--no-install",
+  "stryker",
+  "run",
+  "--reporters",
+  "html,clear-text,progress,dashboard,json"
+ ],
+ "loadavg_before": [
+  0.76025390625,
+  0.17822265625,
+  0.05908203125
+ ],
+ "start": "2026-11-03T02:35:47Z",
+ "wall_ms": 1027679,
+ "exit": 1,
+ "timed_out": false,
+ "cpu_user_ms": 3887914,
+ "cpu_sys_ms": 154672,
+ "max_rss_kb": 2616084,
+ "loadavg_after": [
+  8.34716796875,
+  7.9677734375,
+  5.57275390625
+ ],
+ "incremental_log": [],
+ "ranges": 441,
+ "mutants": 5587,
+ "score": 61.45,
+ "in_diff_counts": {
+  "Survived": 392,
+  "Killed": 669,
+  "NoCoverage": 4,
+  "RuntimeError": 1
+ }
+}

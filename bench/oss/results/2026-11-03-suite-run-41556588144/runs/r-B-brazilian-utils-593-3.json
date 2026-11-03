@@ -1,0 +1,50 @@
+{
+ "repo": "brazilian-utils",
+ "pr": 593,
+ "scenario": "B",
+ "rep": 3,
+ "base": "56501e41534c11038d5c268c2f30ce2bf63e6727",
+ "head": "4455c47b22db602bc95f8e0f88254e49f9f61068",
+ "node": "v24.22.1",
+ "runner": {
+  "RUNNER_NAME": "GitHub Actions 1000000476",
+  "ImageOS": "ubuntu24",
+  "ImageVersion": "20261026.354.1",
+  "RUNNER_ARCH": "X64"
+ },
+ "cpu_count": 4,
+ "ok": false,
+ "install_ms": 10849,
+ "stryker": "10.0.0",
+ "cmd": [
+  "npx",
+  "--no-install",
+  "stryker",
+  "run",
+  "--incremental"
+ ],
+ "loadavg_before": [
+  0.54443359375,
+  0.18603515625,
+  0.064453125
+ ],
+ "start": "2026-11-03T02:14:11Z",
+ "wall_ms": 1058019,
+ "exit": 0,
+ "timed_out": false,
+ "cpu_user_ms": 3704387,
+ "cpu_sys_ms": 186516,
+ "max_rss_kb": 1725272,
+ "loadavg_after": [
+  7.1220703125,
+  6.59423828125,
+  4.47021484375
+ ],
+ "incremental_log": [
+  "\u001b[32m02:14:13 (2522) INFO ProjectReader\u001b[39m Found 239 of 754 file(s) to be mutated using incremental report with 5411 mutant(s), and 7308 test(s).",
+  "\u001b[32m02:15:31 (2522) INFO IncrementalDiffer\u001b[39m Incremental report:"
+ ],
+ "error": "UnicodeDecodeError: 'utf-8' codec can't decode byte 0xe1 in position 292852: invalid continuation byte",
+ "stdout_tail": " 100.00 |  100.00 |        7 |         0 |          0 |        0 |        0 |\n parse-passport                                | 100.00 |  100.00 |        7 |         0 |          0 |        0 |        0 |\n  parse-passport.ts                            | 100.00 |  100.00 |        7 |         0 |          0 |        0 |        0 |\n parse-phone                                   | 100.00 |  100.00 |        3 |         0 |          0 |        0 |        0 |\n  parse-phone.ts                               | 100.00 |  100.00 |        3 |         0 |          0 |        0 |        0 |\n parse-pis                                     | 100.00 |  100.00 |        3 |         0 |          0 |        0 |        0 |\n  parse-pis.ts                                 | 100.00 |  100.00 |        3 |         0 |          0 |        0 |        0 |\n parse-processo-juridico                       | 100.00 |  100.00 |        3 |         0 |          0 |        0 |        0 |\n  parse-processo-juridico.ts                   | 100.00 |  100.00 |        3 |         0 |          0 |        0 |        0 |\n parse-suframa                                 | 100.00 |  100.00 |        3 |         0 |          0 |        0 |        0 |\n  parse-suframa.ts                             | 100.00 |  100.00 |        3 |         0 |          0 |        0 |        0 |\n parse-voter-id                                | 100.00 |  100.00 |        6 |         0 |          0 |        0 |        0 |\n  parse-voter-id.ts                            | 100.00 |  100.00 |        6 |         0 |          0 |        0 |        0 |\n remove-accents                                | 100.00 |  100.00 |        8 |         0 |          0 |        0 |        0 |\n  remove-accents.ts                            | 100.00 |  100.00 |        8 |         0 |          0 |        0 |        0 |\n sub-business-days                             | 100.00 |  100.00 |        5 |         0 |          0 |        0 |        0 |\n  sub-business-days.ts                         | 100.00 |  100.00 |        5 |         0 |          0 |        0 |        0 |\n to-standard-schema                            | 100.00 |  100.00 |       27 |         0 |          0 |        0 |        0 |\n  to-standard-schema.ts                        | 100.00 |  100.00 |       27 |         0 |          0 |        0 |        0 |\n-----------------------------------------------|--------|---------|----------|-----------|------------|----------|----------|\n\u001b[32m02:31:49 (2522) INFO JsonReporter\u001b[39m Your report can be found at: file://<repo>/reports/mutation/mutation.json\n\u001b[32m02:31:49 (2522) INFO HtmlReporter\u001b[39m Your report can be found at: file://<repo>/reports/mutation/mutation.html\n\u001b[32m02:31:49 (2522) INFO MutationTestReportHelper\u001b[39m Final mutation score of 100.00 is greater than or equal to break threshold 100\n\u001b[32m02:31:49 (2522) INFO MutationTestExecutor\u001b[39m Done in 17 minutes and 36 seconds.\n",
+ "stderr_tail": "[RegexMutator]: The Regex parser of weapon-regex couldn't parse this regex pattern: \"\\p{M}\". Please report this issue at https://github.com/stryker-mutator/weapon-regex/issues. Inner error: \\p{M}\n ^\nexpectations:\n* must be char: '$'\n* must be a char within the range of: ['(', '+']\n* must be a char within the range of: ['.', '/']\n* must be char: '?'\n* must be a char within the range of: ['[', '^']\n* must be a char within the range of: ['{', '}']\n"
+}
