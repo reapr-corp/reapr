@@ -219,6 +219,8 @@ def cmd_run(a):
             report = proj / a.a_report
             report.unlink(missing_ok=True)
             extra = shlex.split(r["a_args"]) + (shlex.split(r["b"]["args"]) if a.scenario in ("seed", "B") else [])
+            if r["b"] and a.scenario in ("A", "seed"):  # A and the seed always test every mutant
+                (proj / r["b"]["file"]).unlink(missing_ok=True)
             if a.scenario == "B":
                 dst = proj / r["b"]["file"]
                 dst.parent.mkdir(parents=True, exist_ok=True)

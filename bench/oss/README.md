@@ -17,7 +17,7 @@ by hand). "PR fit" is how many of the last 40 merged PRs touch those files.
 
 | Repo | Stars | Last commit | Runner | Stryker | Config | Files under `mutate` | Full run < 60 min on 4 vCPU? | License | PR fit |
 |---|---|---|---|---|---|---|---|---|---|
-| [brazilian-utils/javascript](https://github.com/brazilian-utils/javascript) | 1.7k | 2026-10-09 | Vitest (vite-plus), `perTest` | 10.0.0 | `stryker.config.json` | 263 | Yes. Upstream runs it in CI: full `--force` on main 24 min, `--incremental` on a PR 27 min (ubuntu-latest) | MIT | 28/40 (many large) |
+| [brazilian-utils/javascript](https://github.com/brazilian-utils/javascript) | 1.7k | 2026-10-09 | Vitest (vite-plus), `perTest` | 10.0.0 | `stryker.config.json` | 263 | Yes. Upstream runs it in CI on ubuntu-latest: full `--force` on main 24 min. Its PR job uses `--incremental`: 2 to 4 min when the cached state hits (about 6090 of 6199 results reused), about 27 min on a cache miss (a lockfile change, or main's cache not saved yet) | MIT | 28/40 (many large) |
 | [javierbrea/eslint-plugin-boundaries](https://github.com/javierbrea/eslint-plugin-boundaries) | 1.0k | 2026-11-02 | Jest 30, `perTest` | 9.6.1 | `packages/{config,elements,policies}/stryker.config.mjs` | 134 | Yes. Upstream runs all three on every PR: elements 21 min, config 4.5 min, policies 2 min | MIT | 15/40 in 10 days |
 | [voidcosmos/npkill](https://github.com/voidcosmos/npkill) | 9.5k | 2026-11-02 | Jest 30 via `command` runner, `coverageAnalysis: off` | 9.6.1 | `stryker.conf.js` | 88 | Unknown: every mutant runs the whole Jest suite; no upstream CI job. Measure first | MIT | 29/40 (since 2023) |
 | [onury/accesscontrol](https://github.com/onury/accesscontrol) | 2.3k | 2026-10-03 | Vitest 4, `perTest` | ^9.6.1 | `stryker.config.json` | 27 | Likely (small) | MIT | Pushes to the default branch; almost no PRs. Commits would replace PRs |
@@ -38,7 +38,7 @@ unmodified. No scenario gets a flag the others do not, except the one flag that 
 | id | What | Command |
 |---|---|---|
 | A | Full Stryker, as the repo configures it | `npx --no-install stryker run` |
-| B | Stryker incremental, only when the repo allows it from the CLI: the state file is seeded by a full run on the PR base, then the head runs with it | `npx --no-install stryker run --incremental` (on base, then on head) |
+| B | Stryker incremental, only when the repo allows it from the CLI: the state file comes from a full run on the PR's base (a fresh runner has no state file, so the seed tests every mutant), then the head runs with it. This is incremental's best case: a cache that always hits and is never stale | `npx --no-install stryker run --incremental` (on base, then on head) |
 | C | rpr on the diff | `rpr run --diff <merge^1> --json` |
 | D (later) | rpr after applying `rpr doctor` fixes | depends on doctor |
 | E (later) | rpr sharded | depends on sharding |
@@ -130,8 +130,9 @@ time. They are recorded once per PR so a "job minutes" figure can be given too.
 
 Repos, in order of value:
 
-1. **brazilian-utils/javascript**: Vitest, Stryker 10, 4855 mutants. Upstream already pays 24 min (full) and
-   27 min (`--incremental` on a PR) per run, so A and B are taken from the repo's own workflow.
+1. **brazilian-utils/javascript**: Vitest, Stryker 10, 4855 mutants. Upstream pays 24 min for a full run, and 2 to 4
+   min for an incremental PR run when its cache hits (about 27 min on a miss). A and B both come from the repo's
+   own workflow, and B is the fair best case for incremental: its state comes from a full run on the PR's base.
 2. **eslint-plugin-boundaries**, packages `elements` (21 min upstream) and `config` (4.5 min): Jest, pnpm + nx
    monorepo, `--project`. The pilot repo, rerun on clean runners.
 3. **voidcosmos/npkill**: Jest through the `command` runner with `coverageAnalysis: off`, the worst case for A
