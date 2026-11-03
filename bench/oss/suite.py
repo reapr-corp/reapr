@@ -227,7 +227,9 @@ def cmd_run(a):
                 shutil.copy(a.seed, dst)
             code, stdout, meta = timed(["npx", "--no-install", "stryker", "run", *extra], proj, a.timeout_min * 60,
                                        ENV, o.with_suffix(""))
-            res.update(meta, incremental_log=[l.strip()[:300] for l in stdout.splitlines() if "ncremental" in l][:8])
+            lines = [re.sub(r"\x1b\[[0-9;]*m", "", l).strip()[:300] for l in stdout.splitlines()]
+            hits = [i for i, l in enumerate(lines) if "ncremental" in l]  # the report's counts follow its header
+            res.update(meta, incremental_log=[lines[j] for i in hits[:3] for j in range(i, min(i + 6, len(lines)))])
             if report.exists():
                 ms = mutants(report, proj)
                 res["ranges"] = diff_ranges(work, a.base, r["project"]) if a.scenario != "seed" else None
