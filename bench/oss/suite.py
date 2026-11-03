@@ -332,7 +332,7 @@ def cmd_aggregate(a):
         overall["runner_minutes"] = {k: round(v, 1) for k, v in sorted(mins.items())}
         overall["runner_minutes_total"] = round(sum(mins.values()), 1)
     meta = {"node": sorted({r.get("node") for r in runs if r.get("node")}),
-            "rpr": sorted({r.get("rpr_version") for r in runs if r.get("rpr_version")}),
+            "rpr": sorted({r["rpr_version"].removeprefix("rpr ") for r in runs if r.get("rpr_version")}),
             "images": sorted({f"{r['runner'].get('ImageOS')} {r['runner'].get('ImageVersion')}" for r in runs}),
             "cpu_count": sorted({r.get("cpu_count") for r in runs})}
     summary = {"overall": overall, "per_repo": per_repo, "meta": meta, "rows": rows,
@@ -351,13 +351,13 @@ def fmt_s(ms):
 
 
 def x(v):
-    return "n/a" if v is None else f"{v:g}×"
+    return "n/a" if v is None else f"{v:.1f}×"
 
 
 def markdown(s):
     o, m = s["overall"], s["meta"]
     L = ["# OSS benchmark: full StrykerJS (A) vs Stryker incremental (B) vs rpr (C)", "",
-         f"Runners: {', '.join(m['images'])}, {m['cpu_count']} CPUs; Node {', '.join(m['node'])}; rpr {', '.join(m['rpr'])}.",
+         f"Runners: {', '.join(m['images'])}, {'/'.join(map(str, m['cpu_count']))} CPUs; Node {', '.join(m['node'])}; rpr {', '.join(m['rpr'])}.",
          "", f"**Median wall speedup A/C over {o['prs']} PRs: {x(o['median_speedup_wall'])}** "
              f"(range {x(o['speedup_wall_range'][0])} to {x(o['speedup_wall_range'][1])}); CPU {x(o['median_speedup_cpu'])}. "
              f"Verdict parity on the diff: {o['parity_same']}/{o['parity_total']} mutants, survivors "
