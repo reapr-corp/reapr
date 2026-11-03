@@ -135,8 +135,9 @@ Repos, in order of value:
    own workflow, and B is the fair best case for incremental: its state comes from a full run on the PR's base.
 2. **eslint-plugin-boundaries**, packages `elements` (21 min upstream) and `config` (4.5 min): Jest, pnpm + nx
    monorepo, `--project`. The pilot repo, rerun on clean runners.
-3. **voidcosmos/npkill**: Jest through the `command` runner with `coverageAnalysis: off`, the worst case for A
-   (every mutant runs the whole suite). No upstream timing: measure A once before committing to 10 PRs.
+3. **voidcosmos/npkill**: dropped. Timed once on ubuntu-latest (run 41544110724, PR #277 head): the full run
+   (Jest through the `command` runner, `coverageAnalysis: off`) hit the 60 min limit, and rpr alone needed about
+   13 min for the PR's 196 in-diff mutants. Over the limit for A, so not in the suite.
 4. **inversify/monorepo**, its most-touched package: Vitest 5 + TypeScript checker, Stryker 10.1.1, shared
    preset with `concurrency: 1`. Also measure A once first.
 5. Optional, for B: **bennycode/trading-signals** (`incremental: true` in its config).
