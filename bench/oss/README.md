@@ -138,8 +138,10 @@ Repos, in order of value:
 3. **voidcosmos/npkill**: dropped. Timed once on ubuntu-latest (run 41544110724, PR #277 head): the full run
    (Jest through the `command` runner, `coverageAnalysis: off`) hit the 60 min limit, and rpr alone needed about
    13 min for the PR's 196 in-diff mutants. Over the limit for A, so not in the suite.
-4. **inversify/monorepo**, its most-touched package: Vitest 5 + TypeScript checker, Stryker 10.1.1, shared
-   preset with `concurrency: 1`. Also measure A once first.
+4. **inversify/monorepo** (`packages/container/libraries/core`): dropped. rpr 0.3.0 cannot run there: the
+   package declares `devEngines` in a shorthand form (`{"node": "^24.10.0"}`) that npm 11 rejects, and rpr
+   starts Stryker through `npx --no-install`, so every C run exits 2 within a second (run 41545478692, all 29
+   candidate PRs). Upstream runs Stryker through pnpm. An rpr fix: run `node_modules/.bin/stryker` directly.
 5. Optional, for B: **bennycode/trading-signals** (`incremental: true` in its config).
 
 Runner-minute estimate for 10 PRs per repo, with A, B and C 3 times each (B seeded once per PR from a full run on
