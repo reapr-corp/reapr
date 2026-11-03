@@ -151,8 +151,8 @@ def cmd_scan(a):
             s.update(valid=True, c_mutants=sum(j["counts"].values()), c_survivors=len(j["survivors"]),
                      c_score=j["score"])
         except Exception as e:  # noqa: BLE001 - a broken PR head is recorded, not fatal
-            s["skip"] = f"{type(e).__name__}: {str(e)[:500]}"
-        print(f"scan #{p['number']}:", s.get("skip") or f"mutants={s.get('c_mutants')} survivors={s.get('c_survivors')}",
+            s["skip"] = f"{type(e).__name__}: {str(e)[-1500:]}"
+        print(f"scan #{p['number']}:", (s.get("skip") or "")[-1500:] or f"mutants={s.get('c_mutants')} survivors={s.get('c_survivors')}",
               flush=True)
     ok = [s for s in scanned if s["valid"]]
     selected = ok[:a.n]
