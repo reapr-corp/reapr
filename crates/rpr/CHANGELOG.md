@@ -7,6 +7,10 @@ Sections follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and th
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Entries come from the changesets in
 [`.sampo/changesets/`](../../.sampo/changesets); see [CONTRIBUTING.md](../../CONTRIBUTING.md#changesets).
 
+## 0.4.1 — 2026-11-03
+
+Version bump only, to follow other packages.
+
 ## 0.4.0 — 2026-11-02
 
 ### Added
