@@ -636,7 +636,7 @@ mod tests {
             .unwrap()
     }
 
-    const BAIL_WARNING: &str = "vitest >= 4 with bail can report killed mutants as survived (observed: 98.0 vs 87.8 on the same code); consider disableBail: true";
+    const BAIL_WARNING: &str = "vitest >= 4 with bail can report killed mutants as survived (observed: 87.8% with bail vs 98.0% with disableBail on the same code); consider disableBail: true";
 
     #[tokio::test]
     async fn plan_intersects_with_mjs_mutate_in_stryker_order() {

@@ -91,7 +91,7 @@ if (options.testRunner === 'vitest' && options.disableBail !== true) {
   }
   if (major >= 4) {
     warnings.push(
-      'vitest >= 4 with bail can report killed mutants as survived (observed: 98.0 vs 87.8 on the same code); consider disableBail: true',
+      'vitest >= 4 with bail can report killed mutants as survived (observed: 87.8% with bail vs 98.0% with disableBail on the same code); consider disableBail: true',
     );
   }
 }

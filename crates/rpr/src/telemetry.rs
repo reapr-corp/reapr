@@ -1056,7 +1056,7 @@ mod tests {
     #[test]
     fn warning_kinds_and_carried_over() {
         let w = vec![
-            "vitest >= 4 with bail can report killed mutants as survived (observed: 98.0 vs 87.8 on the same code); consider disableBail: true".to_owned(),
+            "vitest >= 4 with bail can report killed mutants as survived (observed: 87.8% with bail vs 98.0% with disableBail on the same code); consider disableBail: true".to_owned(),
             "stryker report carried 7 results from outside the diff scope (incremental); excluded from the diff score".to_owned(),
             "git metadata: `git rev-parse HEAD` failed (exit code Some(128)): fatal".to_owned(),
             "cargo-mutants 28.0.0 is outside the supported range >=26.2.0, <28.0.0; its results may be misread".to_owned(),

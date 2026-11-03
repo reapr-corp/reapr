@@ -421,8 +421,9 @@ files) and to starting the checker, before the dry run. Four runs are too few to
 is in engine startup, not in the orchestrator, so that is where speed work will go.
 
 Earlier measurements on the reference monorepo: 82% to 98% of the initial test run was Vitest startup and transformation; Stryker's
-incremental cache was reused 0 of 525 times; and Vitest 4 with bail on miscounted killed mutants (score 98.0
-against 87.8 with bail off). This last one is why Reapr warns about bail, and why it only warns.
+incremental cache was reused 0 of 525 times; and Vitest 4 with bail on counted some killed mutants as survived (score 87.8% with bail
+on, 98.0% with `disableBail: true`, same code). The effect depends on the setup, so Reapr warns about bail
+and only warns.
 
 ## Known limitations
 
