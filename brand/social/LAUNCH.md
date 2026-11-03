@@ -1,6 +1,6 @@
 # Launch copy (draft)
 
-`{{SPEEDUP}}` marks where the result of the running benchmark goes. Every other number here is measured:
+Every number here is measured:
 
 | Claim | Source |
 | --- | --- |
@@ -10,6 +10,7 @@
 | Diff score 100% where Stryker reported 87.0% package-wide | README, Measurements |
 | 365 mutants, 287 killed, 46 survived, 32 unviable, 86.2% | cargo-mutants on Reapr's own Rust code |
 | 21 of 21 rule checks pass with the skill, 14 of 21 without | The `mutation-audit` skill evals (4 evals, PR #14) |
+| 31 merged PRs in 4 open-source repos: 27.4× faster (median) than a full Stryker run, same verdicts | `bench/oss/results/2026-11-03-suite-run-41556588144/summary.md` (CI run 41556588144) |
 
 Images: `launch-1-problem.png` to `launch-4-number.png` go with the X thread in that order. `card-*.png` are
 share cards (1200×630) for links and replies.
@@ -32,10 +33,11 @@ Change `>=` to `>` and both tests still pass. `rpr run --diff main` shows that m
 
 **3/6** (image: `launch-2-diff.png`)
 
-Mutation testing usually runs nightly because a full run takes too long. On a pnpm + Turborepo monorepo, 85% of
-a small diff's run happened before the first test. 97% of the files Stryker copied were Turborepo's cache.
+Mutation testing usually runs nightly because a full run takes too long.
 
-One ignore pattern: 38.4 s → 12.5 s, same results. Reapr on the same diff: {{SPEEDUP}}.
+Across 31 merged PRs in 4 open-source repos, Reapr was 27.4× faster (median) than a full Stryker run, same verdicts.
+
+In a Turborepo monorepo, one ignore pattern cut a small run from 38.4 s to 12.5 s.
 
 **4/6** (image: `launch-3-loop.png`)
 
@@ -77,7 +79,8 @@ tests apart from tests that check behavior. A mutation score can. In a small exa
 Why scoped to the diff: teams skip mutation testing on pull requests because of time, not tooling. While
 measuring a pnpm + Turborepo monorepo, we found that 85% of a small diff's run happened before the first test,
 mostly walking and copying Turborepo's cache into Stryker's sandbox. Adding `.turbo` to `ignorePatterns` took that
-run from 38.4 s to 12.5 s with identical results. Reapr on the same diff: {{SPEEDUP}}. Scoping also fixes the
+run from 38.4 s to 12.5 s with identical results. Across 31 merged PRs in 4 open-source repos, Reapr was 27.4×
+faster (median) than a full Stryker run, with the same verdicts. Scoping also fixes the
 number itself: with `incremental: true`, Stryker reported 87.0% package-wide; the diff's own mutants scored 100%.
 
 What it is today: Linux only, one engine (StrykerJS), a CLI, a GitHub Action (`reapr-corp/run@v1`) and an agent
@@ -103,7 +106,8 @@ Some measurements from a pnpm + Turborepo monorepo:
 
 - 85% of a small diff's run happened before the first test.
 - One ignore pattern (`.turbo`) took a run from 38.4 s to 12.5 s, with identical results.
-- Reapr on the same diff: {{SPEEDUP}}.
+- Across 31 merged PRs in 4 open-source repos, Reapr was 27.4× faster (median) than a full Stryker run, with the
+  same verdicts.
 - Scoped to the diff, the score was 100%. Package-wide, Stryker reported 87.0%.
 
 It comes as a CLI (`rpr`), a GitHub Action (`reapr-corp/run@v1`) and an agent skill (`/reapr:mutation-audit`) that
@@ -119,5 +123,5 @@ AI agents write tests that pass but do not always protect behavior, and coverage
 measures which lines ran, not whether a test would fail if they were wrong. A mutation score measures that.
 Reapr runs your existing mutation engine, with your own config, on the lines your pull request changes, and
 reports the score and every surviving mutant, so a person or an agent can write the missing test. On a pnpm +
-Turborepo monorepo, the time of a small diff's run was mostly engine startup, not testing. Reapr on that diff:
-{{SPEEDUP}}.
+Turborepo monorepo, the time of a small diff's run was mostly engine startup, not testing. Across 31 merged PRs in
+4 open-source repos, Reapr was 27.4× faster (median) than a full Stryker run, with the same verdicts.
