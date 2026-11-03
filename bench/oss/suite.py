@@ -56,7 +56,7 @@ def diff_ranges(work, base, project):
     """rpr's scope (crates/reapr-core/src/diff.rs): same git flags, added/changed lines, merged, inside project."""
     d = sh(["git", "-c", "core.quotePath=false", "diff", "--unified=0", "--no-color", "--no-ext-diff", "--find-renames",
             "--inter-hunk-context=0", "--no-textconv", "--src-prefix=a/", "--dst-prefix=b/", "--end-of-options",
-            f"{base}...HEAD", "--"], work)
+            f"{base}...HEAD", "--"], work, errors="replace")  # lossy, like rpr (String::from_utf8_lossy)
     ranges, path = [], None
     for line in d.splitlines():
         if line.startswith("diff --git "):
@@ -257,6 +257,14 @@ def med(xs):
     return statistics.median(xs) if xs else None
 
 
+def rset(ranges):  # order-free: rpr sorts PathBufs by component, Python sorts strings
+    return {(r["path"], r["start"], r["end"]) for r in ranges or []}
+
+
+def timed_ok(r):
+    return r.get("exit") in (0, 1) and not r.get("timed_out") and r.get("wall_ms") is not None
+
+
 def verdicts(run):
     return {tuple(x[:7]): x[7] for x in run.get("in_diff") or []}
 
@@ -270,15 +278,18 @@ def cmd_aggregate(a):
     rows = []
     for (repo, pr), g in sorted(groups.items()):
         ok = {s: sorted([r for r in rs if r.get("ok")], key=lambda r: r["rep"]) for s, rs in g.items()}
-        bad = {s: [{"rep": r.get("rep"), "exit": r.get("exit"), "timed_out": r.get("timed_out"), "error": r.get("error")}
-                   for r in rs if not r.get("ok")] for s, rs in g.items()}
+        # Timing is valid when the measured command completed (exit 0, or 1 for a threshold failure), even if
+        # the harness failed afterwards; verdicts need `ok` (the in-diff mutants were recorded).
+        tm = {s: sorted([r for r in rs if timed_ok(r)], key=lambda r: r["rep"]) for s, rs in g.items()}
+        bad = {s: [{"rep": r.get("rep"), "exit": r.get("exit"), "timed_out": r.get("timed_out"), "error": r.get("error"),
+                    "timing_kept": timed_ok(r)} for r in rs if not r.get("ok")] for s, rs in g.items()}
         row = {"repo": repo, "pr": pr, "failures": {s: v for s, v in bad.items() if v}}
         for s in ("A", "B", "C"):
-            rs = ok.get(s, [])
+            rs, vs = tm.get(s, []), ok.get(s, [])
             row[s] = {"n": len(rs), "wall_ms": med([r["wall_ms"] for r in rs]),
                       "cpu_ms": med([r["cpu_user_ms"] + r["cpu_sys_ms"] for r in rs]),
-                      "mutants": rs[0].get("mutants") if rs else None, "score": rs[0].get("score") if rs else None,
-                      "stable": len({json.dumps(sorted(verdicts(r).items(), key=str)) for r in rs}) <= 1}
+                      "mutants": vs[0].get("mutants") if vs else None, "score": vs[0].get("score") if vs else None,
+                      "stable": len({json.dumps(sorted(verdicts(r).items(), key=str)) for r in vs}) <= 1}
         for s in ("A", "B"):
             if row[s]["wall_ms"] and row["C"]["wall_ms"]:
                 row[f"speedup_{s}_wall"] = round(row[s]["wall_ms"] / row["C"]["wall_ms"], 2)
@@ -295,9 +306,11 @@ def cmd_aggregate(a):
                 mism = [{"key": list(k), s: xv.get(k), "C": cv.get(k)} for k in sorted(xv.keys() | cv.keys(), key=str)
                         if xv.get(k) != cv.get(k)]
                 surv = [k for k, v in xv.items() if v in UNDETECTED]
+                det = lambda v: None if v is None else v in ("Killed", "Timeout")
                 row[f"parity_{s}"] = {"total": len(xv), "c_total": len(cv), "same": sum(xv[k] == cv.get(k) for k in xv),
+                                      "same_detected": sum(det(xv[k]) == det(cv.get(k)) for k in xv),
                                       "survivors": len(surv), "survivors_same": sum(xv[k] == cv.get(k) for k in surv),
-                                      "ranges_match": x.get("ranges") == ranges, "mismatches": mism[:50]}
+                                      "ranges_match": rset(x.get("ranges")) == rset(ranges), "mismatches": mism[:50]}
         rows.append(row)
     repos = {}
     for row in rows:
@@ -309,19 +322,23 @@ def cmd_aggregate(a):
                           "median_speedup_cpu": med([r.get("speedup_A_cpu") for r in rs]),
                           "median_speedup_B_wall": med([r.get("speedup_B_wall") for r in rs]),
                           "parity_same": sum(p["same"] for p in par), "parity_total": sum(p["total"] for p in par),
+                          "parity_same_detected": sum(p["same_detected"] for p in par),
                           "survivors_same": sum(p["survivors_same"] for p in par),
                           "survivors_total": sum(p["survivors"] for p in par),
                           "prs_with_survivors": sum(p["survivors"] > 0 for p in par),
-                          "failed_runs": sum(len(v) for r in rs for v in r["failures"].values())}
+                          "failed_runs": sum(not f["timing_kept"] for r in rs for v in r["failures"].values() for f in v),
+                          "harness_errors": sum(f["timing_kept"] for r in rs for v in r["failures"].values() for f in v)}
     allpar = [r["parity_A"] for r in rows if "parity_A" in r]
     overall = {"prs": len(rows), "median_speedup_wall": med([r.get("speedup_A_wall") for r in rows]),
                "median_speedup_cpu": med([r.get("speedup_A_cpu") for r in rows]),
                "speedup_wall_range": [min((r["speedup_A_wall"] for r in rows if "speedup_A_wall" in r), default=None),
                                       max((r["speedup_A_wall"] for r in rows if "speedup_A_wall" in r), default=None)],
                "parity_same": sum(p["same"] for p in allpar), "parity_total": sum(p["total"] for p in allpar),
+               "parity_same_detected": sum(p["same_detected"] for p in allpar),
                "survivors_same": sum(p["survivors_same"] for p in allpar),
                "survivors_total": sum(p["survivors"] for p in allpar),
-               "runs": len(runs), "failed_runs": sum(not r.get("ok") for r in runs)}
+               "runs": len(runs), "failed_runs": sum(not timed_ok(r) for r in runs),
+               "harness_errors": sum(timed_ok(r) and not r.get("ok") for r in runs)}
     if a.jobs and Path(a.jobs).exists():
         jobs = json.loads(Path(a.jobs).read_text())
         mins = {}
@@ -362,16 +379,19 @@ def markdown(s):
          f"Runners: {', '.join(m['images'])}, {'/'.join(map(str, m['cpu_count']))} CPUs; Node {', '.join(m['node'])}; rpr {', '.join(m['rpr'])}.",
          "", f"**Median wall speedup A/C over {o['prs']} PRs: {x(o['median_speedup_wall'])}** "
              f"(range {x(o['speedup_wall_range'][0])} to {x(o['speedup_wall_range'][1])}); CPU {x(o['median_speedup_cpu'])}. "
-             f"Verdict parity on the diff: {o['parity_same']}/{o['parity_total']} mutants, survivors "
-             f"{o['survivors_same']}/{o['survivors_total']}. Failed or timed-out runs: {o['failed_runs']} of {o['runs']}.", ""]
+             f"Verdict parity on the diff: {o['parity_same']}/{o['parity_total']} mutants with the same status "
+             f"({o['parity_same_detected']}/{o['parity_total']} same detected/undetected), survivors "
+             f"{o['survivors_same']}/{o['survivors_total']}. Failed or timed-out runs: {o['failed_runs']} of {o['runs']}; "
+             f"harness errors after a completed run (timing kept, no verdicts): {o['harness_errors']}.", ""]
     if "runner_minutes_total" in o:
         L += [f"Runner minutes: {o['runner_minutes_total']} ({', '.join(f'{k} {v}' for k, v in o['runner_minutes'].items())}).", ""]
-    L += ["| Repo | PRs | Median speedup wall / CPU | B/C wall | Parity (same/total) | Survivors (same/total, PRs) | Failed runs |",
-          "|---|---|---|---|---|---|---|"]
+    L += ["| Repo | PRs | Median speedup wall / CPU | B/C wall | Parity (same/total) | Survivors (same/total, PRs) | Failed runs | Harness errors |",
+          "|---|---|---|---|---|---|---|---|"]
     for k, v in s["per_repo"].items():
         L.append(f"| {k} | {v['prs']} | {x(v['median_speedup_wall'])} / {x(v['median_speedup_cpu'])} | "
                  f"{x(v['median_speedup_B_wall'])} | {v['parity_same']}/{v['parity_total']} | "
-                 f"{v['survivors_same']}/{v['survivors_total']} ({v['prs_with_survivors']} PRs) | {v['failed_runs']} |")
+                 f"{v['survivors_same']}/{v['survivors_total']} ({v['prs_with_survivors']} PRs) | {v['failed_runs']} | "
+                 f"{v['harness_errors']} |")
     L += ["", "| Repo | PR | A wall (n) | A CPU | A mutants / score | B wall (n) | C wall (n) | C mutants / score | "
               "Speedup wall / CPU | Parity A=C (survivors) | Failures |", "|---|---|---|---|---|---|---|---|---|---|---|"]
     for r in s["rows"]:
@@ -400,7 +420,7 @@ def cmd_selftest(_):
         g("add", ".")
         g("commit", "-qm", "base")
         (w / "pkg/a.ts").write_text("1\nTWO\n3\n4\n5\nsix\nseven\n")  # line 2 changed, 6-7 added
-        (w / "b.ts").write_text("y\n")                                      # outside the project
+        (w / "b.ts").write_bytes(b"\xe1y\n")                                # outside the project, not UTF-8
         g("commit", "-qam", "head")
         assert diff_ranges(w, "HEAD~1", "pkg") == [{"path": "a.ts", "start": 2, "end": 2},
                                                    {"path": "a.ts", "start": 6, "end": 7}], diff_ranges(w, "HEAD~1", "pkg")
@@ -413,7 +433,7 @@ def cmd_selftest(_):
         cmd_plan(argparse.Namespace(scans=str(scans), reps=2, scenarios="A,B,C"))
         k = ["src/a.ts", "M", 2, 1, 2, 5, "x"]
         rng = [{"path": "src/a.ts", "start": 2, "end": 2}]
-        base = {"repo": "brazilian-utils", "pr": 1, "ok": True, "cpu_sys_ms": 0, "mutants": 1, "score": 0.0,
+        base = {"repo": "brazilian-utils", "pr": 1, "ok": True, "exit": 0, "cpu_sys_ms": 0, "mutants": 1, "score": 0.0,
                 "ranges": rng, "runner": {}, "cpu_count": 4}
         for sc, wall, st in (("A", 600_000, "Survived"), ("C", 20_000, "Survived")):
             for rep in (1, 2):

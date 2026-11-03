@@ -1,0 +1,79 @@
+{
+ "repo": "brazilian-utils",
+ "pr": 547,
+ "scenario": "C",
+ "rep": 2,
+ "base": "1d001baf307de90c5090ce8bd5df7497d1f43260",
+ "head": "459a89aee3af493b9b6507f17d3236c339c6912a",
+ "node": "v24.22.1",
+ "runner": {
+  "RUNNER_NAME": "GitHub Actions 1000000441",
+  "ImageOS": "ubuntu24",
+  "ImageVersion": "20261026.354.1",
+  "RUNNER_ARCH": "X64"
+ },
+ "cpu_count": 4,
+ "ok": true,
+ "install_ms": 12215,
+ "stryker": "10.0.0",
+ "rpr_version": "rpr 0.3.0",
+ "cmd": [
+  "rpr",
+  "run",
+  "--diff",
+  "1d001baf307de90c5090ce8bd5df7497d1f43260",
+  "--json"
+ ],
+ "loadavg_before": [
+  0.39990234375,
+  0.09619140625,
+  0.03173828125
+ ],
+ "start": "2026-11-03T02:06:44Z",
+ "wall_ms": 11040,
+ "exit": 0,
+ "timed_out": false,
+ "cpu_user_ms": 22427,
+ "cpu_sys_ms": 3167,
+ "max_rss_kb": 530456,
+ "loadavg_after": [
+  1.126953125,
+  0.2587890625,
+  0.08544921875
+ ],
+ "rpr": {
+  "run_id": "1793671605-2452",
+  "engine": "stryker",
+  "base": "1d001baf307de90c5090ce8bd5df7497d1f43260",
+  "ranges": 10,
+  "score": 100.0,
+  "counts": {
+   "killed": 12,
+   "survived": 0,
+   "no_coverage": 0,
+   "timeout": 0,
+   "compile_error": 0,
+   "runtime_error": 0,
+   "ignored": 0,
+   "pending": 0
+  },
+  "survivors": 0,
+  "duration_ms": 10115,
+  "min_score": null,
+  "passed": true,
+  "engine_gate_failed": false,
+  "warnings": [
+   "vitest >= 4 with bail can report killed mutants as survived (observed: 98.0 vs 87.8 on the same code); consider disableBail: true"
+  ],
+  "resources": {
+   "cpu_user_ms": 22346,
+   "cpu_sys_ms": 3118,
+   "max_rss_kb": 530456
+  }
+ },
+ "mutants": 12,
+ "score": 100.0,
+ "in_diff_counts": {
+  "Killed": 12
+ }
+}

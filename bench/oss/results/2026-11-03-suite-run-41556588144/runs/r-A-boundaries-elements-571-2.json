@@ -1,0 +1,49 @@
+{
+ "repo": "boundaries-elements",
+ "pr": 571,
+ "scenario": "A",
+ "rep": 2,
+ "base": "720475bb0e0eb62a1a1a47730dcd46729c94a0b4",
+ "head": "11197ee12e1977da54f5fb1fc088fb9293d9229c",
+ "node": "v24.22.1",
+ "runner": {
+  "RUNNER_NAME": "GitHub Actions 1000000379",
+  "ImageOS": "ubuntu24",
+  "ImageVersion": "20261026.354.1",
+  "RUNNER_ARCH": "X64"
+ },
+ "cpu_count": 4,
+ "ok": true,
+ "install_ms": 11418,
+ "stryker": "9.6.1",
+ "cmd": [
+  "npx",
+  "--no-install",
+  "stryker",
+  "run",
+  "--reporters",
+  "html,clear-text,progress,dashboard,json"
+ ],
+ "loadavg_before": [
+  1.25244140625,
+  0.29150390625,
+  0.0966796875
+ ],
+ "start": "2026-11-03T01:34:40Z",
+ "wall_ms": 1676468,
+ "exit": 0,
+ "timed_out": false,
+ "cpu_user_ms": 6195902,
+ "cpu_sys_ms": 410716,
+ "max_rss_kb": 1780852,
+ "loadavg_after": [
+  8.37109375,
+  7.91064453125,
+  6.57421875
+ ],
+ "incremental_log": [],
+ "ranges": 53,
+ "mutants": 2523,
+ "score": 96.07,
+ "in_diff_counts": {}
+}

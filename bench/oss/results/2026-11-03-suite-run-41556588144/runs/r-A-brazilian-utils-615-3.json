@@ -1,0 +1,51 @@
+{
+ "repo": "brazilian-utils",
+ "pr": 615,
+ "scenario": "A",
+ "rep": 3,
+ "base": "1f82b5663c14f5a208d8329be09514e0e627f966",
+ "head": "16d51e83f8ade9e94819cc27ddc1ff8686ad9ca1",
+ "node": "v24.22.1",
+ "runner": {
+  "RUNNER_NAME": "GitHub Actions 1000000532",
+  "ImageOS": "ubuntu24",
+  "ImageVersion": "20261026.354.1",
+  "RUNNER_ARCH": "X64"
+ },
+ "cpu_count": 4,
+ "ok": true,
+ "install_ms": 9192,
+ "stryker": "10.0.0",
+ "cmd": [
+  "npx",
+  "--no-install",
+  "stryker",
+  "run"
+ ],
+ "loadavg_before": [
+  0.5322265625,
+  0.1767578125,
+  0.060546875
+ ],
+ "start": "2026-11-03T02:44:52Z",
+ "wall_ms": 1180553,
+ "exit": 0,
+ "timed_out": false,
+ "cpu_user_ms": 4221631,
+ "cpu_sys_ms": 195677,
+ "max_rss_kb": 1740928,
+ "loadavg_after": [
+  6.53125,
+  6.44189453125,
+  4.72998046875
+ ],
+ "incremental_log": [],
+ "ranges": 1257,
+ "mutants": 6199,
+ "score": 100.0,
+ "in_diff_counts": {
+  "Killed": 946,
+  "Timeout": 8,
+  "Ignored": 35
+ }
+}

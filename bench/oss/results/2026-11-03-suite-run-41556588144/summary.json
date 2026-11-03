@@ -1,0 +1,2193 @@
+{
+ "overall": {
+  "prs": 31,
+  "median_speedup_wall": 27.41,
+  "median_speedup_cpu": 54.09,
+  "speedup_wall_range": [
+   2.0,
+   228.42
+  ],
+  "parity_same": 5193,
+  "parity_total": 5194,
+  "parity_same_detected": 5194,
+  "survivors_same": 841,
+  "survivors_total": 841,
+  "runs": 250,
+  "failed_runs": 0,
+  "harness_errors": 6,
+  "runner_minutes": {
+   "A": 1407.3,
+   "B": 160.4,
+   "C": 177.2,
+   "plan": 0.3,
+   "scan": 56.3,
+   "seed": 126.4,
+   "setup": 0.1
+  },
+  "runner_minutes_total": 1928.0
+ },
+ "per_repo": {
+  "boundaries-config": {
+   "prs": 3,
+   "median_speedup_wall": 21.94,
+   "median_speedup_cpu": 35.69,
+   "median_speedup_B_wall": null,
+   "parity_same": 85,
+   "parity_total": 85,
+   "parity_same_detected": 85,
+   "survivors_same": 0,
+   "survivors_total": 0,
+   "prs_with_survivors": 0,
+   "failed_runs": 0,
+   "harness_errors": 0
+  },
+  "boundaries-elements": {
+   "prs": 12,
+   "median_speedup_wall": 63.83500000000001,
+   "median_speedup_cpu": 89.935,
+   "median_speedup_B_wall": null,
+   "parity_same": 3106,
+   "parity_total": 3106,
+   "parity_same_detected": 3106,
+   "survivors_same": 523,
+   "survivors_total": 523,
+   "prs_with_survivors": 3,
+   "failed_runs": 0,
+   "harness_errors": 0
+  },
+  "brazilian-utils": {
+   "prs": 6,
+   "median_speedup_wall": 18.9,
+   "median_speedup_cpu": 29.229999999999997,
+   "median_speedup_B_wall": 4.195,
+   "parity_same": 1644,
+   "parity_total": 1645,
+   "parity_same_detected": 1645,
+   "survivors_same": 0,
+   "survivors_total": 0,
+   "prs_with_survivors": 0,
+   "failed_runs": 0,
+   "harness_errors": 6
+  },
+  "trading-signals": {
+   "prs": 10,
+   "median_speedup_wall": 21.29,
+   "median_speedup_cpu": 36.455,
+   "median_speedup_B_wall": 3.25,
+   "parity_same": 358,
+   "parity_total": 358,
+   "parity_same_detected": 358,
+   "survivors_same": 318,
+   "survivors_total": 318,
+   "prs_with_survivors": 8,
+   "failed_runs": 0,
+   "harness_errors": 0
+  }
+ },
+ "meta": {
+  "node": [
+   "v24.22.1"
+  ],
+  "rpr": [
+   "0.3.0"
+  ],
+  "images": [
+   "ubuntu24 20261018.96.1",
+   "ubuntu24 20261026.354.1"
+  ],
+  "cpu_count": [
+   4
+  ]
+ },
+ "rows": [
+  {
+   "repo": "boundaries-config",
+   "pr": 577,
+   "failures": {},
+   "A": {
+    "n": 3,
+    "wall_ms": 260665,
+    "cpu_ms": 1007061,
+    "mutants": 1693,
+    "score": 99.23,
+    "stable": true
+   },
+   "B": {
+    "n": 0,
+    "wall_ms": null,
+    "cpu_ms": null,
+    "mutants": null,
+    "score": null,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 16521,
+    "cpu_ms": 36651,
+    "mutants": 43,
+    "score": 100.0,
+    "stable": true
+   },
+   "speedup_A_wall": 15.78,
+   "speedup_A_cpu": 27.48,
+   "parity_A": {
+    "total": 43,
+    "c_total": 43,
+    "same": 43,
+    "same_detected": 43,
+    "survivors": 0,
+    "survivors_same": 0,
+    "ranges_match": true,
+    "mismatches": []
+   }
+  },
+  {
+   "repo": "boundaries-config",
+   "pr": 578,
+   "failures": {},
+   "A": {
+    "n": 3,
+    "wall_ms": 362207,
+    "cpu_ms": 1409115,
+    "mutants": 1698,
+    "score": 99.23,
+    "stable": true
+   },
+   "B": {
+    "n": 0,
+    "wall_ms": null,
+    "cpu_ms": null,
+    "mutants": null,
+    "score": null,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 16509,
+    "cpu_ms": 39487,
+    "mutants": 42,
+    "score": 100.0,
+    "stable": true
+   },
+   "speedup_A_wall": 21.94,
+   "speedup_A_cpu": 35.69,
+   "parity_A": {
+    "total": 42,
+    "c_total": 42,
+    "same": 42,
+    "same_detected": 42,
+    "survivors": 0,
+    "survivors_same": 0,
+    "ranges_match": true,
+    "mismatches": []
+   }
+  },
+  {
+   "repo": "boundaries-config",
+   "pr": 591,
+   "failures": {},
+   "A": {
+    "n": 3,
+    "wall_ms": 393709,
+    "cpu_ms": 1532313,
+    "mutants": 1698,
+    "score": 99.23,
+    "stable": true
+   },
+   "B": {
+    "n": 0,
+    "wall_ms": null,
+    "cpu_ms": null,
+    "mutants": null,
+    "score": null,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 8503,
+    "cpu_ms": 12181,
+    "mutants": 0,
+    "score": null,
+    "stable": true
+   },
+   "speedup_A_wall": 46.3,
+   "speedup_A_cpu": 125.8,
+   "parity_A": {
+    "total": 0,
+    "c_total": 0,
+    "same": 0,
+    "same_detected": 0,
+    "survivors": 0,
+    "survivors_same": 0,
+    "ranges_match": true,
+    "mismatches": []
+   }
+  },
+  {
+   "repo": "boundaries-elements",
+   "pr": 432,
+   "failures": {},
+   "A": {
+    "n": 3,
+    "wall_ms": 999646,
+    "cpu_ms": 3927661,
+    "mutants": 5587,
+    "score": 61.45,
+    "stable": true
+   },
+   "B": {
+    "n": 0,
+    "wall_ms": null,
+    "cpu_ms": null,
+    "mutants": null,
+    "score": null,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 151102,
+    "cpu_ms": 574350,
+    "mutants": 1066,
+    "score": 62.816901408450704,
+    "stable": true
+   },
+   "speedup_A_wall": 6.62,
+   "speedup_A_cpu": 6.84,
+   "parity_A": {
+    "total": 1066,
+    "c_total": 1066,
+    "same": 1066,
+    "same_detected": 1066,
+    "survivors": 396,
+    "survivors_same": 396,
+    "ranges_match": true,
+    "mismatches": []
+   }
+  },
+  {
+   "repo": "boundaries-elements",
+   "pr": 453,
+   "failures": {},
+   "A": {
+    "n": 3,
+    "wall_ms": 2314797,
+    "cpu_ms": 9140537,
+    "mutants": 2497,
+    "score": 94.11,
+    "stable": true
+   },
+   "B": {
+    "n": 0,
+    "wall_ms": null,
+    "cpu_ms": null,
+    "mutants": null,
+    "score": null,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 1155697,
+    "cpu_ms": 4541261,
+    "mutants": 1901,
+    "score": 93.37190952130457,
+    "stable": true
+   },
+   "speedup_A_wall": 2.0,
+   "speedup_A_cpu": 2.01,
+   "parity_A": {
+    "total": 1901,
+    "c_total": 1901,
+    "same": 1901,
+    "same_detected": 1901,
+    "survivors": 126,
+    "survivors_same": 126,
+    "ranges_match": true,
+    "mismatches": []
+   }
+  },
+  {
+   "repo": "boundaries-elements",
+   "pr": 509,
+   "failures": {},
+   "A": {
+    "n": 3,
+    "wall_ms": 1188774,
+    "cpu_ms": 4678141,
+    "mutants": 2522,
+    "score": 94.33,
+    "stable": true
+   },
+   "B": {
+    "n": 0,
+    "wall_ms": null,
+    "cpu_ms": null,
+    "mutants": null,
+    "score": null,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 24516,
+    "cpu_ms": 68538,
+    "mutants": 10,
+    "score": 100.0,
+    "stable": true
+   },
+   "speedup_A_wall": 48.49,
+   "speedup_A_cpu": 68.26,
+   "parity_A": {
+    "total": 10,
+    "c_total": 10,
+    "same": 10,
+    "same_detected": 10,
+    "survivors": 0,
+    "survivors_same": 0,
+    "ranges_match": true,
+    "mismatches": []
+   }
+  },
+  {
+   "repo": "boundaries-elements",
+   "pr": 517,
+   "failures": {},
+   "A": {
+    "n": 3,
+    "wall_ms": 1906647,
+    "cpu_ms": 7514996,
+    "mutants": 2538,
+    "score": 94.6,
+    "stable": true
+   },
+   "B": {
+    "n": 0,
+    "wall_ms": null,
+    "cpu_ms": null,
+    "mutants": null,
+    "score": null,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 21516,
+    "cpu_ms": 62731,
+    "mutants": 16,
+    "score": 100.0,
+    "stable": true
+   },
+   "speedup_A_wall": 88.62,
+   "speedup_A_cpu": 119.8,
+   "parity_A": {
+    "total": 16,
+    "c_total": 16,
+    "same": 16,
+    "same_detected": 16,
+    "survivors": 0,
+    "survivors_same": 0,
+    "ranges_match": true,
+    "mismatches": []
+   }
+  },
+  {
+   "repo": "boundaries-elements",
+   "pr": 521,
+   "failures": {},
+   "A": {
+    "n": 3,
+    "wall_ms": 1380276,
+    "cpu_ms": 5429727,
+    "mutants": 2539,
+    "score": 94.68,
+    "stable": true
+   },
+   "B": {
+    "n": 0,
+    "wall_ms": null,
+    "cpu_ms": null,
+    "mutants": null,
+    "score": null,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 28521,
+    "cpu_ms": 78056,
+    "mutants": 13,
+    "score": 100.0,
+    "stable": true
+   },
+   "speedup_A_wall": 48.4,
+   "speedup_A_cpu": 69.56,
+   "parity_A": {
+    "total": 13,
+    "c_total": 13,
+    "same": 13,
+    "same_detected": 13,
+    "survivors": 0,
+    "survivors_same": 0,
+    "ranges_match": true,
+    "mismatches": []
+   }
+  },
+  {
+   "repo": "boundaries-elements",
+   "pr": 530,
+   "failures": {},
+   "A": {
+    "n": 3,
+    "wall_ms": 1123275,
+    "cpu_ms": 4415847,
+    "mutants": 2565,
+    "score": 94.74,
+    "stable": true
+   },
+   "B": {
+    "n": 0,
+    "wall_ms": null,
+    "cpu_ms": null,
+    "mutants": null,
+    "score": null,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 56042,
+    "cpu_ms": 186390,
+    "mutants": 62,
+    "score": 100.0,
+    "stable": true
+   },
+   "speedup_A_wall": 20.04,
+   "speedup_A_cpu": 23.69,
+   "parity_A": {
+    "total": 62,
+    "c_total": 62,
+    "same": 62,
+    "same_detected": 62,
+    "survivors": 0,
+    "survivors_same": 0,
+    "ranges_match": true,
+    "mismatches": []
+   }
+  },
+  {
+   "repo": "boundaries-elements",
+   "pr": 560,
+   "failures": {},
+   "A": {
+    "n": 3,
+    "wall_ms": 1886972,
+    "cpu_ms": 7437063,
+    "mutants": 2566,
+    "score": 95.36,
+    "stable": true
+   },
+   "B": {
+    "n": 0,
+    "wall_ms": null,
+    "cpu_ms": null,
+    "mutants": null,
+    "score": null,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 41527,
+    "cpu_ms": 131000,
+    "mutants": 24,
+    "score": 100.0,
+    "stable": true
+   },
+   "speedup_A_wall": 45.44,
+   "speedup_A_cpu": 56.77,
+   "parity_A": {
+    "total": 24,
+    "c_total": 24,
+    "same": 24,
+    "same_detected": 24,
+    "survivors": 0,
+    "survivors_same": 0,
+    "ranges_match": true,
+    "mismatches": []
+   }
+  },
+  {
+   "repo": "boundaries-elements",
+   "pr": 566,
+   "failures": {},
+   "A": {
+    "n": 3,
+    "wall_ms": 1822051,
+    "cpu_ms": 7188611,
+    "mutants": 2565,
+    "score": 96.1,
+    "stable": true
+   },
+   "B": {
+    "n": 0,
+    "wall_ms": null,
+    "cpu_ms": null,
+    "mutants": null,
+    "score": null,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 23011,
+    "cpu_ms": 65165,
+    "mutants": 14,
+    "score": 92.3076923076923,
+    "stable": true
+   },
+   "speedup_A_wall": 79.18,
+   "speedup_A_cpu": 110.31,
+   "parity_A": {
+    "total": 14,
+    "c_total": 14,
+    "same": 14,
+    "same_detected": 14,
+    "survivors": 1,
+    "survivors_same": 1,
+    "ranges_match": true,
+    "mismatches": []
+   }
+  },
+  {
+   "repo": "boundaries-elements",
+   "pr": 569,
+   "failures": {},
+   "A": {
+    "n": 3,
+    "wall_ms": 1046712,
+    "cpu_ms": 4109574,
+    "mutants": 2523,
+    "score": 96.07,
+    "stable": true
+   },
+   "B": {
+    "n": 0,
+    "wall_ms": null,
+    "cpu_ms": null,
+    "mutants": null,
+    "score": null,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 10505,
+    "cpu_ms": 16186,
+    "mutants": 0,
+    "score": null,
+    "stable": true
+   },
+   "speedup_A_wall": 99.64,
+   "speedup_A_cpu": 253.9,
+   "parity_A": {
+    "total": 0,
+    "c_total": 0,
+    "same": 0,
+    "same_detected": 0,
+    "survivors": 0,
+    "survivors_same": 0,
+    "ranges_match": true,
+    "mismatches": []
+   }
+  },
+  {
+   "repo": "boundaries-elements",
+   "pr": 571,
+   "failures": {},
+   "A": {
+    "n": 3,
+    "wall_ms": 1676468,
+    "cpu_ms": 6606618,
+    "mutants": 2523,
+    "score": 96.07,
+    "stable": true
+   },
+   "B": {
+    "n": 0,
+    "wall_ms": null,
+    "cpu_ms": null,
+    "mutants": null,
+    "score": null,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 12506,
+    "cpu_ms": 18893,
+    "mutants": 0,
+    "score": null,
+    "stable": true
+   },
+   "speedup_A_wall": 134.05,
+   "speedup_A_cpu": 349.69,
+   "parity_A": {
+    "total": 0,
+    "c_total": 0,
+    "same": 0,
+    "same_detected": 0,
+    "survivors": 0,
+    "survivors_same": 0,
+    "ranges_match": true,
+    "mismatches": []
+   }
+  },
+  {
+   "repo": "boundaries-elements",
+   "pr": 573,
+   "failures": {},
+   "A": {
+    "n": 3,
+    "wall_ms": 1828493,
+    "cpu_ms": 7208222,
+    "mutants": 2523,
+    "score": 96.07,
+    "stable": true
+   },
+   "B": {
+    "n": 0,
+    "wall_ms": null,
+    "cpu_ms": null,
+    "mutants": null,
+    "score": null,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 8005,
+    "cpu_ms": 11899,
+    "mutants": 0,
+    "score": null,
+    "stable": true
+   },
+   "speedup_A_wall": 228.42,
+   "speedup_A_cpu": 605.78,
+   "parity_A": {
+    "total": 0,
+    "c_total": 0,
+    "same": 0,
+    "same_detected": 0,
+    "survivors": 0,
+    "survivors_same": 0,
+    "ranges_match": true,
+    "mismatches": []
+   }
+  },
+  {
+   "repo": "boundaries-elements",
+   "pr": 591,
+   "failures": {},
+   "A": {
+    "n": 3,
+    "wall_ms": 1867538,
+    "cpu_ms": 7360255,
+    "mutants": 2523,
+    "score": 96.07,
+    "stable": true
+   },
+   "B": {
+    "n": 0,
+    "wall_ms": null,
+    "cpu_ms": null,
+    "mutants": null,
+    "score": null,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 10004,
+    "cpu_ms": 15859,
+    "mutants": 0,
+    "score": null,
+    "stable": true
+   },
+   "speedup_A_wall": 186.68,
+   "speedup_A_cpu": 464.11,
+   "parity_A": {
+    "total": 0,
+    "c_total": 0,
+    "same": 0,
+    "same_detected": 0,
+    "survivors": 0,
+    "survivors_same": 0,
+    "ranges_match": true,
+    "mismatches": []
+   }
+  },
+  {
+   "repo": "brazilian-utils",
+   "pr": 547,
+   "failures": {},
+   "A": {
+    "n": 3,
+    "wall_ms": 914446,
+    "cpu_ms": 3433419,
+    "mutants": 4922,
+    "score": 100.0,
+    "stable": true
+   },
+   "B": {
+    "n": 3,
+    "wall_ms": 100543,
+    "cpu_ms": 251131,
+    "mutants": 4922,
+    "score": 100.0,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 8509,
+    "cpu_ms": 20697,
+    "mutants": 12,
+    "score": 100.0,
+    "stable": true
+   },
+   "speedup_A_wall": 107.47,
+   "speedup_A_cpu": 165.89,
+   "speedup_B_wall": 11.82,
+   "speedup_B_cpu": 12.13,
+   "parity_A": {
+    "total": 12,
+    "c_total": 12,
+    "same": 12,
+    "same_detected": 12,
+    "survivors": 0,
+    "survivors_same": 0,
+    "ranges_match": true,
+    "mismatches": []
+   },
+   "parity_B": {
+    "total": 12,
+    "c_total": 12,
+    "same": 12,
+    "same_detected": 12,
+    "survivors": 0,
+    "survivors_same": 0,
+    "ranges_match": true,
+    "mismatches": []
+   }
+  },
+  {
+   "repo": "brazilian-utils",
+   "pr": 556,
+   "failures": {},
+   "A": {
+    "n": 3,
+    "wall_ms": 981492,
+    "cpu_ms": 3702417,
+    "mutants": 4953,
+    "score": 100.0,
+    "stable": true
+   },
+   "B": {
+    "n": 3,
+    "wall_ms": 193602,
+    "cpu_ms": 666606,
+    "mutants": 4953,
+    "score": 100.0,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 33029,
+    "cpu_ms": 76048,
+    "mutants": 91,
+    "score": 100.0,
+    "stable": true
+   },
+   "speedup_A_wall": 29.72,
+   "speedup_A_cpu": 48.69,
+   "speedup_B_wall": 5.86,
+   "speedup_B_cpu": 8.77,
+   "parity_A": {
+    "total": 91,
+    "c_total": 91,
+    "same": 91,
+    "same_detected": 91,
+    "survivors": 0,
+    "survivors_same": 0,
+    "ranges_match": true,
+    "mismatches": []
+   },
+   "parity_B": {
+    "total": 91,
+    "c_total": 91,
+    "same": 91,
+    "same_detected": 91,
+    "survivors": 0,
+    "survivors_same": 0,
+    "ranges_match": true,
+    "mismatches": []
+   }
+  },
+  {
+   "repo": "brazilian-utils",
+   "pr": 558,
+   "failures": {},
+   "A": {
+    "n": 3,
+    "wall_ms": 1108039,
+    "cpu_ms": 4173437,
+    "mutants": 5411,
+    "score": 100.0,
+    "stable": true
+   },
+   "B": {
+    "n": 3,
+    "wall_ms": 267621,
+    "cpu_ms": 903946,
+    "mutants": 5411,
+    "score": 100.0,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 137067,
+    "cpu_ms": 427353,
+    "mutants": 549,
+    "score": 100.0,
+    "stable": true
+   },
+   "speedup_A_wall": 8.08,
+   "speedup_A_cpu": 9.77,
+   "speedup_B_wall": 1.95,
+   "speedup_B_cpu": 2.12,
+   "parity_A": {
+    "total": 549,
+    "c_total": 549,
+    "same": 548,
+    "same_detected": 549,
+    "survivors": 0,
+    "survivors_same": 0,
+    "ranges_match": true,
+    "mismatches": [
+     {
+      "key": [
+       "src/_internals/each-local-day/each-local-day.ts",
+       "AssignmentOperator",
+       53,
+       38,
+       53,
+       48,
+       "index -= 1"
+      ],
+      "A": "Timeout",
+      "C": "Killed"
+     }
+    ]
+   },
+   "parity_B": {
+    "total": 549,
+    "c_total": 549,
+    "same": 549,
+    "same_detected": 549,
+    "survivors": 0,
+    "survivors_same": 0,
+    "ranges_match": true,
+    "mismatches": []
+   }
+  },
+  {
+   "repo": "brazilian-utils",
+   "pr": 592,
+   "failures": {},
+   "A": {
+    "n": 3,
+    "wall_ms": 945959,
+    "cpu_ms": 3562248,
+    "mutants": 4947,
+    "score": 100.0,
+    "stable": true
+   },
+   "B": {
+    "n": 3,
+    "wall_ms": 52027,
+    "cpu_ms": 86822,
+    "mutants": 4947,
+    "score": 100.0,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 7509,
+    "cpu_ms": 16124,
+    "mutants": 4,
+    "score": 100.0,
+    "stable": true
+   },
+   "speedup_A_wall": 125.98,
+   "speedup_A_cpu": 220.93,
+   "speedup_B_wall": 6.93,
+   "speedup_B_cpu": 5.38,
+   "parity_A": {
+    "total": 4,
+    "c_total": 4,
+    "same": 4,
+    "same_detected": 4,
+    "survivors": 0,
+    "survivors_same": 0,
+    "ranges_match": true,
+    "mismatches": []
+   },
+   "parity_B": {
+    "total": 4,
+    "c_total": 4,
+    "same": 4,
+    "same_detected": 4,
+    "survivors": 0,
+    "survivors_same": 0,
+    "ranges_match": true,
+    "mismatches": []
+   }
+  },
+  {
+   "repo": "brazilian-utils",
+   "pr": 593,
+   "failures": {
+    "B": [
+     {
+      "rep": 1,
+      "exit": 0,
+      "timed_out": false,
+      "error": "UnicodeDecodeError: 'utf-8' codec can't decode byte 0xe1 in position 292852: invalid continuation byte",
+      "timing_kept": true
+     },
+     {
+      "rep": 2,
+      "exit": 0,
+      "timed_out": false,
+      "error": "UnicodeDecodeError: 'utf-8' codec can't decode byte 0xe1 in position 292852: invalid continuation byte",
+      "timing_kept": true
+     },
+     {
+      "rep": 3,
+      "exit": 0,
+      "timed_out": false,
+      "error": "UnicodeDecodeError: 'utf-8' codec can't decode byte 0xe1 in position 292852: invalid continuation byte",
+      "timing_kept": true
+     }
+    ],
+    "A": [
+     {
+      "rep": 2,
+      "exit": 0,
+      "timed_out": false,
+      "error": "UnicodeDecodeError: 'utf-8' codec can't decode byte 0xe1 in position 292852: invalid continuation byte",
+      "timing_kept": true
+     },
+     {
+      "rep": 1,
+      "exit": 0,
+      "timed_out": false,
+      "error": "UnicodeDecodeError: 'utf-8' codec can't decode byte 0xe1 in position 292852: invalid continuation byte",
+      "timing_kept": true
+     },
+     {
+      "rep": 3,
+      "exit": 0,
+      "timed_out": false,
+      "error": "UnicodeDecodeError: 'utf-8' codec can't decode byte 0xe1 in position 292852: invalid continuation byte",
+      "timing_kept": true
+     }
+    ]
+   },
+   "A": {
+    "n": 3,
+    "wall_ms": 1040070,
+    "cpu_ms": 3861859,
+    "mutants": null,
+    "score": null,
+    "stable": true
+   },
+   "B": {
+    "n": 3,
+    "wall_ms": 698854,
+    "cpu_ms": 2549897,
+    "mutants": null,
+    "score": null,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 447234,
+    "cpu_ms": 1417106,
+    "mutants": 1716,
+    "score": 100.0,
+    "stable": true
+   },
+   "speedup_A_wall": 2.33,
+   "speedup_A_cpu": 2.73,
+   "speedup_B_wall": 1.56,
+   "speedup_B_cpu": 1.8
+  },
+  {
+   "repo": "brazilian-utils",
+   "pr": 615,
+   "failures": {},
+   "A": {
+    "n": 3,
+    "wall_ms": 1223584,
+    "cpu_ms": 4578316,
+    "mutants": 6199,
+    "score": 100.0,
+    "stable": true
+   },
+   "B": {
+    "n": 3,
+    "wall_ms": 1042969,
+    "cpu_ms": 3741336,
+    "mutants": 6199,
+    "score": 100.0,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 412173,
+    "cpu_ms": 1361732,
+    "mutants": 989,
+    "score": 100.0,
+    "stable": true
+   },
+   "speedup_A_wall": 2.97,
+   "speedup_A_cpu": 3.36,
+   "speedup_B_wall": 2.53,
+   "speedup_B_cpu": 2.75,
+   "parity_A": {
+    "total": 989,
+    "c_total": 989,
+    "same": 989,
+    "same_detected": 989,
+    "survivors": 0,
+    "survivors_same": 0,
+    "ranges_match": true,
+    "mismatches": []
+   },
+   "parity_B": {
+    "total": 989,
+    "c_total": 989,
+    "same": 989,
+    "same_detected": 989,
+    "survivors": 0,
+    "survivors_same": 0,
+    "ranges_match": true,
+    "mismatches": []
+   }
+  },
+  {
+   "repo": "trading-signals",
+   "pr": 1318,
+   "failures": {},
+   "A": {
+    "n": 3,
+    "wall_ms": 145066,
+    "cpu_ms": 505634,
+    "mutants": 1816,
+    "score": 33.59,
+    "stable": true
+   },
+   "B": {
+    "n": 3,
+    "wall_ms": 11506,
+    "cpu_ms": 23253,
+    "mutants": 1816,
+    "score": 33.59,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 9005,
+    "cpu_ms": 18894,
+    "mutants": 2,
+    "score": 0.0,
+    "stable": true
+   },
+   "speedup_A_wall": 16.11,
+   "speedup_A_cpu": 26.76,
+   "speedup_B_wall": 1.28,
+   "speedup_B_cpu": 1.23,
+   "parity_A": {
+    "total": 2,
+    "c_total": 2,
+    "same": 2,
+    "same_detected": 2,
+    "survivors": 2,
+    "survivors_same": 2,
+    "ranges_match": true,
+    "mismatches": []
+   },
+   "parity_B": {
+    "total": 2,
+    "c_total": 2,
+    "same": 2,
+    "same_detected": 2,
+    "survivors": 2,
+    "survivors_same": 2,
+    "ranges_match": true,
+    "mismatches": []
+   }
+  },
+  {
+   "repo": "trading-signals",
+   "pr": 1365,
+   "failures": {},
+   "A": {
+    "n": 3,
+    "wall_ms": 147575,
+    "cpu_ms": 510650,
+    "mutants": 1816,
+    "score": 33.59,
+    "stable": true
+   },
+   "B": {
+    "n": 3,
+    "wall_ms": 38529,
+    "cpu_ms": 129920,
+    "mutants": 1816,
+    "score": 33.59,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 5504,
+    "cpu_ms": 9441,
+    "mutants": 2,
+    "score": 50.0,
+    "stable": true
+   },
+   "speedup_A_wall": 26.81,
+   "speedup_A_cpu": 54.09,
+   "speedup_B_wall": 7.0,
+   "speedup_B_cpu": 13.76,
+   "parity_A": {
+    "total": 2,
+    "c_total": 2,
+    "same": 2,
+    "same_detected": 2,
+    "survivors": 1,
+    "survivors_same": 1,
+    "ranges_match": true,
+    "mismatches": []
+   },
+   "parity_B": {
+    "total": 2,
+    "c_total": 2,
+    "same": 2,
+    "same_detected": 2,
+    "survivors": 1,
+    "survivors_same": 1,
+    "ranges_match": true,
+    "mismatches": []
+   }
+  },
+  {
+   "repo": "trading-signals",
+   "pr": 1373,
+   "failures": {},
+   "A": {
+    "n": 3,
+    "wall_ms": 132082,
+    "cpu_ms": 456193,
+    "mutants": 1826,
+    "score": 35.32,
+    "stable": true
+   },
+   "B": {
+    "n": 3,
+    "wall_ms": 43531,
+    "cpu_ms": 148016,
+    "mutants": 1826,
+    "score": 35.32,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 12010,
+    "cpu_ms": 30711,
+    "mutants": 36,
+    "score": 83.33333333333333,
+    "stable": true
+   },
+   "speedup_A_wall": 11.0,
+   "speedup_A_cpu": 14.85,
+   "speedup_B_wall": 3.62,
+   "speedup_B_cpu": 4.82,
+   "parity_A": {
+    "total": 36,
+    "c_total": 36,
+    "same": 36,
+    "same_detected": 36,
+    "survivors": 6,
+    "survivors_same": 6,
+    "ranges_match": true,
+    "mismatches": []
+   },
+   "parity_B": {
+    "total": 36,
+    "c_total": 36,
+    "same": 36,
+    "same_detected": 36,
+    "survivors": 6,
+    "survivors_same": 6,
+    "ranges_match": true,
+    "mismatches": []
+   }
+  },
+  {
+   "repo": "trading-signals",
+   "pr": 1374,
+   "failures": {},
+   "A": {
+    "n": 3,
+    "wall_ms": 148580,
+    "cpu_ms": 518853,
+    "mutants": 1813,
+    "score": 34.03,
+    "stable": true
+   },
+   "B": {
+    "n": 3,
+    "wall_ms": 17510,
+    "cpu_ms": 48978,
+    "mutants": 1813,
+    "score": 34.03,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 5005,
+    "cpu_ms": 8552,
+    "mutants": 2,
+    "score": 100.0,
+    "stable": true
+   },
+   "speedup_A_wall": 29.69,
+   "speedup_A_cpu": 60.67,
+   "speedup_B_wall": 3.5,
+   "speedup_B_cpu": 5.73,
+   "parity_A": {
+    "total": 2,
+    "c_total": 2,
+    "same": 2,
+    "same_detected": 2,
+    "survivors": 0,
+    "survivors_same": 0,
+    "ranges_match": true,
+    "mismatches": []
+   },
+   "parity_B": {
+    "total": 2,
+    "c_total": 2,
+    "same": 2,
+    "same_detected": 2,
+    "survivors": 0,
+    "survivors_same": 0,
+    "ranges_match": true,
+    "mismatches": []
+   }
+  },
+  {
+   "repo": "trading-signals",
+   "pr": 1375,
+   "failures": {},
+   "A": {
+    "n": 3,
+    "wall_ms": 158083,
+    "cpu_ms": 548243,
+    "mutants": 1820,
+    "score": 34.73,
+    "stable": true
+   },
+   "B": {
+    "n": 3,
+    "wall_ms": 13516,
+    "cpu_ms": 30937,
+    "mutants": 1820,
+    "score": 34.73,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 8508,
+    "cpu_ms": 18436,
+    "mutants": 8,
+    "score": 75.0,
+    "stable": true
+   },
+   "speedup_A_wall": 18.58,
+   "speedup_A_cpu": 29.74,
+   "speedup_B_wall": 1.59,
+   "speedup_B_cpu": 1.68,
+   "parity_A": {
+    "total": 8,
+    "c_total": 8,
+    "same": 8,
+    "same_detected": 8,
+    "survivors": 2,
+    "survivors_same": 2,
+    "ranges_match": true,
+    "mismatches": []
+   },
+   "parity_B": {
+    "total": 8,
+    "c_total": 8,
+    "same": 8,
+    "same_detected": 8,
+    "survivors": 2,
+    "survivors_same": 2,
+    "ranges_match": true,
+    "mismatches": []
+   }
+  },
+  {
+   "repo": "trading-signals",
+   "pr": 1397,
+   "failures": {},
+   "A": {
+    "n": 3,
+    "wall_ms": 171086,
+    "cpu_ms": 653752,
+    "mutants": 1959,
+    "score": 2.09,
+    "stable": true
+   },
+   "B": {
+    "n": 3,
+    "wall_ms": 42517,
+    "cpu_ms": 145729,
+    "mutants": 1959,
+    "score": 2.14,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 29518,
+    "cpu_ms": 99692,
+    "mutants": 279,
+    "score": 0.0,
+    "stable": true
+   },
+   "speedup_A_wall": 5.8,
+   "speedup_A_cpu": 6.56,
+   "speedup_B_wall": 1.44,
+   "speedup_B_cpu": 1.46,
+   "parity_A": {
+    "total": 279,
+    "c_total": 279,
+    "same": 279,
+    "same_detected": 279,
+    "survivors": 279,
+    "survivors_same": 279,
+    "ranges_match": true,
+    "mismatches": []
+   },
+   "parity_B": {
+    "total": 279,
+    "c_total": 279,
+    "same": 279,
+    "same_detected": 279,
+    "survivors": 279,
+    "survivors_same": 279,
+    "ranges_match": true,
+    "mismatches": []
+   }
+  },
+  {
+   "repo": "trading-signals",
+   "pr": 1398,
+   "failures": {},
+   "A": {
+    "n": 3,
+    "wall_ms": 144071,
+    "cpu_ms": 546531,
+    "mutants": 1965,
+    "score": 2.09,
+    "stable": true
+   },
+   "B": {
+    "n": 3,
+    "wall_ms": 18011,
+    "cpu_ms": 50369,
+    "mutants": 1965,
+    "score": 2.09,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 6004,
+    "cpu_ms": 12659,
+    "mutants": 9,
+    "score": 0.0,
+    "stable": true
+   },
+   "speedup_A_wall": 24.0,
+   "speedup_A_cpu": 43.17,
+   "speedup_B_wall": 3.0,
+   "speedup_B_cpu": 3.98,
+   "parity_A": {
+    "total": 9,
+    "c_total": 9,
+    "same": 9,
+    "same_detected": 9,
+    "survivors": 9,
+    "survivors_same": 9,
+    "ranges_match": true,
+    "mismatches": []
+   },
+   "parity_B": {
+    "total": 9,
+    "c_total": 9,
+    "same": 9,
+    "same_detected": 9,
+    "survivors": 9,
+    "survivors_same": 9,
+    "ranges_match": true,
+    "mismatches": []
+   }
+  },
+  {
+   "repo": "trading-signals",
+   "pr": 1415,
+   "failures": {},
+   "A": {
+    "n": 3,
+    "wall_ms": 164593,
+    "cpu_ms": 628613,
+    "mutants": 1971,
+    "score": 2.08,
+    "stable": true
+   },
+   "B": {
+    "n": 3,
+    "wall_ms": 16014,
+    "cpu_ms": 41508,
+    "mutants": 1971,
+    "score": 2.08,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 6005,
+    "cpu_ms": 11197,
+    "mutants": 6,
+    "score": 0.0,
+    "stable": true
+   },
+   "speedup_A_wall": 27.41,
+   "speedup_A_cpu": 56.14,
+   "speedup_B_wall": 2.67,
+   "speedup_B_cpu": 3.71,
+   "parity_A": {
+    "total": 6,
+    "c_total": 6,
+    "same": 6,
+    "same_detected": 6,
+    "survivors": 6,
+    "survivors_same": 6,
+    "ranges_match": true,
+    "mismatches": []
+   },
+   "parity_B": {
+    "total": 6,
+    "c_total": 6,
+    "same": 6,
+    "same_detected": 6,
+    "survivors": 6,
+    "survivors_same": 6,
+    "ranges_match": true,
+    "mismatches": []
+   }
+  },
+  {
+   "repo": "trading-signals",
+   "pr": 1417,
+   "failures": {},
+   "A": {
+    "n": 3,
+    "wall_ms": 168084,
+    "cpu_ms": 641902,
+    "mutants": 1981,
+    "score": 2.07,
+    "stable": true
+   },
+   "B": {
+    "n": 3,
+    "wall_ms": 39026,
+    "cpu_ms": 132354,
+    "mutants": 1981,
+    "score": 2.07,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 10514,
+    "cpu_ms": 27911,
+    "mutants": 13,
+    "score": 0.0,
+    "stable": true
+   },
+   "speedup_A_wall": 15.99,
+   "speedup_A_cpu": 23.0,
+   "speedup_B_wall": 3.71,
+   "speedup_B_cpu": 4.74,
+   "parity_A": {
+    "total": 13,
+    "c_total": 13,
+    "same": 13,
+    "same_detected": 13,
+    "survivors": 13,
+    "survivors_same": 13,
+    "ranges_match": true,
+    "mismatches": []
+   },
+   "parity_B": {
+    "total": 13,
+    "c_total": 13,
+    "same": 13,
+    "same_detected": 13,
+    "survivors": 13,
+    "survivors_same": 13,
+    "ranges_match": true,
+    "mismatches": []
+   }
+  },
+  {
+   "repo": "trading-signals",
+   "pr": 1424,
+   "failures": {},
+   "A": {
+    "n": 3,
+    "wall_ms": 170599,
+    "cpu_ms": 651569,
+    "mutants": 1982,
+    "score": 2.12,
+    "stable": true
+   },
+   "B": {
+    "n": 3,
+    "wall_ms": 26513,
+    "cpu_ms": 82457,
+    "mutants": 1982,
+    "score": 2.12,
+    "stable": true
+   },
+   "C": {
+    "n": 3,
+    "wall_ms": 6002,
+    "cpu_ms": 9308,
+    "mutants": 1,
+    "score": 100.0,
+    "stable": true
+   },
+   "speedup_A_wall": 28.42,
+   "speedup_A_cpu": 70.0,
+   "speedup_B_wall": 4.42,
+   "speedup_B_cpu": 8.86,
+   "parity_A": {
+    "total": 1,
+    "c_total": 1,
+    "same": 1,
+    "same_detected": 1,
+    "survivors": 0,
+    "survivors_same": 0,
+    "ranges_match": true,
+    "mismatches": []
+   },
+   "parity_B": {
+    "total": 1,
+    "c_total": 1,
+    "same": 1,
+    "same_detected": 1,
+    "survivors": 0,
+    "survivors_same": 0,
+    "ranges_match": true,
+    "mismatches": []
+   }
+  }
+ ],
+ "scans": {
+  "boundaries-config": {
+   "candidates_total": 4,
+   "scan_minutes": 1.0,
+   "selected": [
+    {
+     "pr": 591,
+     "title": "fix: Check static template literals and TypeScript assertions as dependency targets",
+     "merged_at": "2026-11-01T19:48:19Z",
+     "merge": "55e72addef14a8ee6d5a514f2635331bfa966ab3",
+     "valid": true,
+     "base": "e9a4e317541ce548dbc27cc33b6e50b07b87c1e3",
+     "head": "55e72addef14a8ee6d5a514f2635331bfa966ab3",
+     "merge_kind": "squash",
+     "c_exit": 0,
+     "c_wall_ms": 6507,
+     "c_mutants": 0,
+     "c_survivors": 0,
+     "c_score": null,
+     "why": "last N"
+    },
+    {
+     "pr": 578,
+     "title": "chore: Fix the Sonar issues of the config package",
+     "merged_at": "2026-10-28T12:00:31Z",
+     "merge": "e534b8c06597f2d2636a6494a1a06c8b126367fe",
+     "valid": true,
+     "base": "fdc457c91721b8de32840ce836fa913002cd6f1b",
+     "head": "e534b8c06597f2d2636a6494a1a06c8b126367fe",
+     "merge_kind": "squash",
+     "c_exit": 0,
+     "c_wall_ms": 11010,
+     "c_mutants": 42,
+     "c_survivors": 0,
+     "c_score": 100.0,
+     "why": "last N"
+    },
+    {
+     "pr": 577,
+     "title": "chore: Run the mutation tests of the config package",
+     "merged_at": "2026-10-28T09:46:59Z",
+     "merge": "fdc457c91721b8de32840ce836fa913002cd6f1b",
+     "valid": true,
+     "base": "e496bd8b3ed86493b3e2bd5fc2427be0eca83668",
+     "head": "fdc457c91721b8de32840ce836fa913002cd6f1b",
+     "merge_kind": "squash",
+     "c_exit": 0,
+     "c_wall_ms": 12007,
+     "c_mutants": 43,
+     "c_survivors": 0,
+     "c_score": 100.0,
+     "why": "last N"
+    }
+   ],
+   "skipped": [
+    {
+     "pr": 561,
+     "skip": "no Stryker config at head"
+    }
+   ]
+  },
+  "boundaries-elements": {
+   "candidates_total": 20,
+   "scan_minutes": 27.9,
+   "selected": [
+    {
+     "pr": 591,
+     "title": "fix: Check static template literals and TypeScript assertions as dependency targets",
+     "merged_at": "2026-11-01T19:48:19Z",
+     "merge": "55e72addef14a8ee6d5a514f2635331bfa966ab3",
+     "valid": true,
+     "base": "e9a4e317541ce548dbc27cc33b6e50b07b87c1e3",
+     "head": "55e72addef14a8ee6d5a514f2635331bfa966ab3",
+     "merge_kind": "squash",
+     "c_exit": 0,
+     "c_wall_ms": 9004,
+     "c_mutants": 0,
+     "c_survivors": 0,
+     "c_score": null,
+     "why": "last N"
+    },
+    {
+     "pr": 573,
+     "title": "fix: Correct the element relationship table of the dependency docs",
+     "merged_at": "2026-10-27T11:10:21Z",
+     "merge": "e75d07ade3742ada0b8a6e9f971c443b320575ef",
+     "valid": true,
+     "base": "11197ee12e1977da54f5fb1fc088fb9293d9229c",
+     "head": "e75d07ade3742ada0b8a6e9f971c443b320575ef",
+     "merge_kind": "squash",
+     "c_exit": 0,
+     "c_wall_ms": 7503,
+     "c_mutants": 0,
+     "c_survivors": 0,
+     "c_score": null,
+     "why": "last N"
+    },
+    {
+     "pr": 571,
+     "title": "chore: Check JSDoc @param tags against the function parameters with eslint-plugin-jsdoc",
+     "merged_at": "2026-10-27T10:23:19Z",
+     "merge": "11197ee12e1977da54f5fb1fc088fb9293d9229c",
+     "valid": true,
+     "base": "720475bb0e0eb62a1a1a47730dcd46729c94a0b4",
+     "head": "11197ee12e1977da54f5fb1fc088fb9293d9229c",
+     "merge_kind": "squash",
+     "c_exit": 0,
+     "c_wall_ms": 10003,
+     "c_mutants": 0,
+     "c_survivors": 0,
+     "c_score": null,
+     "why": "last N"
+    },
+    {
+     "pr": 569,
+     "title": "fix: Return the same element descriptions with the cache on and off",
+     "merged_at": "2026-10-27T08:07:11Z",
+     "merge": "720475bb0e0eb62a1a1a47730dcd46729c94a0b4",
+     "valid": true,
+     "base": "083fc2020e2a8a3bcfb46b4f8354f892cdd4691f",
+     "head": "720475bb0e0eb62a1a1a47730dcd46729c94a0b4",
+     "merge_kind": "squash",
+     "c_exit": 0,
+     "c_wall_ms": 8502,
+     "c_mutants": 0,
+     "c_survivors": 0,
+     "c_score": null,
+     "why": "last N"
+    },
+    {
+     "pr": 566,
+     "title": "test: Kill the surviving mutants in ElementDescriptor",
+     "merged_at": "2026-10-26T17:22:11Z",
+     "merge": "083fc2020e2a8a3bcfb46b4f8354f892cdd4691f",
+     "valid": true,
+     "base": "08a78c5baed43e15f2be67ea5f7b38f71a3b1141",
+     "head": "083fc2020e2a8a3bcfb46b4f8354f892cdd4691f",
+     "merge_kind": "squash",
+     "c_exit": 0,
+     "c_wall_ms": 19009,
+     "c_mutants": 14,
+     "c_survivors": 1,
+     "c_score": 92.3076923076923,
+     "why": "last N"
+    },
+    {
+     "pr": 560,
+     "title": "feat: Make the browser build of @boundaries/elements work without Node.js shims",
+     "merged_at": "2026-10-26T10:04:42Z",
+     "merge": "edfd258c845b1276bb3d18934e95126ea01e9ca0",
+     "valid": true,
+     "base": "0caf68e39d2d914186c47a538bae90972e228cda",
+     "head": "edfd258c845b1276bb3d18934e95126ea01e9ca0",
+     "merge_kind": "squash",
+     "c_exit": 0,
+     "c_wall_ms": 34527,
+     "c_mutants": 24,
+     "c_survivors": 0,
+     "c_score": 100.0,
+     "why": "last N"
+    },
+    {
+     "pr": 530,
+     "title": "perf: Normalize each selector once instead of on every match",
+     "merged_at": "2026-10-23T10:07:33Z",
+     "merge": "92f252b01decf9dd14c57c7202ee50aedc6b23d6",
+     "valid": true,
+     "base": "6b648f27a9f5cec292dca051659084e292093fcc",
+     "head": "92f252b01decf9dd14c57c7202ee50aedc6b23d6",
+     "merge_kind": "squash",
+     "c_exit": 0,
+     "c_wall_ms": 42531,
+     "c_mutants": 62,
+     "c_survivors": 0,
+     "c_score": 100.0,
+     "why": "last N"
+    },
+    {
+     "pr": 521,
+     "title": "perf: Compile each Handlebars template once per matcher",
+     "merged_at": "2026-10-23T07:32:46Z",
+     "merge": "946bbc0be8c73a4ac6c7c6bbc4258a7022609034",
+     "valid": true,
+     "base": "9a2d42cf4bade3c4313e4ea6d4dde68b40a1cef4",
+     "head": "946bbc0be8c73a4ac6c7c6bbc4258a7022609034",
+     "merge_kind": "squash",
+     "c_exit": 0,
+     "c_wall_ms": 23519,
+     "c_mutants": 13,
+     "c_survivors": 0,
+     "c_score": 100.0,
+     "why": "last N"
+    },
+    {
+     "pr": 517,
+     "title": "fix: Replace micromatch with picomatch and restore basePattern matching",
+     "merged_at": "2026-10-22T09:22:36Z",
+     "merge": "7ee28aa11cdc3196f50a38f17af6862403940f6e",
+     "valid": true,
+     "base": "bc88b43361d834537e22668e7c665e02ca1fedc8",
+     "head": "ab5819247b4140d10d8e134166384082ce244b42",
+     "merge_kind": "merge",
+     "c_exit": 0,
+     "c_wall_ms": 23016,
+     "c_mutants": 16,
+     "c_survivors": 0,
+     "c_score": 100.0,
+     "why": "last N"
+    },
+    {
+     "pr": 509,
+     "title": "fix: Resolve nested element paths from the matched level",
+     "merged_at": "2026-10-22T07:18:44Z",
+     "merge": "e25a8c44fcf5bc2d0d2c99f7d68dec929f36debc",
+     "valid": true,
+     "base": "96a18bae7b1be65c671c8341a26ca4c6263f5ddd",
+     "head": "e25a8c44fcf5bc2d0d2c99f7d68dec929f36debc",
+     "merge_kind": "squash",
+     "c_exit": 0,
+     "c_wall_ms": 32024,
+     "c_mutants": 10,
+     "c_survivors": 0,
+     "c_score": 100.0,
+     "why": "last N"
+    },
+    {
+     "pr": 453,
+     "title": "feat: Multi-dimensional Classification with File Descriptors",
+     "merged_at": "2026-07-04T17:45:58Z",
+     "merge": "a488a3b47ec102b71e3abe260abf6c7732872453",
+     "valid": true,
+     "base": "92bf30c5afaaa21a7dc6371bf0f86a3bdb27c18c",
+     "head": "a488a3b47ec102b71e3abe260abf6c7732872453",
+     "merge_kind": "squash",
+     "c_exit": 0,
+     "c_wall_ms": 1233791,
+     "c_mutants": 1901,
+     "c_survivors": 126,
+     "c_score": 93.37190952130457,
+     "why": "older PR added for in-diff survivors"
+    },
+    {
+     "pr": 432,
+     "title": "Release v6.0.0-beta.1",
+     "merged_at": "2026-03-14T10:13:22Z",
+     "merge": "44a8ab3a4098570b81240eccd590bb8c909f2a98",
+     "valid": true,
+     "base": "71e242d3627c5280e916c9d210b794b0f9bf8e7c",
+     "head": "44a8ab3a4098570b81240eccd590bb8c909f2a98",
+     "merge_kind": "squash",
+     "c_exit": 1,
+     "c_wall_ms": 119579,
+     "c_mutants": 1066,
+     "c_survivors": 396,
+     "c_score": 62.816901408450704,
+     "why": "older PR added for in-diff survivors"
+    }
+   ],
+   "skipped": []
+  },
+  "brazilian-utils": {
+   "candidates_total": 18,
+   "scan_minutes": 19.2,
+   "selected": [
+    {
+     "pr": 615,
+     "title": "Validation round: fix every audited edge case, docs and convention drift",
+     "merged_at": "2026-09-29T20:10:31Z",
+     "merge": "d294baa588659a398337d742887944f10f5b3984",
+     "valid": true,
+     "base": "1f82b5663c14f5a208d8329be09514e0e627f966",
+     "head": "16d51e83f8ade9e94819cc27ddc1ff8686ad9ca1",
+     "merge_kind": "merge",
+     "c_exit": 0,
+     "c_wall_ms": 414680,
+     "c_mutants": 989,
+     "c_survivors": 0,
+     "c_score": 100.0,
+     "why": "last N"
+    },
+    {
+     "pr": 593,
+     "title": "refactor: getters build on their validators, reject signed and fractional numbers, spell out truncated names",
+     "merged_at": "2026-09-29T04:50:04Z",
+     "merge": "1f82b5663c14f5a208d8329be09514e0e627f966",
+     "valid": true,
+     "base": "56501e41534c11038d5c268c2f30ce2bf63e6727",
+     "head": "4455c47b22db602bc95f8e0f88254e49f9f61068",
+     "merge_kind": "merge",
+     "c_exit": 0,
+     "c_wall_ms": 469224,
+     "c_mutants": 1716,
+     "c_survivors": 0,
+     "c_score": 100.0,
+     "why": "last N"
+    },
+    {
+     "pr": 558,
+     "title": "feat(get-cpf-info): add getCpfInfo",
+     "merged_at": "2026-09-29T03:02:26Z",
+     "merge": "9fd74a6ba0dadc2c4003db5ce76079933acf903f",
+     "valid": true,
+     "base": "d19db7a365db4ec7189277108f1923ed944a3a32",
+     "head": "506d5bf5ab59c5b69c648f5a46c0924388f1f914",
+     "merge_kind": "merge",
+     "c_exit": 0,
+     "c_wall_ms": 133065,
+     "c_mutants": 549,
+     "c_survivors": 0,
+     "c_score": 100.0,
+     "why": "last N"
+    },
+    {
+     "pr": 592,
+     "title": "fix(renavam): reject negative and fractional numbers",
+     "merged_at": "2026-09-28T13:07:24Z",
+     "merge": "82d8395320d7658343dfae25f662b525d8416fcc",
+     "valid": true,
+     "base": "cd0c58758c2c4edde16eed07c4dafd7ca0c80bf3",
+     "head": "93aca388e9dd9f8f5b4f64d2857574029e556311",
+     "merge_kind": "merge",
+     "c_exit": 0,
+     "c_wall_ms": 11009,
+     "c_mutants": 4,
+     "c_survivors": 0,
+     "c_score": 100.0,
+     "why": "last N"
+    },
+    {
+     "pr": 556,
+     "title": "feat: Standard Schema wrapper, JSR, pkg.pr.new, docs previews and a playground",
+     "merged_at": "2026-09-22T04:22:34Z",
+     "merge": "bdd4e26b5215b02517c791092ae31b82c718476c",
+     "valid": true,
+     "base": "69e9b1f7de02bca3f6a4bc7c86214aec5786f690",
+     "head": "d9f8e92c0034bcdb6f5d365dcfa4f0d6e21d28bb",
+     "merge_kind": "merge",
+     "c_exit": 0,
+     "c_wall_ms": 43024,
+     "c_mutants": 91,
+     "c_survivors": 0,
+     "c_score": 100.0,
+     "why": "last N"
+    },
+    {
+     "pr": 547,
+     "title": "fix(capitalize): keep a word stable when its first letter changes length between cases",
+     "merged_at": "2026-09-18T13:30:57Z",
+     "merge": "72f733b784779558320677c44cf6365ea4647437",
+     "valid": true,
+     "base": "1d001baf307de90c5090ce8bd5df7497d1f43260",
+     "head": "459a89aee3af493b9b6507f17d3236c339c6912a",
+     "merge_kind": "merge",
+     "c_exit": 0,
+     "c_wall_ms": 11015,
+     "c_mutants": 12,
+     "c_survivors": 0,
+     "c_score": 100.0,
+     "why": "last N"
+    }
+   ],
+   "skipped": [
+    {
+     "pr": 498,
+     "skip": "no Stryker config at head"
+    },
+    {
+     "pr": 477,
+     "skip": "no Stryker config at head"
+    },
+    {
+     "pr": 469,
+     "skip": "no Stryker config at head"
+    },
+    {
+     "pr": 471,
+     "skip": "no Stryker config at head"
+    },
+    {
+     "pr": 458,
+     "skip": "no Stryker config at head"
+    },
+    {
+     "pr": 461,
+     "skip": "no Stryker config at head"
+    },
+    {
+     "pr": 425,
+     "skip": "no Stryker config at head"
+    },
+    {
+     "pr": 429,
+     "skip": "no Stryker config at head"
+    },
+    {
+     "pr": 156,
+     "skip": "no Stryker config at head"
+    },
+    {
+     "pr": 158,
+     "skip": "no Stryker config at head"
+    },
+    {
+     "pr": 132,
+     "skip": "no Stryker config at head"
+    },
+    {
+     "pr": 115,
+     "skip": "no Stryker config at head"
+    }
+   ]
+  },
+  "trading-signals": {
+   "candidates_total": 40,
+   "scan_minutes": 6.9,
+   "selected": [
+    {
+     "pr": 1424,
+     "title": "fix(@typedtrader/exchange): request split- and spin-off-adjusted stock bars",
+     "merged_at": "2026-10-24T10:56:26Z",
+     "merge": "05504034aef41ca4cd366f8d314ff02fdef81640",
+     "valid": true,
+     "base": "52efbfb482404824731730c73f1bf0cd0c7e3ef3",
+     "head": "05504034aef41ca4cd366f8d314ff02fdef81640",
+     "merge_kind": "squash",
+     "c_exit": 0,
+     "c_wall_ms": 6007,
+     "c_mutants": 1,
+     "c_survivors": 0,
+     "c_score": 100.0,
+     "why": "last N"
+    },
+    {
+     "pr": 1417,
+     "title": "fix(@typedtrader/exchange): drop a first batch that started mid-interval in CandleBatcher",
+     "merged_at": "2026-10-08T20:54:59Z",
+     "merge": "15dee1e92b4054089b3b1851f6b1d5f4ab8f335e",
+     "valid": true,
+     "base": "26ba0db6979aa10e453676489df38b53bc131121",
+     "head": "15dee1e92b4054089b3b1851f6b1d5f4ab8f335e",
+     "merge_kind": "squash",
+     "c_exit": 0,
+     "c_wall_ms": 8509,
+     "c_mutants": 13,
+     "c_survivors": 13,
+     "c_score": 0.0,
+     "why": "last N"
+    },
+    {
+     "pr": 1415,
+     "title": "fix(@typedtrader/exchange): return only finished candles from getRecentCandles",
+     "merged_at": "2026-10-08T16:45:41Z",
+     "merge": "06a2564ac0c5868b6ee943c518f29143092aac83",
+     "valid": true,
+     "base": "9e425e6efbc4ae6275775b25adc549b0a2a215be",
+     "head": "06a2564ac0c5868b6ee943c518f29143092aac83",
+     "merge_kind": "squash",
+     "c_exit": 0,
+     "c_wall_ms": 5003,
+     "c_mutants": 6,
+     "c_survivors": 6,
+     "c_score": 0.0,
+     "why": "last N"
+    },
+    {
+     "pr": 1398,
+     "title": "fix: short indicator codes and missing configs in the CLI, IEX history on free Alpaca plans",
+     "merged_at": "2026-10-02T15:34:43Z",
+     "merge": "d654cb416dd44c7f07d1c053477e9b7b57fc7821",
+     "valid": true,
+     "base": "48c6b4533a3151deb687027b7ac61fe823b3c37b",
+     "head": "d654cb416dd44c7f07d1c053477e9b7b57fc7821",
+     "merge_kind": "squash",
+     "c_exit": 0,
+     "c_wall_ms": 5007,
+     "c_mutants": 9,
+     "c_survivors": 9,
+     "c_score": 0.0,
+     "why": "last N"
+    },
+    {
+     "pr": 1397,
+     "title": "chore: add static code analysis with FTA",
+     "merged_at": "2026-10-01T14:06:44Z",
+     "merge": "48c6b4533a3151deb687027b7ac61fe823b3c37b",
+     "valid": true,
+     "base": "0ca0cb96141c5fe1b00b31593fa016161f5e00d0",
+     "head": "48c6b4533a3151deb687027b7ac61fe823b3c37b",
+     "merge_kind": "squash",
+     "c_exit": 0,
+     "c_wall_ms": 30024,
+     "c_mutants": 279,
+     "c_survivors": 279,
+     "c_score": 0.0,
+     "why": "last N"
+    },
+    {
+     "pr": 1373,
+     "title": "fix(trading-strategies): call strategy init in BacktestExecutor",
+     "merged_at": "2026-09-20T20:18:31Z",
+     "merge": "752cc2b06b994ee27c4b341c06d51b8cf1f0e8bb",
+     "valid": true,
+     "base": "3710cc56caaa82f4bc3b43a7b23944890f1e0954",
+     "head": "752cc2b06b994ee27c4b341c06d51b8cf1f0e8bb",
+     "merge_kind": "squash",
+     "c_exit": 0,
+     "c_wall_ms": 10017,
+     "c_mutants": 36,
+     "c_survivors": 6,
+     "c_score": 83.33333333333333,
+     "why": "last N"
+    },
+    {
+     "pr": 1375,
+     "title": "feat(@typedtrader/exchange): pick the Alpaca data feed from the account's subscription",
+     "merged_at": "2026-09-19T21:36:11Z",
+     "merge": "3710cc56caaa82f4bc3b43a7b23944890f1e0954",
+     "valid": true,
+     "base": "304f340be2b582ec4fba4f06c68d0a66458a5b5e",
+     "head": "3710cc56caaa82f4bc3b43a7b23944890f1e0954",
+     "merge_kind": "squash",
+     "c_exit": 0,
+     "c_wall_ms": 7004,
+     "c_mutants": 8,
+     "c_survivors": 2,
+     "c_score": 75.0,
+     "why": "last N"
+    },
+    {
+     "pr": 1374,
+     "title": "fix(@typedtrader/exchange): read Alpaca market data from the regular hosts in paper mode",
+     "merged_at": "2026-09-19T21:31:44Z",
+     "merge": "304f340be2b582ec4fba4f06c68d0a66458a5b5e",
+     "valid": true,
+     "base": "5c4329e14beab3656c6d5f77b5f4aca21fab1fd5",
+     "head": "304f340be2b582ec4fba4f06c68d0a66458a5b5e",
+     "merge_kind": "squash",
+     "c_exit": 0,
+     "c_wall_ms": 5003,
+     "c_mutants": 2,
+     "c_survivors": 0,
+     "c_score": 100.0,
+     "why": "last N"
+    },
+    {
+     "pr": 1318,
+     "title": "feat(trading-signals-vocs): add Vocs documentation site with interactive demos and backtesting",
+     "merged_at": "2026-09-19T19:29:14Z",
+     "merge": "2331df355467d549fd56e8c80f818e9c4463c049",
+     "valid": true,
+     "base": "eff3c11d4657884de63a28f4ad88fedcbeb88872",
+     "head": "2331df355467d549fd56e8c80f818e9c4463c049",
+     "merge_kind": "squash",
+     "c_exit": 0,
+     "c_wall_ms": 7503,
+     "c_mutants": 2,
+     "c_survivors": 2,
+     "c_score": 0.0,
+     "why": "last N"
+    },
+    {
+     "pr": 1365,
+     "title": "fix(@typedtrader/exchange): stop charging the crypto commission on stocks",
+     "merged_at": "2026-09-17T12:04:58Z",
+     "merge": "3cb4709660142fb328a43f314270e495b8411fa4",
+     "valid": true,
+     "base": "1b1856440b4681a659adee51ce145361321ed0eb",
+     "head": "3cb4709660142fb328a43f314270e495b8411fa4",
+     "merge_kind": "squash",
+     "c_exit": 0,
+     "c_wall_ms": 6003,
+     "c_mutants": 2,
+     "c_survivors": 1,
+     "c_score": 50.0,
+     "why": "last N"
+    }
+   ],
+   "skipped": [
+    {
+     "pr": 1416,
+     "skip": "nothing to mutate (no changed file selected by the config's mutate)"
+    }
+   ]
+  }
+ }
+}

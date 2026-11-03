@@ -1,0 +1,53 @@
+{
+ "repo": "trading-signals",
+ "pr": 1424,
+ "scenario": "A",
+ "rep": 1,
+ "base": "52efbfb482404824731730c73f1bf0cd0c7e3ef3",
+ "head": "05504034aef41ca4cd366f8d314ff02fdef81640",
+ "node": "v24.22.1",
+ "runner": {
+  "RUNNER_NAME": "GitHub Actions 1000000548",
+  "ImageOS": "ubuntu24",
+  "ImageVersion": "20261026.354.1",
+  "RUNNER_ARCH": "X64"
+ },
+ "cpu_count": 4,
+ "ok": true,
+ "install_ms": 38656,
+ "stryker": "10.0.0",
+ "cmd": [
+  "npx",
+  "--no-install",
+  "stryker",
+  "run",
+  "--reporters",
+  "clear-text,html,progress,json"
+ ],
+ "loadavg_before": [
+  1.28662109375,
+  0.447265625,
+  0.1640625
+ ],
+ "start": "2026-11-03T03:11:54Z",
+ "wall_ms": 178594,
+ "exit": 0,
+ "timed_out": false,
+ "cpu_user_ms": 624769,
+ "cpu_sys_ms": 56316,
+ "max_rss_kb": 795360,
+ "loadavg_after": [
+  6.90625,
+  3.51611328125,
+  1.4091796875
+ ],
+ "incremental_log": [
+  "\u001b[32m03:11:56 (2554) INFO ProjectReader\u001b[39m No incremental result file found at reports/stryker-incremental.json, a full mutation testing run will be performed."
+ ],
+ "ranges": 6,
+ "mutants": 1982,
+ "score": 2.12,
+ "in_diff_counts": {
+  "Killed": 1
+ }
+}

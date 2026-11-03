@@ -1,0 +1,49 @@
+{
+ "repo": "brazilian-utils",
+ "pr": 593,
+ "scenario": "seed",
+ "rep": 1,
+ "base": "56501e41534c11038d5c268c2f30ce2bf63e6727",
+ "head": "4455c47b22db602bc95f8e0f88254e49f9f61068",
+ "node": "v24.22.1",
+ "runner": {
+  "RUNNER_NAME": "GitHub Actions 1000000329",
+  "ImageOS": "ubuntu24",
+  "ImageVersion": "20261026.354.1",
+  "RUNNER_ARCH": "X64"
+ },
+ "cpu_count": 4,
+ "ok": true,
+ "install_ms": 9747,
+ "stryker": "10.0.0",
+ "cmd": [
+  "npx",
+  "--no-install",
+  "stryker",
+  "run",
+  "--incremental"
+ ],
+ "loadavg_before": [
+  0.91552734375,
+  0.32568359375,
+  0.1298828125
+ ],
+ "start": "2026-11-03T01:29:06Z",
+ "wall_ms": 786406,
+ "exit": 0,
+ "timed_out": false,
+ "cpu_user_ms": 2782176,
+ "cpu_sys_ms": 152870,
+ "max_rss_kb": 1815456,
+ "loadavg_after": [
+  6.6640625,
+  6.345703125,
+  3.89697265625
+ ],
+ "incremental_log": [
+  "\u001b[32m01:29:07 (2228) INFO ProjectReader\u001b[39m No incremental result file found at reports/stryker-incremental.json, a full mutation testing run will be performed."
+ ],
+ "ranges": null,
+ "mutants": 5411,
+ "score": 100.0
+}

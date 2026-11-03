@@ -126,7 +126,7 @@ time. They are recorded once per PR so a "job minutes" figure can be given too.
 - A top-level table per suite run: repo, PRs, median speedup (wall and CPU), parity (mutants matched / total),
   runner minutes for A vs C. The headline N is the median speedup over all PRs of all repos, next to its range.
 
-## Next step: the suite on GitHub Actions
+## Suite plan (as designed before the run)
 
 Repos, in order of value:
 
@@ -176,6 +176,53 @@ with the seed's incremental file). `aggregate` writes the markdown table to the 
 restored), times install apart from the measured command, and uploads one small result JSON. CI commits nothing.
 Node is pinned per repo in `repos.json` (the version each repo's own CI uses). `python3 bench/oss/suite.py
 selftest` checks the diff parser, the plan and the aggregate on synthetic data.
+
+## Suite results (run [41556588144](https://github.com/reapr-corp/reapr/actions/runs/41556588144), 2026-11-03)
+
+GitHub-hosted `ubuntu-latest` (4 vCPU, images ubuntu24 20261018.96.1 and 20261026.354.1), Node 24.22.1,
+rpr 0.3.0, cold installs. 31 PRs from 3 repos (4 Stryker configs), 3 repetitions of each scenario: 250 runs, none
+failed or timed out. Full table: `results/2026-11-03-suite-run-41556588144/summary.md`; every run:
+`summary.json` and `runs/` (compacted: per-mutant lists replaced by counts; the full records are the run's
+artifacts).
+
+**Median wall speedup A/C: 27.4× over 31 PRs** (range 2.0× to 228.4×; CPU 54.1×). Over the 26 PRs with at
+least one mutant in the diff: 23.0×. Against B, Stryker incremental in its best case (state from a full run on the
+PR's base): C was faster on all 16 PRs, median 3.25× (1.28× to 11.8×).
+
+| Repo (config) | PRs | Median speedup wall / CPU | B/C wall | Same status on the diff | Survivors same (PRs with survivors) |
+|---|---|---|---|---|---|
+| eslint-plugin-boundaries `packages/config` | 3 | 21.9× / 35.7× | n/a | 85/85 | 0/0 (0) |
+| eslint-plugin-boundaries `packages/elements` | 12 | 63.8× / 89.9× | n/a | 3106/3106 | 523/523 (3) |
+| brazilian-utils | 6 | 18.9× / 29.2× | 4.2× | 1644/1645 | 0/0 (0) |
+| trading-signals `packages/exchange` | 10 | 21.3× / 36.5× | 3.2× | 358/358 | 318/318 (8) |
+
+Verdict parity: 5193 of 5194 in-diff mutants had the same status in A and C, and all 5194 the same
+detected/undetected class. The one difference is a Timeout in A and Killed in C (brazilian-utils #558,
+`each-local-day.ts:53`), both detected. The 841 in-diff survivors (809 Survived, 32 NoCoverage) all matched. The
+three repetitions of each scenario agreed on every PR (A, B and C), and A's diff ranges (computed by the harness) equalled rpr's on every PR.
+
+Where C gains least: PRs that touch much of the package. boundaries-elements #453 (1901 of 2497 mutants in the
+diff) 2.0×, brazilian-utils #593 (1716 mutants) 2.3× and #615 (989) 3.0×. Where it gains most: diffs with few or
+no mutable lines, such as types-only changes (5 PRs with 0 in-diff mutants: 46× to 228×). Those still start
+Stryker for 8 to 13 s; skipping them is an rpr fix.
+
+Caveats:
+
+- **Survivor coverage is uneven.** brazilian-utils gates at 100% and boundaries-config at 99%, so their diffs had
+  no survivors. Survivor parity rests on boundaries-elements (3 PRs, two of them older PRs added for this) and
+  trading-signals (8 PRs, most survivors in code its config's tests do not reach: package score 2 to 35%).
+- **Fewer than 10 PRs** where the history is short: boundaries-config exists since 2026-10-28 (3 PRs), and
+  brazilian-utils has 6 PRs into `main` that touch `mutate` since Stryker was added.
+- **Harness errors.** For brazilian-utils #593 the 3 A and 3 B runs completed (exit 0), then the harness failed
+  to decode the PR's diff (a non-UTF-8 byte). Their timings are kept; their verdicts are missing, so #593 has no
+  parity. Fixed since (lossy decoding, as rpr does).
+- **Dropped repos.** npkill (full run over 60 min) and inversify (rpr cannot start Stryker there via `npx`),
+  above.
+- B's state comes from a full run on the exact PR base. A team's real cache is often older or missing (a
+  Dependabot lockfile change, main's cache not saved yet), so real B times are this or worse.
+
+Runner minutes: 1928 for the suite run (A 1407, seed 126, B 160, C 177, scan 56), plus 121 for the timing,
+validation and diagnostic runs: 2049 in all, free on a public repo.
 
 ## Pilot harness
 

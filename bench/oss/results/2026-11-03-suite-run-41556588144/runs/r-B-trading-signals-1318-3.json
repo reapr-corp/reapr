@@ -1,0 +1,54 @@
+{
+ "repo": "trading-signals",
+ "pr": 1318,
+ "scenario": "B",
+ "rep": 3,
+ "base": "eff3c11d4657884de63a28f4ad88fedcbeb88872",
+ "head": "2331df355467d549fd56e8c80f818e9c4463c049",
+ "node": "v24.22.1",
+ "runner": {
+  "RUNNER_NAME": "GitHub Actions 1000000526",
+  "ImageOS": "ubuntu24",
+  "ImageVersion": "20261026.354.1",
+  "RUNNER_ARCH": "X64"
+ },
+ "cpu_count": 4,
+ "ok": true,
+ "install_ms": 24613,
+ "stryker": "9.6.1",
+ "cmd": [
+  "npx",
+  "--no-install",
+  "stryker",
+  "run",
+  "--reporters",
+  "clear-text,html,progress,json"
+ ],
+ "loadavg_before": [
+  1.0703125,
+  0.2568359375,
+  0.08544921875
+ ],
+ "start": "2026-11-03T02:41:46Z",
+ "wall_ms": 8009,
+ "exit": 0,
+ "timed_out": false,
+ "cpu_user_ms": 13920,
+ "cpu_sys_ms": 2241,
+ "max_rss_kb": 896308,
+ "loadavg_after": [
+  1.1396484375,
+  0.29833984375,
+  0.1015625
+ ],
+ "incremental_log": [
+  "\u001b[32m02:41:46 (2345) INFO ProjectReader\u001b[39m Found 52 of 93 file(s) to be mutated using incremental report with 1816 mutant(s), and 128 test(s).",
+  "\u001b[32m02:41:51 (2345) INFO IncrementalDiffer\u001b[39m Incremental report:"
+ ],
+ "ranges": 3,
+ "mutants": 1816,
+ "score": 33.59,
+ "in_diff_counts": {
+  "Survived": 2
+ }
+}
