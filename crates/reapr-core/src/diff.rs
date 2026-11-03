@@ -397,8 +397,23 @@ new mode 100755
 
     #[test]
     fn hunk_content_resembling_headers_is_ignored() {
-        let d = "+++ b/a.patch\n@@ -1 +1,2 @@\n-x\n+++ b/fake.ts\n+diff --git a/x b/x\n";
-        assert_eq!(parse_unified_zero(d), vec![r("a.patch", 1, 2)]);
+        // Added lines `++ b/fake.ts` and `diff --git a/x b/x`, then a later hunk of the same file:
+        // read as headers, they would move that hunk to `fake.ts` or drop it.
+        let d = "+++ b/a.patch\n@@ -1 +1,2 @@\n-x\n+++ b/fake.ts\n+diff --git a/x b/x\n@@ -5 +6 @@\n-p\n+q\n";
+        assert_eq!(
+            parse_unified_zero(d),
+            vec![r("a.patch", 1, 2), r("a.patch", 6, 6)]
+        );
+    }
+
+    #[test]
+    fn header_like_content_does_not_move_later_hunks_to_another_file() {
+        // The added line `++ b/fake.ts` follows a removed line, then a second hunk in the same file.
+        let d = "+++ b/a.patch\n@@ -1 +1 @@\n-x\n+++ b/fake.ts\n@@ -5 +5 @@\n-p\n+q\n";
+        assert_eq!(
+            parse_unified_zero(d),
+            vec![r("a.patch", 1, 1), r("a.patch", 5, 5)]
+        );
     }
 
     fn git(dir: &Path, args: &[&str]) {

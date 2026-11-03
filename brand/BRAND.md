@@ -130,8 +130,10 @@ Pure `#E8EAE6` on `#F4F5F2` is 1.11: bone is for dark backgrounds only.
 Short, technical, dry. State what the tool does and what the output means. No hype, no exclamation marks, no
 "blazing", no "revolutionary".
 
-- Tagline: **Kill the mutants your tests miss.**
-- Secondary: **Mutation testing on every pull request.**
+- Primary line: **Reapr — Mutation testing for your AI agents.**
+- Supporting line: **Kill the mutants your tests miss.**
+- Keep it honest: Reapr works the same on pull requests written by people. Lead with agents, never claim it
+  is only for them.
 - Do: "3 mutants survived in `src/parse.rs`. A test passed when `>` became `>=`."
 - Do: "Your tests passed. So did this bug."
 - Do: "Scoped to the diff. Your config, your engine."

@@ -16,7 +16,8 @@ pub struct Summary {
     /// Absolute.
     pub run_dir: PathBuf,
     pub engine: String,
-    pub base: String,
+    /// The `--diff` value; `None` with `--all`.
+    pub base: Option<String>,
     pub ranges: Vec<FileRange>,
     /// `None` when nothing was mutated (or no valid mutants).
     pub score: Option<f64>,
@@ -48,7 +49,7 @@ impl Summary {
         run_id: String,
         run_dir: PathBuf,
         engine: &str,
-        base: String,
+        base: Option<String>,
         ranges: Vec<FileRange>,
         outcome: RunOutcome,
         min_score: Option<f64>,
@@ -94,18 +95,31 @@ impl Summary {
         serde_json::to_string_pretty(self).unwrap_or_default()
     }
 
+    /// `diff` or `all` (`--all`), for `run.json` and telemetry.
+    pub fn scope_mode(&self) -> &'static str {
+        if self.base.is_some() { "diff" } else { "all" }
+    }
+
+    /// `diff vs <base>` or `all files`.
+    fn scope_label(&self) -> String {
+        match &self.base {
+            Some(base) => format!("diff vs {base}"),
+            None => "all files".to_owned(),
+        }
+    }
+
     pub fn render_human(&self) -> String {
         let files: BTreeSet<&Path> = self.ranges.iter().map(|r| r.path.as_path()).collect();
+        let scope = self.scope_label();
         let mut out = format!(
-            "rpr · {} · diff vs {} · {} ranges in {} files\n",
+            "rpr · {} · {scope} · {} ranges in {} files\n",
             self.engine,
-            self.base,
             self.ranges.len(),
             files.len()
         );
         // `write!` into a String cannot fail.
         if self.nothing_to_mutate {
-            let _ = writeln!(out, "nothing to mutate in diff vs {}", self.base);
+            let _ = writeln!(out, "nothing to mutate in {scope}");
         } else {
             let score = self
                 .score
@@ -166,6 +180,8 @@ impl Summary {
 #[derive(Serialize, Debug)]
 pub struct RunRecord<'a> {
     pub run_id: &'a str,
+    /// `diff` (`--diff`) or `all` (`--all`).
+    pub scope: &'static str,
     pub git: &'a GitFacts,
     pub engine: &'a str,
     pub engine_version: Option<&'a str>,
@@ -192,6 +208,7 @@ impl<'a> RunRecord<'a> {
     ) -> Self {
         RunRecord {
             run_id: &s.run_id,
+            scope: s.scope_mode(),
             git,
             engine: &s.engine,
             engine_version,
@@ -288,7 +305,7 @@ mod tests {
             "1793640000-4242".into(),
             "/r/.git/reapr/runs/1793640000-4242".into(),
             "stryker",
-            "origin/main".into(),
+            Some("origin/main".into()),
             vec![
                 range("src/a.ts", 1, 3),
                 range("src/a.ts", 10, 10),
@@ -423,6 +440,7 @@ run: /r/.git/reapr/runs/1793640000-4242
             v,
             serde_json::json!({
                 "run_id": "1793640000-4242",
+                "scope": "diff",
                 "git": {
                     "head_sha": "bbbb", "base": "origin/main", "merge_base_sha": "aaaa",
                     "commits": [{"sha": "bbbb", "author_email": "dev@example.com",
@@ -450,6 +468,35 @@ run: /r/.git/reapr/runs/1793640000-4242
                 "warnings": ["consider disableBail: true"],
                 "resources": {"cpu_user_ms": 250000, "cpu_sys_ms": 30000, "max_rss_kb": 812000},
             })
+        );
+    }
+
+    #[test]
+    fn all_files_scope() {
+        let mut s = summary(outcome(mixed(), false), None);
+        s.base = None;
+        let human = s.render_human();
+        assert!(
+            human.starts_with("rpr · stryker · all files · 3 ranges in 2 files\n"),
+            "{human}"
+        );
+        let v: serde_json::Value = serde_json::from_str(&s.to_json()).unwrap();
+        assert_eq!(v["base"], serde_json::Value::Null);
+        let (git, env) = (GitFacts::default(), Environment::detect());
+        let r = RunRecord::new(&s, &git, None, "2026-11-02T17:20:00Z", &env);
+        assert_eq!(serde_json::to_value(&r).unwrap()["scope"], "all");
+
+        let empty = RunOutcome {
+            report: None,
+            engine_gate_failed: false,
+            warnings: vec![],
+            resources: None,
+        };
+        let mut s = summary(empty, None);
+        s.base = None;
+        assert!(
+            s.render_human()
+                .contains("\nnothing to mutate in all files\n")
         );
     }
 

@@ -30,7 +30,7 @@
       "id": 2,
       "name": "no-config",
       "prompt": "can you run mutation testing on my branch and improve the tests where they're weak? base is main",
-      "expected_output": "Detects that there is no Stryker config (rpr exits 2 or the agent checks first), stops, and tells the human to create one with `npx stryker init`. Does not create or edit any engine config and does not write tests without mutation evidence.",
+      "expected_output": "Detects that there is no Stryker config (rpr exits 2 or the agent checks first), stops, hands off to /reapr:setup, and tells the human to create one with `npx stryker init`. Does not create or edit any engine config and does not write tests without mutation evidence.",
       "files": [
         "evals/files/build-fixture.sh"
       ],

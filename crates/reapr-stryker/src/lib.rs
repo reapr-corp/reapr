@@ -454,6 +454,15 @@ mod tests {
         assert_eq!(StrykerAdapter.detect(dir.path()).await.unwrap(), None);
     }
 
+    #[tokio::test]
+    async fn detect_unreadable_package_json_is_an_io_error() {
+        // A package.json that exists but cannot be read is an error, not "no Stryker here".
+        let dir = tempfile::tempdir().unwrap();
+        fs::create_dir(dir.path().join("package.json")).unwrap();
+        let err = StrykerAdapter.detect(dir.path()).await.unwrap_err();
+        assert!(matches!(err, AdapterError::Io { .. }), "{err:?}");
+    }
+
     // ---- wrapper ----
 
     #[test]
@@ -627,7 +636,7 @@ mod tests {
             .unwrap()
     }
 
-    const BAIL_WARNING: &str = "vitest >= 4 with bail can report killed mutants as survived (observed: 98.0 vs 87.8 on the same code); consider disableBail: true";
+    const BAIL_WARNING: &str = "vitest >= 4 with bail can report killed mutants as survived (observed: 87.8% with bail vs 98.0% with disableBail on the same code); consider disableBail: true";
 
     #[tokio::test]
     async fn plan_intersects_with_mjs_mutate_in_stryker_order() {
@@ -884,6 +893,127 @@ mod tests {
                 .join(".reapr/runs/1/stryker.wrapper.mjs")
                 .exists()
         );
+    }
+
+    /// [`project_with_minimatch`] with `mutate: ['src/**']` and a fake `stryker` bin, which
+    /// `npx --no-install` runs from the project's `node_modules/.bin`. `script` is its sh body; the
+    /// wrapper path is `$2`, so the report path is `"$(dirname "$2")/mutation.json"`.
+    #[cfg(unix)]
+    fn project_with_fake_stryker(script: &str) -> Option<tempfile::TempDir> {
+        use std::os::unix::fs::PermissionsExt;
+        let dir = project_with_minimatch()?;
+        write(
+            &dir.path().join("stryker.config.mjs"),
+            "export default { mutate: ['src/**'] };",
+        );
+        write(&dir.path().join("src/a.ts"), "export const a = 1;\n");
+        let bin = dir.path().join("node_modules/.bin/stryker");
+        write(&bin, &format!("#!/bin/sh\n{script}\n"));
+        fs::set_permissions(&bin, fs::Permissions::from_mode(0o755)).unwrap();
+        fs::create_dir_all(dir.path().join(".reapr/runs/1")).unwrap();
+        Some(dir)
+    }
+
+    /// A v2 report for `src/a.ts` with one mutant per line in `lines`, written by the fake stryker.
+    #[cfg(unix)]
+    fn write_report_script(lines: &[u32]) -> String {
+        let mutants: Vec<String> = lines
+            .iter()
+            .map(|l| {
+                format!(
+                    r#"{{ "id": "{l}", "mutatorName": "M", "status": "Killed",
+                        "location": {{ "start": {{ "line": {l}, "column": 1 }}, "end": {{ "line": {l}, "column": 2 }} }} }}"#
+                )
+            })
+            .collect();
+        format!(
+            "cat > \"$(dirname \"$2\")/mutation.json\" <<'EOF'\n{{ \"files\": {{ \"src/a.ts\": {{ \"mutants\": [{}] }} }} }}\nEOF",
+            mutants.join(", ")
+        )
+    }
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn run_parses_the_report_stryker_wrote() {
+        let Some(dir) = project_with_fake_stryker(&write_report_script(&[1])) else {
+            return;
+        };
+        let out = StrykerAdapter
+            .run(
+                &ctx(dir.path(), Some("stryker.config.mjs")),
+                &shard(vec![range("src/a.ts", 1, 1)]),
+            )
+            .await
+            .unwrap();
+        let report = out.report.unwrap();
+        assert_eq!(report.results.len(), 1);
+        assert_eq!(report.results[0].mutant.file, Path::new("src/a.ts"));
+        assert!(!out.engine_gate_failed);
+        assert_eq!(out.warnings, Vec::<String>::new());
+    }
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn run_excludes_results_outside_the_scope_with_a_warning() {
+        // Line 5 is what Stryker's `incremental` carries over from an earlier run.
+        let Some(dir) = project_with_fake_stryker(&write_report_script(&[1, 5])) else {
+            return;
+        };
+        let out = StrykerAdapter
+            .run(
+                &ctx(dir.path(), Some("stryker.config.mjs")),
+                &shard(vec![range("src/a.ts", 1, 1)]),
+            )
+            .await
+            .unwrap();
+        assert_eq!(out.report.unwrap().results.len(), 1);
+        // The count is the contract (docs/design/phase-1.md), not the wording.
+        assert_eq!(out.warnings.len(), 1, "{:?}", out.warnings);
+        assert!(
+            out.warnings[0].contains("carried 1 results from outside the diff scope"),
+            "{}",
+            out.warnings[0]
+        );
+    }
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn run_without_a_report_is_a_process_error() {
+        let Some(dir) = project_with_fake_stryker("exit 0") else {
+            return;
+        };
+        let err = StrykerAdapter
+            .run(
+                &ctx(dir.path(), Some("stryker.config.mjs")),
+                &shard(vec![range("src/a.ts", 1, 1)]),
+            )
+            .await
+            .unwrap_err();
+        match err {
+            AdapterError::Process { code, detail, .. } => {
+                assert_eq!(code, Some(0));
+                assert!(detail.contains("wrote no report"), "{detail}");
+            }
+            other => panic!("expected Process, got {other:?}"),
+        }
+    }
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn run_with_an_unreadable_report_is_an_io_error() {
+        // The report path exists but is a directory: an I/O error, not "Stryker wrote no report".
+        let Some(dir) = project_with_fake_stryker("mkdir \"$(dirname \"$2\")/mutation.json\"")
+        else {
+            return;
+        };
+        let err = StrykerAdapter
+            .run(
+                &ctx(dir.path(), Some("stryker.config.mjs")),
+                &shard(vec![range("src/a.ts", 1, 1)]),
+            )
+            .await
+            .unwrap_err();
+        assert!(matches!(err, AdapterError::Io { .. }), "{err:?}");
     }
 
     #[tokio::test]

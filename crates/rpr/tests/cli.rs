@@ -168,6 +168,83 @@ fn nothing_to_mutate_writes_run_record_in_the_git_dir() {
     );
 }
 
+#[test]
+fn all_scopes_every_tracked_text_file_in_full() {
+    let tmp = tempfile::tempdir().unwrap();
+    let root = dunce::canonicalize(tmp.path()).unwrap();
+    std::fs::create_dir(root.join("sub")).unwrap();
+    for (file, content) in [
+        ("a.txt", "1\n2\n3\n"),
+        // A last line without `\n` still counts.
+        ("b.txt", "x\ny"),
+        ("empty.txt", ""),
+        ("bin.dat", "a\0b\n"),
+        ("gone.txt", "g\n"),
+        ("sub/c.txt", "c\n"),
+    ] {
+        std::fs::write(root.join(file), content).unwrap();
+    }
+    git(&root, &["init", "-q"]);
+    git(&root, &["add", "-A"]);
+    git(&root, &["commit", "-q", "-m", "one"]);
+    // Untracked and deleted files are not in scope.
+    std::fs::write(root.join("untracked.txt"), "u\n").unwrap();
+    std::fs::remove_file(root.join("gone.txt")).unwrap();
+
+    // No `.rs` file in scope: cargo-mutants has nothing to mutate and is not started.
+    let run = |project: &std::path::Path, json: bool| {
+        let mut args = vec!["run", "--all", "--engine", "cargo-mutants"];
+        args.extend(["--project", project.to_str().unwrap()]);
+        if json {
+            args.push("--json");
+        }
+        let out = rpr(&args);
+        assert_eq!(
+            out.status.code(),
+            Some(0),
+            "{}",
+            String::from_utf8_lossy(&out.stderr)
+        );
+        out
+    };
+    let v: serde_json::Value = serde_json::from_slice(&run(&root, true).stdout).unwrap();
+    assert_eq!(v["base"], serde_json::Value::Null);
+    assert_eq!(
+        v["ranges"],
+        serde_json::json!([
+            {"path": "a.txt", "start": 1, "end": 3},
+            {"path": "b.txt", "start": 1, "end": 2},
+            {"path": "sub/c.txt", "start": 1, "end": 1},
+        ])
+    );
+    let run_dir = std::path::PathBuf::from(v["run_dir"].as_str().unwrap());
+    let record: serde_json::Value =
+        serde_json::from_str(&std::fs::read_to_string(run_dir.join("run.json")).unwrap()).unwrap();
+    assert_eq!(record["scope"], "all");
+    assert_eq!(record["git"]["base"], "HEAD");
+    assert_eq!(record["git"]["commits"], serde_json::json!([]));
+
+    // Paths are relative to the project dir, and only its files count.
+    let v: serde_json::Value =
+        serde_json::from_slice(&run(&root.join("sub"), true).stdout).unwrap();
+    assert_eq!(
+        v["ranges"],
+        serde_json::json!([{"path": "c.txt", "start": 1, "end": 1}])
+    );
+
+    let human = String::from_utf8(run(&root, false).stdout).unwrap();
+    let mut lines = human.lines();
+    assert_eq!(
+        lines.next(),
+        Some("rpr · cargo-mutants · all files · 3 ranges in 3 files")
+    );
+    assert_eq!(lines.next(), Some("nothing to mutate in all files"));
+
+    let out = rpr(&["run", "--all", "--diff", "HEAD", "--json"]);
+    assert_eq!(out.status.code(), Some(2));
+    assert!(json_error(&out).contains("cannot be used with"));
+}
+
 /// Exactly one JSON document on stdout, on every path.
 /// A git repo with one commit holding `files`.
 fn repo(files: &[&str]) -> (tempfile::TempDir, std::path::PathBuf) {
@@ -362,6 +439,7 @@ fn telemetry_debug_prints_the_payload_on_stderr_only() {
     let props = &p["properties"];
     assert_eq!(props["outcome"], "nothing_to_mutate");
     assert_eq!(props["flags"], serde_json::json!(["json", "project"]));
+    assert_eq!(props["scope_mode"], "diff");
     assert_eq!(props["engine"], "stryker");
     assert_eq!(props["ranges_bucket"], "0");
     assert_eq!(props["$process_person_profile"], false);
@@ -386,6 +464,27 @@ fn telemetry_debug_prints_the_payload_on_stderr_only() {
     let w: serde_json::Value = serde_json::from_slice(&plain.stdout).unwrap();
     let keys = |v: &serde_json::Value| v.as_object().unwrap().keys().cloned().collect::<Vec<_>>();
     assert_eq!(keys(&v), keys(&w));
+
+    // `--all` is listed as a flag and sets the scope mode.
+    let all = [
+        "run",
+        "--all",
+        "--engine",
+        "cargo-mutants",
+        "--project",
+        project,
+        "--json",
+    ];
+    let out = rpr_with_telemetry(&all, &config_home, true);
+    assert_eq!(out.status.code(), Some(0));
+    let stderr = String::from_utf8_lossy(&out.stderr);
+    let json = stderr.lines().find(|l| l.starts_with('{')).unwrap();
+    let p: serde_json::Value = serde_json::from_str(json).unwrap();
+    assert_eq!(
+        p["properties"]["flags"],
+        serde_json::json!(["all", "json", "engine", "project"])
+    );
+    assert_eq!(p["properties"]["scope_mode"], "all");
 
     // Errors after argument parsing send an error kind, never the message.
     let args = ["run", "--diff", "HEAD", "--project", "/no/such/dir"];

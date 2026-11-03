@@ -325,6 +325,7 @@ fn invoked_by(env: Env) -> Option<&'static str> {
     match env("RPR_INVOKED_BY")?.as_str() {
         "" => None,
         "mutation-audit" => Some("mutation-audit"),
+        "setup" => Some("setup"),
         _ => Some("other"),
     }
 }
@@ -421,6 +422,8 @@ pub struct Properties {
     project_id: Option<String>,
     cpu_count: Option<usize>,
     flags: Vec<&'static str>,
+    /// `diff` (`--diff`) or `all` (`--all`).
+    scope_mode: &'static str,
     engine: Option<String>,
     engine_version: Option<String>,
     outcome: Outcome,
@@ -477,6 +480,11 @@ impl Properties {
             },
             project_id: None,
             cpu_count: std::thread::available_parallelism().ok().map(|n| n.get()),
+            scope_mode: if flags.contains(&"all") {
+                "all"
+            } else {
+                "diff"
+            },
             flags,
             engine: None,
             engine_version: None,
@@ -1048,7 +1056,7 @@ mod tests {
     #[test]
     fn warning_kinds_and_carried_over() {
         let w = vec![
-            "vitest >= 4 with bail can report killed mutants as survived (observed: 98.0 vs 87.8 on the same code); consider disableBail: true".to_owned(),
+            "vitest >= 4 with bail can report killed mutants as survived (observed: 87.8% with bail vs 98.0% with disableBail on the same code); consider disableBail: true".to_owned(),
             "stryker report carried 7 results from outside the diff scope (incremental); excluded from the diff score".to_owned(),
             "git metadata: `git rev-parse HEAD` failed (exit code Some(128)): fatal".to_owned(),
             "cargo-mutants 28.0.0 is outside the supported range >=26.2.0, <28.0.0; its results may be misread".to_owned(),
@@ -1104,7 +1112,7 @@ mod tests {
             "1793640000-4242".into(),
             "/home/me/secret-repo/.git/reapr/runs/1793640000-4242".into(),
             "stryker",
-            format!("origin/feature/me@example.com-{sha}"),
+            Some(format!("origin/feature/me@example.com-{sha}")),
             vec![
                 FileRange { path: "packages/secret/src/a.ts".into(), start: 1, end: 3 },
                 FileRange { path: "packages/secret/src/a.ts".into(), start: 9, end: 9 },
@@ -1236,6 +1244,7 @@ mod tests {
                 "project_id": null,
                 "cpu_count": std::thread::available_parallelism().ok().map(|n| n.get()),
                 "flags": ["json", "min_score", "config", "project"],
+                "scope_mode": "diff",
                 "engine": "stryker",
                 "engine_version": "9.6.1",
                 "outcome": "passed",
@@ -1277,7 +1286,7 @@ mod tests {
             "r".into(),
             "/r".into(),
             "stryker",
-            "main".into(),
+            Some("main".into()),
             vec![],
             RunOutcome {
                 report: None,
@@ -1464,6 +1473,7 @@ mod tests {
         assert_eq!(invoked_by(&env_of(&[])), None);
         assert_eq!(i(""), None);
         assert_eq!(i("mutation-audit"), Some("mutation-audit"));
+        assert_eq!(i("setup"), Some("setup"));
         assert_eq!(i("my-script /home/me"), Some("other"));
         let s = |v: &str| session_id(&env_of(&[("RPR_SESSION_ID", v)]));
         let id = new_uuid();

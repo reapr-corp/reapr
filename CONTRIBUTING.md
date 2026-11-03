@@ -63,6 +63,11 @@ On pull requests, the `mutation` job dogfoods Reapr: it builds the pull request'
 `rpr run --diff origin/<base> --engine cargo-mutants --min-score 80` on the repository. A change whose new code
 the tests do not protect fails it; the survivors are listed in the job log.
 
+Some surviving mutants are equivalent: no input the code can receive tells them apart. The accepted ones are
+listed, one line each with the input-domain argument, in
+[docs/mutation/equivalent-mutants.md](docs/mutation/equivalent-mutants.md). Add a mutant there only with the
+argument and the maintainer's OK; never with a production change made just to kill it.
+
 ## Code rules
 
 - **No `unwrap` or `expect` outside tests.** Handle the error or return it.
