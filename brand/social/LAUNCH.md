@@ -9,7 +9,7 @@
 | 38.4 s → 12.5 s, same results, after adding `.turbo` to `ignorePatterns` | Same file, run E against B0 |
 | Diff score 100% where Stryker reported 87.0% package-wide | README, Measurements |
 | 365 mutants, 287 killed, 46 survived, 32 unviable, 86.2% | cargo-mutants on Reapr's own Rust code |
-| 100% of rule checks pass with the skill, 57% without | The `mutation-audit` skill eval |
+| 21 of 21 rule checks pass with the skill, 14 of 21 without | The `mutation-audit` skill evals (4 evals, PR #14) |
 
 Images: `launch-1-problem.png` to `launch-4-number.png` go with the X thread in that order. `card-*.png` are
 share cards (1200×630) for links and replies.
@@ -42,7 +42,7 @@ One ignore pattern: 38.4 s → 12.5 s, same results. Reapr on the same diff: {{S
 `rpr run --diff origin/main --json` lists every survivor with file, line, mutator and replacement.
 
 The `/reapr:mutation-audit` agent skill writes one test per survivor, then runs Reapr again to confirm the
-mutant is killed. In our eval, 100% of rule checks passed with the skill and 57% without it.
+mutant is killed. In our evals, 21 of 21 rule checks passed with the skill and 14 of 21 without it.
 
 **5/6** (image: `launch-4-number.png`)
 
