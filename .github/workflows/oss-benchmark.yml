@@ -90,7 +90,7 @@ jobs:
           python3 bench/oss/suite.py scan --repo-id "$REPO_ID" --n "$PRS" --min-survivor-prs "$MIN_SURVIVOR_PRS"
           --budget-min 150 --out "out/scan-$REPO_ID.json"
       - if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: scan-${{ matrix.repo.id }}
           path: |
@@ -147,7 +147,7 @@ jobs:
           python3 bench/oss/suite.py run --repo-id "$REPO_ID" --pr "$PR" --base "$BASE" --head "$HEAD_SHA"
           --scenario A --rep "$REP" --out "out/r-A-$REPO_ID-$PR-$REP.json"
       - if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: r-A-${{ matrix.repo }}-${{ matrix.pr }}-${{ matrix.rep }}
           path: out/r-*.json
@@ -181,7 +181,7 @@ jobs:
           python3 bench/oss/suite.py run --repo-id "$REPO_ID" --pr "$PR" --base "$BASE" --head "$HEAD_SHA"
           --scenario C --rep "$REP" --out "out/r-C-$REPO_ID-$PR-$REP.json"
       - if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: r-C-${{ matrix.repo }}-${{ matrix.pr }}-${{ matrix.rep }}
           path: out/r-*.json
@@ -211,11 +211,11 @@ jobs:
           python3 bench/oss/suite.py run --repo-id "$REPO_ID" --pr "$PR" --base "$BASE" --head "$HEAD_SHA"
           --scenario seed --out "out/r-seed-$REPO_ID-$PR-1.json"
       - if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: r-seed-${{ matrix.repo }}-${{ matrix.pr }}
           path: out/r-*.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: seed-${{ matrix.repo }}-${{ matrix.pr }}
           path: out/incremental.json
@@ -253,7 +253,7 @@ jobs:
           python3 bench/oss/suite.py run --repo-id "$REPO_ID" --pr "$PR" --base "$BASE" --head "$HEAD_SHA"
           --scenario B --rep "$REP" --seed seed/incremental.json --out "out/r-B-$REPO_ID-$PR-$REP.json"
       - if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: r-B-${{ matrix.repo }}-${{ matrix.pr }}-${{ matrix.rep }}
           path: out/r-*.json
@@ -283,7 +283,7 @@ jobs:
           python3 bench/oss/suite.py aggregate --results results --scans scans --jobs jobs.json --out summary
           cat summary/summary.md >> "$GITHUB_STEP_SUMMARY"
           cp jobs.json summary/
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: oss-benchmark-summary
           path: summary
