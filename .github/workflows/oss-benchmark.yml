@@ -110,7 +110,7 @@ jobs:
       c: ${{ steps.plan.outputs.c }}
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: scan-*
           path: scans
@@ -238,7 +238,7 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
       # A missing seed is recorded as an error result by the harness, not as a missing run.
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         continue-on-error: true
         with:
           name: seed-${{ matrix.repo }}-${{ matrix.pr }}
@@ -265,12 +265,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: r-*
           path: results
           merge-multiple: true
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: scan-*
           path: scans
